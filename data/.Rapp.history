@@ -1,0 +1,4 @@
+load("/Users/Japal/Dropbox/EXCHANGE/Rrepo/zCompositions_1.0.0/data/Pigs.rda")
+ls
+ls()
+Pigs

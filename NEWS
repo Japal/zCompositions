@@ -1,0 +1,56 @@
+RELEASE HISTORY OF THE "zCompositions" PACKAGE
+==============================================
+
+CHANGES IN zCompositions VERSION 1.0.3 [2014-09]:
+----------------------------------------------------
+
+NEW FEATURES
+
+* Support for multiple limits of detection/threshold values by component.
+* Choice for storing multiply imputed data sets in lrDA function.
+* multKM: new non-parametric imputation method added.
+* splineKM: visualisation of Kaplan-Meier and cubic spline smoothed empirical cumulative distribution function (helper function for multKM).
+* New example data set included (Water).
+
+MODIFICATIONS
+
+* Alternative imputation by multRepl in lrEM and lrDA of censoring patterns with only one observed component.
+
+* Fixed problem that caused error when a censoring pattern consisted of a single sample.
+
+* Improved documentation.
+
+CHANGES IN zCompositions VERSION 1.0.1 [2014-06]:
+----------------------------------------------------
+
+* Minor bugs in error messages fixed.
+
+* cmultRepl: label argument added (default label = 0).
+
+CHANGES IN zCompositions VERSION 1.0.0 [2014-05]:
+----------------------------------------------------
+
+NEW FEATURES
+
+* cmultRepl function: bayesian-multiplicative replacement of compositional count zeros included.
+
+* lrDA function: data augmentation algorithm, including multiple imputation, to replace left-censored values.
+
+* zPatterns function: summarises the patterns of unobserved values (censored, nondetects, ...) in a data set and generates a vector of labels.
+
+MODIFICATIONS
+
+* General revision and optimisation. Documentation improvements.
+
+* multLN: parameter estimates based on the normal distribution on the positive real line. Random imputation based on truncated normal instead of rejection method.
+
+* Re-scaling to preserve ratios that leaves absolute observed values unaltered when working with non-closed data now implemented for all the methods (continuous data). 
+
+* The replacement methods include an argument 'label' allowing the user to enter the label (special character, number, ...) denoting unobserved value in a data set.
+
+* Error handling introduced.
+
+* New lrEM function: replaces previous alrEM function and implements both ordinary and robust EM-based imputation methods. New arguments allow to specify the method to obtain initial estimates and the convergence criterion.
+
+
+
