@@ -1,0 +1,11 @@
+citHeader("To cite zCompositions in publications, please use:")
+
+citEntry(entry = "Article", 
+    author = personList(as.person("J Palarea-Albaladejo"), 
+        as.person("JA Martin-Fernandez")), title = "zCompositions -- R package for multivariate imputation of left-censored data under a compositional approach", 
+    journal = "Chemometrics and Intelligent Laboratory Systems", year = 2015, 
+    volume = 143, pages = "85--96", 
+    url = "http://dx.doi.org/10.1016/j.chemolab.2015.02.019", 
+    textVersion = paste("Palarea-Albaladejo J. and Martin-Fernandez J.A. (2015)", 
+        "zCompositions -- R package for multivariate imputation of left-censored data under a compositional approach.", 
+        "Chemom. Intell. Lab. Syst. 143:85--96"))
