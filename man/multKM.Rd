@@ -35,6 +35,12 @@ The level of smoothing of the estimated spline can be controlled by the \code{n.
 A \code{\link{data.frame}} object containing the imputed compositional data set.
 }
 
+\references{
+Palarea-Albaladejo J. and Martin-Fernandez J.A. zCompositions -- R package
+for multivariate imputation of left-censored data under a compositional approach.
+Chemometrics and Intelligent Laboratory Systems 2015; 143: 85-96.
+}
+
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{

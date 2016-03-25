@@ -49,7 +49,7 @@ By default (\code{output="prop"}) the function returns an imputed data set (\cod
 When \code{correct=TRUE}, the number of times, if any, an imputed proportion was corrected to fall below the minimum estimated multinomial probability is printed.
 }
 \references{
-Martin-Fernandez JA, Hron K, Templ M, Filzmoser P, Palarea-Albaladejo J. Bayesian-multiplicative treatment of count zeros in compositional data sets. Statistical Modelling 2014; \emph{to appear}.
+Martin-Fernandez, J.A., Hron, K., Templ, M., Filzmoser, P., Palarea-Albaladejo, J. Bayesian-multiplicative treatment of count zeros in compositional data sets. Statistical Modelling 2015; 15 (2): 134-158.
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
