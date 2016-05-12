@@ -1,4 +1,9 @@
 import("MASS")
 import("NADA")
 import("truncnorm")
+importFrom("graphics", "abline", "axis", "barplot", "box", "grid",
+     "image", "layout", "legend", "mtext", "par", "plot.new",
+     "text")
+importFrom("stats", "approxfun", "cov", "dnorm", "pnorm", "rWishart",
+     "runif", "smooth.spline")
 exportPattern("^[[:alpha:]]+")

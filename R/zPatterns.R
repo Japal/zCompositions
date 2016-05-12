@@ -1,11 +1,31 @@
 zPatterns <- function(X,label=NULL,plot=TRUE,
                       axis.labels=c("Component","Pattern number"),
                       bar.colors=c("red3","red3"), bar.labels=FALSE,
+                      show.means=FALSE,round.means=2,cex.means=1,
+                      type.means=c("cgm","am"),
                       cell.colors=c("dodgerblue","white"), cell.labels=c(label,paste("No",label)),
                       cex.axis=1.1, grid.color="black",
                       grid.lty="dotted", legend=TRUE, ...){
   
-  plot.patterns <- function(a, ...)
+  cgm <- function(X, round.means = round.means)
+  {
+    
+    ms <- apply(X,2,function(x) exp(mean(log(x))))
+    ms[is.na(ms)] <- 0
+    round(ms/sum(ms)*100,round.means)
+  
+  }
+  
+  am <- function(X, round.means = round.means)
+  {
+    
+    ms <- apply(X,2,function(x) mean(x))
+    round(ms,round.means)
+    
+  }
+  
+  plot.patterns <- function(a, show.means = show.means, round.means = round.means,
+                            cex.means=cex.means, X = X, pat = pat.ID, ...)
   {
     
     zones <- matrix(c(2,4,1,3), ncol=2, byrow=TRUE)
@@ -20,6 +40,29 @@ zPatterns <- function(X,label=NULL,plot=TRUE,
     axis(side = 2,at = seq(1,nrow(a),by=1),labels=rownames(a),las=2,tck=0,cex.axis=cex.axis)
     box()
     grid(ncol(a),nrow(a),col=grid.color,lty=grid.lty)
+    if (show.means == TRUE){
+      if (type.means == "cgm"){
+      cgmp <- by(X,pat.ID,cgm,round.means=round.means)
+      cgmp <- do.call(rbind,cgmp)
+      cgmp <- cgmp[nrow(a):1,]
+      cgmp[cgmp==0] <- NA
+      for (i in 1:nrow(a)){
+        for (j in 1:ncol(a)){
+          text(j,i,label=cgmp[i,j],cex=cex.means)
+        }
+      }
+      }
+      if (type.means == "am"){
+      amp <- by(X,pat.ID,am,round.means=round.means)
+      amp <- do.call(rbind,amp)
+      amp <- amp[nrow(a):1,]
+      for (i in 1:nrow(a)){
+        for (j in 1:ncol(a)){
+          text(j,i,label=amp[i,j],cex=cex.means)
+        }
+      }
+      }
+    }
     par(mar=c(0,3.25,1,0.75))
     a <- barplot(as.vector(prop_col),axes=F,col=bar.colors[1],xaxs="i",
                  ylim=c(0,max(as.vector(prop_col)+0.2*max(as.vector(prop_col)))))
@@ -37,6 +80,8 @@ zPatterns <- function(X,label=NULL,plot=TRUE,
            pt.bg=cell.colors,pt.cex=2,cex=1.1)}
   } 
   
+  type.means <- match.arg(type.means)
+    
   if (is.vector(X)) stop("X must be a matrix or data.frame class object")
   if (is.null(label)) stop("A value for label must be given")
   if (!is.na(label)){
@@ -54,7 +99,6 @@ zPatterns <- function(X,label=NULL,plot=TRUE,
   n <- nrow(X); p <- ncol(X)
   X[X==label] <- NA
   
-
   miss <- as.data.frame(is.na(X)*1)
 
   prop_col <- round(colSums(miss)/n*100,2)
@@ -75,7 +119,8 @@ zPatterns <- function(X,label=NULL,plot=TRUE,
   tab <- tab[match(names(pat.freq),tab$pat),1:p]
   tab.num <- tab.num[match(names(pat.freq),tab.num$pat),1:p]
   rownames(tab.num) <- 1:nrow(tab.num)
-  if (plot==TRUE) plot.patterns(tab.num)
+  if (plot==TRUE) plot.patterns(tab.num, show.means=show.means,round.means=round.means,
+                                cex.means=cex.means,X = X, pat = pat.ID, ...)
   tab <- cbind(Patt.ID=1:length(levels(pat.ID)),
                tab,
                No.Unobs=rowSums(tab[,1:p]=="+"),

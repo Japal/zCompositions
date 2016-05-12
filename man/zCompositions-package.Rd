@@ -13,7 +13,7 @@ Following compositional data analysis principles, this package implements simple
 Package: \tab zCompositions\cr
 Type: \tab Package\cr
 Version: \tab 1.0.3-1\cr
-Date: \tab 2016-03\cr
+Date: \tab 2016-04-14\cr
 License: \tab GPL (>= 2)\cr
 }
 }
