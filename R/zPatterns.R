@@ -1,11 +1,11 @@
 zPatterns <- function(X,label=NULL,plot=TRUE,
                       axis.labels=c("Component","Pattern number"),
                       bar.colors=c("red3","red3"), bar.labels=FALSE,
-                      show.means=FALSE,round.means=2,cex.means=1,
+                      show.means=FALSE,round.means=2, cex.means=1,
                       type.means=c("cgm","am"),
                       cell.colors=c("dodgerblue","white"), cell.labels=c(label,paste("No",label)),
                       cex.axis=1.1, grid.color="black",
-                      grid.lty="dotted", legend=TRUE, ...){
+                      grid.lty="dotted", legend=TRUE, show.table=TRUE, ...){
   
   cgm <- function(X, round.means = round.means)
   {
@@ -126,14 +126,15 @@ zPatterns <- function(X,label=NULL,plot=TRUE,
                No.Unobs=rowSums(tab[,1:p]=="+"),
                Patt.Freq=as.vector(pat.freq),
                Percent=pat.freq.perc)
-
-  cat("Patterns ('+' means ",cell.labels[1],", '-' means ",cell.labels[2],") \n\n",sep="")
-  print(tab,row.names=FALSE)
-  cat("\n")
-  cat("Percentage cases by component \n")
-  print(prop_col)
-  cat("\n")
-  cat(paste("Overall percentage cases: ",prop))
   
+  if (show.table==TRUE){
+    cat("Patterns ('+' means ",cell.labels[1],", '-' means ",cell.labels[2],") \n\n",sep="")
+    print(tab,row.names=FALSE)
+    cat("\n")
+    cat("Percentage cases by component \n")
+    print(prop_col)
+    cat("\n")
+    cat(paste("Overall percentage cases: ",prop))
+  }
   invisible(pat.ID)
 }
