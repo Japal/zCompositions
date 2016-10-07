@@ -9,4 +9,4 @@ Depends: R (>= 2.14.0), MASS, NADA, truncnorm
 ByteCompile: yes
 Description: Implements principled methods to impute multivariate left-censored data and zeros in compositional data sets.
 License: GPL (>= 2)
-Repository: CRAN, http://www.compositionaldata.com
+Repository: CRAN, Github
