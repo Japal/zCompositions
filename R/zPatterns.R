@@ -5,7 +5,7 @@ zPatterns <- function(X,label=NULL,plot=TRUE,
                       type.means=c("cgm","am"),
                       cell.colors=c("dodgerblue","white"), cell.labels=c(label,paste("No",label)),
                       cex.axis=1.1, grid.color="black",
-                      grid.lty="dotted", legend=TRUE, show.table=TRUE, ...){
+                      grid.lty="dotted", legend=TRUE, suppress.print=FALSE, ...){
   
   cgm <- function(X, round.means = round.means)
   {
@@ -127,7 +127,7 @@ zPatterns <- function(X,label=NULL,plot=TRUE,
                Patt.Freq=as.vector(pat.freq),
                Percent=pat.freq.perc)
   
-  if (show.table==TRUE){
+  if (suppress.print==FALSE){
     cat("Patterns ('+' means ",cell.labels[1],", '-' means ",cell.labels[2],") \n\n",sep="")
     print(tab,row.names=FALSE)
     cat("\n")

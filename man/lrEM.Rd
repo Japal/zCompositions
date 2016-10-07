@@ -36,7 +36,7 @@ Maximum number of iterations for the EM algorithm (default = 50).
 If \code{rob=TRUE}, maximum number of iterations for the embedded robust regression estimation (default = 150; see \code{\link{rlm}} in \code{MASS} package for details).
 }
   \item{suppress.print}{
-Suppress printing of number of iterations and messages (\code{suppress.print=FALSE}, default).
+Suppress printed feedback (\code{suppress.print=FALSE}, default).
 }
 }
 

@@ -15,7 +15,7 @@ zPatterns(X, label = NULL, plot = TRUE,
              cell.colors = c("dodgerblue", "white"),
              cell.labels = c(label, paste("No", label)), cex.axis = 1.1,
              grid.color = "black", grid.lty = "dotted",
-             legend = TRUE, show.table = TRUE, ...)
+             legend = TRUE, suppress.print = FALSE, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -36,13 +36,13 @@ Data set (\code{\link{matrix}} or \code{\link{data.frame}} class).}
   \item{grid.color}{Color of the grid lines (default \code{"black"}).}
   \item{grid.lty}{Style of the grid lines (default \code{"dotted"}, see \code{lty} in \code{\link{par}}).}
   \item{legend}{Logical value indicating if a legend must be included (default \code{legend=TRUE}).}
-  \item{show.table}{Logical value indicating whether a summary table is printed or not (default \code{show.table=TRUE}).}
+  \item{suppress.print}{Suppress printed feedback (default \code{suppress.print=FALSE}).}
   \item{...}{Other graphical parameters.}
 }
 \value{
 Vector of pattern IDs corresponding to each row of \code{X}.
 
-It also prints a summary table (\code{show.table=TRUE}) showing zero or non-observation patterns and some summary statistics: number of zero/unobserved components by pattern (No.Unobs), pattern frequency (absolute and percentage), percentage zero/unobserved values by component (column) and overall percentage of zero/unobserved values in the data set. The symbols + and - indicate, respectively, zero/unobserved and observed components within each pattern. A graphical version of the summary table is returned including barplots on the margins displaying percentage zero/unobserved and percentage compositional geometric means by pattern (if \code{show.means=TRUE}). Note that the posibility of computing ordinary arithmetic means (\code{type.means="am"}) is also included to give the function a broader use, however this measure should not be used if the data are compositional.
+It also prints a summary table (if \code{suppress.print=FALSE}) showing zero or non-observation patterns and some summary statistics: number of zero/unobserved components by pattern (No.Unobs), pattern frequency (absolute and percentage), percentage zero/unobserved values by component (column) and overall percentage of zero/unobserved values in the data set. The symbols + and - indicate, respectively, zero/unobserved and observed components within each pattern. A graphical version of the summary table is returned including barplots on the margins displaying percentage zero/unobserved and percentage compositional geometric means by pattern (if \code{show.means=TRUE}). Note that the posibility of computing ordinary arithmetic means (\code{type.means="am"}) is also included to give the function a broader use, however this measure should not be used if the data are compositional.
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~

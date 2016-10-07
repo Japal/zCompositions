@@ -1,5 +1,7 @@
 cmultRepl <-
-function(X,label=0,method=c("GBM","SQ","BL","CZM","user"),output=c("prop", "counts"),delta = 0.65,threshold=0.5,correct=TRUE,t=NULL,s=NULL)
+function(X,label=0,method=c("GBM","SQ","BL","CZM","user"),output=c("prop", "counts"),
+         delta = 0.65,threshold=0.5,correct=TRUE,t=NULL,s=NULL,
+         suppress.print=FALSE)
   {
 
   if (is.vector(X) | is.character(X) | (nrow(X)==1)) stop("X must be a data matrix")
@@ -78,6 +80,8 @@ if (output=="counts"){
 }
 
 ifelse(output=="prop",res<-X2,res<-X)
-if ((correct==TRUE) & (corrected > 0)) {cat(paste("No. corrected values: ",corrected,"\n"))}
+if (suppress.print == FALSE){
+  if ((correct==TRUE) & (corrected > 0)) {cat(paste("No. corrected values: ",corrected,"\n"))}
+}
 return(as.data.frame(res))
 }
