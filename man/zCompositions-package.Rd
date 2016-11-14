@@ -3,17 +3,17 @@
 \alias{zCompositions}
 \docType{package}
 \title{
-Imputation of zeros and nondetects in compositional data sets
+Treatment of zeros and nondetects in compositional data sets
 }
 \description{
-Following compositional data analysis principles, this package implements simple functions to explore and replace left-censored data, such as rounded zeros or values below single or multiple limits of detection (nondetects), and count zeros.
+Following compositional data analysis principles, this package provides simple tools to explore and replace zeros and left-censored data, such as rounded zeros or values below single or multiple limits of detection (nondetects), along with zero pattern/group-wise analysis and testing procedures.
 }
 \details{
 \tabular{ll}{
 Package: \tab zCompositions\cr
 Type: \tab Package\cr
-Version: \tab 1.0.3-1\cr
-Date: \tab 2016-04-14\cr
+Version: \tab 1.1.0\cr
+Date: \tab 2016-11-14\cr
 License: \tab GPL (>= 2)\cr
 }
 }
