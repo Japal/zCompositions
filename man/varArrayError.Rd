@@ -5,7 +5,7 @@
 \title{Variation array relative error}
 \usage{
 varArrayError(X, label = 0, groups = NULL, breakdown = FALSE,
-                 suppress.print = FALSE)
+  suppress.print = FALSE)
 }
 \arguments{
 \item{X}{Compositional data set (\code{\link{matrix}} or \code{\link{data.frame}} class).}
@@ -20,19 +20,12 @@ varArrayError(X, label = 0, groups = NULL, breakdown = FALSE,
 }
 \value{
 1. SRE for each log-ratio variance and mean.
-
 2. Weighted SRE for each log-ratio variance and mean.
-
 3. Total SRE across log-ratio variances and means.
-
 4. Percentage contribution of each log-ratio to SRE in log-ratio variances and means.
-
 If \code{breakdown = TRUE}:
-
 4. SREs per group.
-
 5. Weighted SREs per group.
-
 6. Percentage contribution of each group to total SRE.
 }
 \description{

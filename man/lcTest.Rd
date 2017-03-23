@@ -4,7 +4,8 @@
 \alias{lcTest}
 \title{Log-contrast homogeneity test}
 \usage{
-lcTest(X, label = 0, groups = NULL, lc = NULL, b = 1000)
+lcTest(X, label = 0, groups = NULL, lc = NULL, method = c("parametric",
+  "nonparametric"), b = 1000)
 }
 \arguments{
 \item{X}{Compositional data set (\code{\link{matrix}} or \code{\link{data.frame}} class).}
@@ -15,20 +16,23 @@ lcTest(X, label = 0, groups = NULL, lc = NULL, b = 1000)
 
 \item{lc}{User-defined log-contrast (see details below).}
 
-\item{b}{Number of bootstrap resamples used (\code{b = 1000}, default).}
+\item{method}{Approach used for mean and variance homogeneity testing (\code{method = "parametric"}, default).}
+
+\item{b}{Number of bootstrap resamples used by permutation test (\code{b = 1000}, default).}
 }
 \value{
-Test p-values for log-contrast variances and means.
+Test p-values for log-contrast means and variances.
 }
 \description{
-This function performs tests of the homogeneity across groups of means and variances of
+This function tests for homogeneity across groups of means and variances of
 user-defined log-contrasts. Groups can be defined by either zero/unobserved data patterns or by a grouping
 factor in fully observed zero-free data sets.
 }
 \details{
-Non-parametric Kruskal-Wallis and Fligner-Killen test are used for testing homogeneity of
-means and variances respectively of the log-contrast across groups. A permutation test of homogeneity is also
-conducted based on total weighted squared relative errors (see \code{\link{varArrayTest}} for more details).
+Homogeneity of log-contrast means and variances across groups is tested using either parametric or non-parametric tests. When
+\code{method = "parametric"}, ordinary analysis of variance and Bartlett's tests are used. Alternatively,
+Kruskal-Wallis and Fligner-Killen tests are used instead when \code{method = "nonparametric"}. The results of a permutation test of homogeneity of variation
+arrays based on total weighted squared relative errors are also provided (see \code{\link{varArrayTest}} for more details).
 The log-contrast is specified by the \code{lc} argument using a vector of codes 1, -1 and 0 for components
 in the numerator, denominator and omitted respectively.
 }

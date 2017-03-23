@@ -5,8 +5,14 @@ Version: 1.1.0
 Date: 2016-11-14
 Author: Javier Palarea-Albaladejo and Josep Antoni Martin-Fernandez
 Maintainer: Javier Palarea-Albaladejo <javier.palarea@bioss.ac.uk>
-Depends: R (>= 2.14.0), MASS, NADA, truncnorm
+Depends:
+    R (>= 2.14.0),
+    MASS,
+    NADA,
+    truncnorm
 ByteCompile: yes
-Description: Principled methods for multivariate left-censoring and zeros in compositional data sets.
+Description: Principled methods for multivariate left-censoring and zeros in
+    compositional data sets.
 License: GPL (>= 2)
 Repository: CRAN, Github
+RoxygenNote: 5.0.1

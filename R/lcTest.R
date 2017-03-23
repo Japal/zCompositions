@@ -1,12 +1,13 @@
 #' @title Log-contrast homogeneity test
 #'
-#' @description This function performs tests of the homogeneity across groups of means and variances of
+#' @description This function tests for homogeneity across groups of means and variances of
 #' user-defined log-contrasts. Groups can be defined by either zero/unobserved data patterns or by a grouping
 #' factor in fully observed zero-free data sets.
 #'
-#' @details Non-parametric Kruskal-Wallis and Fligner-Killen test are used for testing homogeneity of
-#' means and variances respectively of the log-contrast across groups. A permutation test of homogeneity is also
-#' conducted based on total weighted squared relative errors (see \code{\link{varArrayTest}} for more details).
+#' @details Homogeneity of log-contrast means and variances across groups is tested using either parametric or non-parametric tests. When
+#' \code{method = "parametric"}, ordinary analysis of variance and Bartlett's tests are used. Alternatively,
+#' Kruskal-Wallis and Fligner-Killen tests are used instead when \code{method = "nonparametric"}. The results of a permutation test of homogeneity of variation
+#' arrays based on total weighted squared relative errors are also provided (see \code{\link{varArrayTest}} for more details).
 #' The log-contrast is specified by the \code{lc} argument using a vector of codes 1, -1 and 0 for components
 #' in the numerator, denominator and omitted respectively.
 #'
@@ -14,9 +15,10 @@
 #' @param label Unique label (\code{\link{numeric}} or \code{\link{character}}) used to denote zero or unobserved data in \code{X} (\code{label = 0}, default).
 #' @param groups Grouping factor in fully observed zero-free data sets (\code{groups = NULL}, default).
 #' @param lc User-defined log-contrast (see details below).
-#' @param b Number of bootstrap resamples used (\code{b = 1000}, default).
+#' @param method Approach used for mean and variance homogeneity testing (\code{method = "parametric"}, default).
+#' @param b Number of bootstrap resamples used by permutation test (\code{b = 1000}, default).
 #'
-#' @return Test p-values for log-contrast variances and means.
+#' @return Test p-values for log-contrast means and variances.
 #'
 #' @seealso \code{\link{zPatterns}}, \code{\link{varArray}}, \code{\link{varArrayError}}.
 #'
@@ -27,7 +29,7 @@
 #' # Test of homogeneity in log-contrast Potassium/Arsenic*Calcium
 #' lcTest(Water, label = 0, lc = c(1,-1,-1,0))
 
-lcTest <- function(X, label = 0, groups = NULL, lc = NULL, b = 1000){
+lcTest <- function(X, label = 0, groups = NULL, lc = NULL, method = c("parametric", "nonparametric"), b = 1000){
 
   if (is.vector(X))
     stop("X must be a matrix or data.frame class object")
@@ -60,6 +62,8 @@ lcTest <- function(X, label = 0, groups = NULL, lc = NULL, b = 1000){
   if((all(lc >= 0)) | (all(lc <= 0))) {
     stop(paste("The log-contrast is not correctly defined"))}
 
+  method <- match.arg(method)
+  
   X <- as.data.frame(X)
   if (is.null(groups)){
     g <- zPatterns(X,label = label, plot = FALSE, suppress.print = TRUE)
@@ -118,10 +122,18 @@ lcTest <- function(X, label = 0, groups = NULL, lc = NULL, b = 1000){
     }
 
     if (length(usePat) > 1){
-      # Kruskal-Wallis test of location
-      if (min(nifeas)>1) {Apval <- kruskal.test(Yfeas ~ gfeas)$p.value}
-      # Fligner-Killeen test of variances
-      if (min(nifeas)>1)  {Bpval <- fligner.test(YfeasV ~ gfeas)$p.value}
+      if (method == "parametric"){
+        # anova test of location
+        if (min(nifeas)>1) {Apval<-anova(lm(Yfeas~gfeas))$"Pr(>F)"[1]}
+        # Bartlett test of variances
+        if (min(nifeas)>1)  {Bpval<-bartlett.test(YfeasV~gfeas)$p.value}
+        }
+      if (method == "nonparametric"){
+        # Kruskal-Wallis test of location
+        if (min(nifeas)>1) {Apval <- kruskal.test(Yfeas ~ gfeas)$p.value}
+        # Fligner-Killeen test of variances
+        if (min(nifeas)>1)  {Bpval <- fligner.test(YfeasV ~ gfeas)$p.value}
+        }
 
     if (is.na(Apval) | is.na(Bpval)) warning("Log-contrast present in groups of < 2 observations and NAs produced (use zPatterns to check out)")
 
@@ -188,9 +200,15 @@ pvalVar <- (sum(ErrVar>ErrVarOr)+1)/(b+1)
   cat("------------------------------- \n")
   cat(paste("Number of groups:",nlevels(g),"\n"))
   cat(paste("Log-contrast: ","(",lcstringn,")"," / ","(",lcstringd,")","\n",sep=""))
-  cat(paste("Fligner-Killeen test of log-contrast variances:",round(Bpval,4),"\n"))
-  cat(paste("Permutation test of total weighted SRE in log-contrast variances:",round(pvalVar,4),"\n"))
-  cat(paste("Kruskal-Wallis test of log-contrast means:",round(Apval,4),"\n"))
+  if (method == "nonparametric"){
+    cat(paste("Kruskal-Wallis test of log-contrast means:",round(Apval,4),"\n"))
+    cat(paste("Fligner-Killeen test of log-contrast variances:",round(Bpval,4),"\n"))
+  }
+  if (method == "parametric"){
+    cat(paste("ANOVA test of log-contrast means:",round(Apval,4),"\n"))
+    cat(paste("Bartlett test of log-contrast variances:",round(Bpval,4),"\n"))
+  }
   cat(paste("Permutation test of total weighted SRE in log-contrast means:",round(pvalExp,4),"\n"))
+  cat(paste("Permutation test of total weighted SRE in log-contrast variances:",round(pvalVar,4),"\n"))
 
 }
