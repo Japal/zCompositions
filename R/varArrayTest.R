@@ -104,7 +104,7 @@ varArrayTest <- function(X, label = 0, groups = NULL, b = 1000){
   pvalVar <- (sum(vErrVar >= resE$TotalSREvars)+1)/(b+1)
   
   cat("\n")
-  cat("Variance array homogeneity test \n")
+  cat("Variation array homogeneity test \n")
   cat("------------------------------- \n")
   cat(paste("Number of groups:",nlevels(g),"\n"))
   cat(paste("P-value for homogeneity of log-ratio variances:",round(pvalVar,4),"\n"))
