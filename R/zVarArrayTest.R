@@ -5,8 +5,8 @@
 #' factor in fully observed zero-free data sets.
 #'
 #' @details The permutation test of homogeneity is based on total weighted squared relative errors (SRE) reflecting on divergence
-#' between group-wise variation arrays and overall (see \code{\link{varArrayError}} and
-#' \code{\link{varArray}} for more details). Note that for groups including less than two observations SRE is set to NA.
+#' between group-wise variation arrays and overall (see \code{\link{zVarArrayError}} and
+#' \code{\link{zVarArray}} for more details). Note that for groups including less than two observations SRE is set to NA.
 #' 
 #' @param X Compositional data set (\code{\link{matrix}} or \code{\link{data.frame}} class).
 #' @param label Unique label (\code{\link{numeric}} or \code{\link{character}}) used to denote zero or unobserved data in \code{X} (\code{label = 0}, default).
@@ -15,14 +15,14 @@
 #'
 #' @return Test p-values for log-ratio variances and means.
 #' 
-#' @seealso \code{\link{zPatterns}}, \code{\link{varArray}}, \code{\link{varArrayError}}.
+#' @seealso \code{\link{zPatterns}}, \code{\link{zVarArray}}, \code{\link{zVarArrayError}}.
 #'
 #' @examples
 #' data(Water)
 #' zPatterns(Water, label = 0)
-#' varArrayTest(Water)
+#' zVarArrayTest(Water)
 
-varArrayTest <- function(X, label = 0, groups = NULL, b = 1000){
+zVarArrayTest <- function(X, label = 0, groups = NULL, b = 1000){
   
   X <- as.data.frame(X)
   if (is.null(groups)){
@@ -41,7 +41,7 @@ varArrayTest <- function(X, label = 0, groups = NULL, b = 1000){
   pi <- ni / nind # % obs in each group
   
   # Weighted SRE for the original data set
-  resE <- varArrayError(X, label = label, groups = groups, suppress.print = TRUE)
+  resE <- zVarArrayError(X, label = label, groups = groups, suppress.print = TRUE)
   
   vErrExp <- vErrVar <- rep(0,b)
   

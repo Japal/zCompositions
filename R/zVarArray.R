@@ -28,7 +28,7 @@
 #' @examples
 #' data(Water)
 #' zPatterns(Water, label = 0)
-#' varArray(Water)
+#' zVarArray(Water)
 #'
 #' # From a completed data set
 #'
@@ -36,9 +36,9 @@
 #' Water_multKM <- multKM(Water,label=0,dl=mdl) # nondetects imputation
 #'
 #' # Results split by two ficticious groups A and B
-#' varArray(Water_multKM,groups=rep(c("A","B"),each=50))
+#' zVarArray(Water_multKM,groups=rep(c("A","B"),each=50))
 
-varArray <- function(X, label = 0, groups = NULL, suppress.print = FALSE)
+zVarArray <- function(X, label = 0, groups = NULL, suppress.print = FALSE)
 {
 
   if (is.vector(X))

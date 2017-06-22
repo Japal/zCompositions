@@ -5,5 +5,6 @@ importFrom("graphics", "abline", "axis", "barplot", "box", "grid",
      "image", "layout", "legend", "mtext", "par", "plot.new",
      "text")
 importFrom("stats", "approxfun", "cov", "dnorm", "pnorm", "rWishart",
-     "runif", "smooth.spline")
+     "runif", "smooth.spline", "anova", "bartlett.test", "fligner.test",
+             "kruskal.test", "lm", "var")
 exportPattern("^[[:alpha:]]+")

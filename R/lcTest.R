@@ -7,7 +7,7 @@
 #' @details Homogeneity of log-contrast means and variances across groups is tested using either parametric or non-parametric tests. When
 #' \code{method = "parametric"}, ordinary analysis of variance and Bartlett's tests are used. Alternatively,
 #' Kruskal-Wallis and Fligner-Killen tests are used instead when \code{method = "nonparametric"}. The results of a permutation test of homogeneity of variation
-#' arrays based on total weighted squared relative errors are also provided (see \code{\link{varArrayTest}} for more details).
+#' arrays based on total weighted squared relative errors are also provided (see \code{\link{zVarArrayTest}} for more details).
 #' The log-contrast is specified by the \code{lc} argument using a vector of codes 1, -1 and 0 for components
 #' in the numerator, denominator and omitted respectively.
 #'
@@ -20,7 +20,7 @@
 #'
 #' @return Test p-values for log-contrast means and variances.
 #'
-#' @seealso \code{\link{zPatterns}}, \code{\link{varArray}}, \code{\link{varArrayError}}.
+#' @seealso \code{\link{zPatterns}}, \code{\link{zVarArray}}, \code{\link{zVarArrayError}}.
 #'
 #' @examples
 #' data(Water)
@@ -197,7 +197,7 @@ pvalVar <- (sum(ErrVar>ErrVarOr)+1)/(b+1)
 
   cat("\n")
   cat("Log-contrast homogeneity tests \n")
-  cat("------------------------------- \n")
+  cat("------------------------------ \n")
   cat(paste("Number of groups:",nlevels(g),"\n"))
   cat(paste("Log-contrast: ","(",lcstringn,")"," / ","(",lcstringd,")","\n",sep=""))
   if (method == "nonparametric"){
