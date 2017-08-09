@@ -22,11 +22,13 @@ Numeric vector or matrix of detection limits/thresholds. These must be given on 
 Logical value. \code{FALSE} provides maximum-likelihood estimates of model parameters (default), \code{TRUE} provides robust estimates (see \code{NADA} package for details).
 }
   \item{random}{
-Logical value. \code{FALSE} imputes using the estimated geometric mean of the values < threshold (default). \code{TRUE} imputes using random values below the limit of detection.
+Logical value. Values imputed using either estimated geometric mean (\code{FALSE}, default) or random values (\code{TRUE}) below the limit of detection.
 }
 }
 \details{
-This function imputes left-censored compositional values by the estimated geometric mean of the values below the corresponding limit of detection or censoring threshold and applies a multiplicative adjustment to preserve the multivariate compositional properties of the samples. It depends on package \code{NADA} to produce the required model parameter estimates (either maximum likelihood or robust regression on order statistics). It allows for either single (\code{vector} form) or multiple (\code{matrix} form, same size as \code{X}) limits of detection by component. Any threshold value can be set for non-censored elements (e.g. use 0 if no threshold for a particular column or element of the data matrix).
+By default, this function imputes left-censored compositional values by the estimated geometric mean of the values below the corresponding limit of detection or censoring threshold and applies a multiplicative adjustment to preserve the multivariate compositional properties of the samples. Alternatively, imputation can be carried out by random values below the limit of detection (\code{random = TRUE}) based on a normal distribution on the positive real line (see below).
+
+It depends on package \code{NADA} to produce the required model parameter estimates (either maximum likelihood or robust regression on order statistics). It allows for either single (\code{vector} form) or multiple (\code{matrix} form, same size as \code{X}) limits of detection by component. Any threshold value can be set for non-censored elements (e.g. use 0 if no threshold for a particular column or element of the data matrix).
 
 It produces an imputed data set on the same scale as the input data set. If \code{X} is not closed to a constant sum, then the results are adjusted to provide a compositionally equivalent data set, expressed in the original scale, which leaves the absolute values of the observed components unaltered. Note that a normal distribution on the positive real line is considered. That is, it is defined with respect to a measure according to own geometry of the positive real line, instead of the standard lognormal based on the Lebesgue measure in real space.
 }

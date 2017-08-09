@@ -44,6 +44,6 @@ zPatterns(Water, label = 0)
 lcTest(Water, label = 0, lc = c(1,-1,-1,0))
 }
 \seealso{
-\code{\link{zPatterns}}, \code{\link{zVarArray}}, \code{\link{zVarArrayError}}.
+\code{\link{zPatterns}}, \code{\link{zVarArray}}, \code{\link{zVarArrayError}}
 }
 

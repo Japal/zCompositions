@@ -1,18 +1,20 @@
 RELEASE HISTORY OF THE "zCompositions" PACKAGE
 ==============================================
 
-CHANGES IN zCompositions VERSION 1.1.0 [2016-11]:
+CHANGES IN zCompositions VERSION 1.1.1 [2017-08]:
 ----------------------------------------------------
 
 NEW FEATURES
 
-* varArray: variation arrays by zero/unobserved data patterns or groups.
-* varArrayError: squared relative errors in variation arrays across groups.
-* varArrayTest: homogeneity test of variation arrays across groups.
+* lrEM now allows to impute missing data.
+* zVarArray: variation arrays by zero/unobserved data patterns or groups.
+* zVarArrayError: squared relative errors in variation arrays across groups.
+* zVarArrayTest: homogeneity test of variation arrays across groups.
 * lcTest: homogeneity test of log-contrast across groups.
 
 MODIFICATIONS
 
+* Improved documentation.
 * Verbosity controlled throughout by suppress.print argument.
 * zPatterns: argument to show means (geometric or arithmetic) by pattern included.
 

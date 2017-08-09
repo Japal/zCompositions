@@ -97,7 +97,7 @@ rownames(ErrPropMat) <- colnames(ErrPropMat) <- colnames(X)
 rownames(ErrMat) <- colnames(ErrMat) <-colnames(X)
 
 ## Call zVarArray
-  VMZ <- zVarArray(X = X, label = label, groups = groups, suppress.print = TRUE)
+  VMZ <- zVarArray(X = X, label = 0, groups = groups, suppress.print = TRUE)
 
   vErrExp <- vErrVar <- 0
 

@@ -51,6 +51,6 @@ Water_multKM <- multKM(Water,label=0,dl=mdl) # nondetects imputation
 zVarArray(Water_multKM,groups=rep(c("A","B"),each=50))
 }
 \seealso{
-\code{\link{zPatterns}}.
+\code{\link{zPatterns}}
 }
 

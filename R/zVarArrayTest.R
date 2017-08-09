@@ -41,7 +41,7 @@ zVarArrayTest <- function(X, label = 0, groups = NULL, b = 1000){
   pi <- ni / nind # % obs in each group
   
   # Weighted SRE for the original data set
-  resE <- zVarArrayError(X, label = label, groups = groups, suppress.print = TRUE)
+  resE <- zVarArrayError(X, label = 0, groups = groups, suppress.print = TRUE)
   
   vErrExp <- vErrVar <- rep(0,b)
   

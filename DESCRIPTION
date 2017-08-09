@@ -1,8 +1,8 @@
 Package: zCompositions
 Type: Package
 Title: Treatment of Zeros and Nondetects in Compositional Data Sets
-Version: 1.1.0
-Date: 2016-11-14
+Version: 1.1.1
+Date: 2017-08-03
 Author: Javier Palarea-Albaladejo and Josep Antoni Martin-Fernandez
 Maintainer: Javier Palarea-Albaladejo <javier.palarea@bioss.ac.uk>
 Depends:

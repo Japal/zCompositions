@@ -5,19 +5,20 @@
 Log-ratio EM algorithm
 }
 \description{
-This function implements model-based ordinary and robust Expectation-Maximisation algorithms to impute left-censored values (e.g. values below detection limit, rounded zeros) via coordinates representation of compositional data sets which incorporate the information of the relative covariance structure.
+This function implements model-based ordinary and robust Expectation-Maximisation algorithms to impute left-censored values (e.g. values below detection limit, rounded zeros) via coordinates representation of compositional data which incorporate the information of the relative covariance structure. Alternatively, it can be used to impute missing data.
 }
 \usage{
 lrEM(X, label = NULL, dl = NULL, rob = FALSE,
         ini.cov = c("complete.obs", "multRepl"), delta = 0.65,
-        tolerance = 0.0001, max.iter = 50, rlm.maxit = 150, suppress.print = FALSE)
+        tolerance = 0.0001, max.iter = 50, rlm.maxit = 150,
+        imp.missing = FALSE, suppress.print = FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{X}{
 Compositional data set (\code{\link{matrix}} or \code{\link{data.frame}} class).
 }
-  \item{label}{Unique label (\code{\link{numeric}} or \code{\link{character}}) used to denote unobserved left-censored values in \code{X}.}
+  \item{label}{Unique label (\code{\link{numeric}} or \code{\link{character}}) used to denote unobserved left-censored values (or missing values, see details) in \code{X}.}
   \item{dl}{
 Numeric vector or matrix of detection limits/thresholds. These must be given on the same scale as \code{X}.
 }
@@ -35,6 +36,7 @@ Maximum number of iterations for the EM algorithm (default = 50).
   \item{rlm.maxit}{
 If \code{rob=TRUE}, maximum number of iterations for the embedded robust regression estimation (default = 150; see \code{\link{rlm}} in \code{MASS} package for details).
 }
+  \item{imp.missing}{If \code{TRUE} then unobserved values identified by \code{label} are treated as missing instead of censored values (default = \code{FALSE}).}
   \item{suppress.print}{
 Suppress printed feedback (\code{suppress.print = FALSE}, default).
 }
@@ -50,7 +52,9 @@ Under maximum likelihood (ML) estimation (default, \code{rob=FALSE}), a correcti
 
 Under robust estimation (\code{rob=TRUE}), the algorithm requires ilr transformations in order to satisfy requirements for robust estimation methods (MM-estimation by default, see \code{rlm} function for more details). An initial estimation of nondetects is required to get the algorithm started. This can be based on either the subset of fully observed cases (\code{ini.cov="complete.obs"}) or a multiplicative simple replacement of all nondetects in the data set (\code{ini.cov="multRepl"}). Note that the robust regression method involved includes random elements which can, occasionally, give rise to \code{\link{NaN}} values getting the routine execution halted. If this happened, we suggest to simply re-run the function once again.
 
-In the case of censoring patterns involving samples containing only one observed component, these are imputed by multiplicative simple replacement (\code{\link{multRepl}}) and a warning message identifying them is printed.
+Note that conditional imputation based on log-ratio coordinates cannot be conducted when there exist censoring patterns including samples with only one observed component. As a workaround, \code{lrEM} applies multiplicative simple replacement (\code{\link{multRepl}}) on those and a warning message identifying the problematic cases is printed. Alternatively, it might be sensible to simply remove those non-informative samples from the data set.
+
+This function can be also employed to impute missing values with their conditional expectation using the EM algorithm under regular conditions by setting \code{imp.missing = TRUE}. For this case, the argument \code{label} indicates the unique label for missing values, the argument \code{dl} is ignored and \code{ini.cov} is set to \code{"complete.obs"}.
 }
 \value{
 A \code{\link{data.frame}} object containing the imputed compositional data set. The number of iterations required for convergence is also printed (this can be suppressed by setting \code{suppress.print=TRUE}).
@@ -118,6 +122,8 @@ dl2b <- matrix(rep(1,46),ncol=1)\%*\%c(1,0.5,0,0,0,0.75,0.3,1,0,0,600,8)
 mdl <- rbind(dl2a,dl2b)
 LPdata2_roblrEM <- lrEM(LPdata2,label=0,dl=mdl,rob=TRUE,tolerance=0.005)
 
+# Treating zeros as missing data for illustration purposes only
+LPdata2_miss <- lrEM(LPdata2,label=0,imp.missing=TRUE)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

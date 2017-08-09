@@ -34,6 +34,6 @@ zPatterns(Water, label = 0)
 zVarArrayTest(Water)
 }
 \seealso{
-\code{\link{zPatterns}}, \code{\link{zVarArray}}, \code{\link{zVarArrayError}}.
+\code{\link{zPatterns}}, \code{\link{zVarArray}}, \code{\link{zVarArrayError}}
 }
 
