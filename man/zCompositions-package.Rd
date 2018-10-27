@@ -6,14 +6,14 @@
 Treatment of zeros and nondetects in compositional data sets
 }
 \description{
-Following compositional data analysis principles, this package provides simple tools to explore and replace zeros and left-censored data, such as rounded zeros or values below single or multiple limits of detection (nondetects), along with zero pattern/group-wise data analysis and testing procedures.
+Following compositional data analysis principles, this package provides simple and friendly tools to explore and impute zeros, left-censored (such as rounded zeros or values below single or multiple limits of detection; a.k.a nondetects) and missing data; including zero pattern/group-wise data analysis and testing procedures.
 }
 \details{
 \tabular{ll}{
 Package: \tab zCompositions\cr
 Type: \tab Package\cr
-Version: \tab 1.1.1\cr
-Date: \tab 2017-08-03\cr
+Version: \tab 1.1.1-1\cr
+Date: \tab 2018-10-27\cr
 License: \tab GPL (>= 2)\cr
 }
 }
