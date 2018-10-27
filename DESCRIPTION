@@ -1,6 +1,6 @@
 Package: zCompositions
 Type: Package
-Title: Treatment of Zeros and Nondetects in Compositional Data Sets
+Title: Treatment of Zeros, Left-Censored and Missing Values in Compositional Data Sets
 Version: 1.1.1-1
 Date: 2018-10-27
 Author: Javier Palarea-Albaladejo and Josep Antoni Martin-Fernandez
