@@ -4,13 +4,9 @@ RELEASE HISTORY OF THE "zCompositions" PACKAGE
 CHANGES IN zCompositions VERSION 1.1.2 [2018-11]:
 ----------------------------------------------------
 
-NEW FEATURES
-
-* lrEM now allows to use initial multiplicative replacement for missing data imputation.
-
 MODIFICATIONS
 
-* Minor bugs fixed.
+* Minor bug fixed.
 * Updated documentation.
 
 CHANGES IN zCompositions VERSION 1.1.1 [2017-08]:
