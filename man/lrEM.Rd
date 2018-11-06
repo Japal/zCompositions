@@ -5,7 +5,7 @@
 Log-ratio EM algorithm
 }
 \description{
-This function implements model-based ordinary and robust Expectation-Maximisation algorithms to impute left-censored values (e.g. values below detection limit, rounded zeros) via coordinates representation of compositional data which incorporate the information of the relative covariance structure. Alternatively, it can be used to impute missing data.
+This function implements model-based ordinary and robust Expectation-Maximisation algorithms to impute left-censored data (e.g. values below detection limit, rounded zeros) via coordinates representation of compositional data which incorporate the information of the relative covariance structure. Alternatively, this function can be used to impute missing data.
 }
 \usage{
 lrEM(X, label = NULL, dl = NULL, rob = FALSE,
@@ -18,16 +18,16 @@ lrEM(X, label = NULL, dl = NULL, rob = FALSE,
   \item{X}{
 Compositional data set (\code{\link{matrix}} or \code{\link{data.frame}} class).
 }
-  \item{label}{Unique label (\code{\link{numeric}} or \code{\link{character}}) used to denote unobserved left-censored values (or missing values, see details) in \code{X}.}
+  \item{label}{Unique label (\code{\link{numeric}} or \code{\link{character}}) used to denote unobserved values in \code{X}.}
   \item{dl}{
 Numeric vector or matrix of detection limits/thresholds. These must be given on the same scale as \code{X}.
 }
   \item{rob}{
 Logical value. \code{FALSE} provides maximum-likelihood estimates of model parameters (default), \code{TRUE} provides robust parameter estimates.
 }
-  \item{ini.cov}{Initial estimation of either the log-ratio covariance matrix (ML estimation) or nondetects (robust estimation). It can be based on either complete observations (\code{"complete.obs"}, default) or multiplicative simple replacement  (\code{"multRepl"}).}
+  \item{ini.cov}{Initial estimation of either the log-ratio covariance matrix (ML estimation) or unobserved data (robust estimation). It can be based on either complete observations (\code{"complete.obs"}, default) or multiplicative simple replacement of left-censored data (\code{"multRepl"}).}
   \item{delta}{
-If \code{ini.cov="multRepl"}, delta parameter for initial multiplicative simple replacement (\code{\link{multRepl}}) in proportions (default = 0.65).
+If \code{ini.cov="multRepl"}, delta parameter for initial multiplicative simple replacement of left-censored data (\code{\link{multRepl}}) in proportions (default = 0.65).
 }
   \item{tolerance}{Convergence criterion for the EM algorithm (default = 0.0001).}
   \item{max.iter}{
@@ -36,7 +36,7 @@ Maximum number of iterations for the EM algorithm (default = 50).
   \item{rlm.maxit}{
 If \code{rob=TRUE}, maximum number of iterations for the embedded robust regression estimation (default = 150; see \code{\link{rlm}} in \code{MASS} package for details).
 }
-  \item{imp.missing}{If \code{TRUE} then unobserved values identified by \code{label} are treated as missing instead of censored values (default = \code{FALSE}).}
+  \item{imp.missing}{If \code{TRUE} then unobserved data identified by \code{label} are treated as missing instead of left-censored data (default = \code{FALSE}). Note that \code{ini.cov} is fixed to \code{"complete.obs"} in this case.}
   \item{suppress.print}{
 Suppress printed feedback (\code{suppress.print = FALSE}, default).
 }
@@ -44,7 +44,7 @@ Suppress printed feedback (\code{suppress.print = FALSE}, default).
 
 
 \details{
-After convergence, this function imputes left-censored compositional values by their estimated conditional expected values through coordinates representation, given the information from the observed data and the censoring thresholds. It allows for either single (\code{vector} form) or multiple (\code{matrix} form, same size as \code{X}) limits of detection by component. Any threshold value can be set for non-censored elements (e.g. use 0 if no threshold for a particular column or element of the data matrix).
+After convergence, this function imputes left-censored compositional data by their estimated conditional expected values through coordinates representation, given the information from the observed data and the censoring thresholds. It allows for either single (\code{vector} form) or multiple (\code{matrix} form, same size as \code{X}) limits of detection by component. Any threshold value can be set for non-censored elements (e.g. use 0 if no threshold for a particular column or element of the data matrix).
 
 It produces an imputed data set on the same scale as the input data set. If \code{X} is not closed to a constant sum, then the results are adjusted to provide a compositionally equivalent data set, expressed in the original scale, which leaves the absolute values of the observed components unaltered.
 
@@ -54,7 +54,9 @@ Under robust estimation (\code{rob=TRUE}), the algorithm requires ilr transforma
 
 Note that conditional imputation based on log-ratio coordinates cannot be conducted when there exist censoring patterns including samples with only one observed component. As a workaround, \code{lrEM} applies multiplicative simple replacement (\code{\link{multRepl}}) on those and a warning message identifying the problematic cases is printed. Alternatively, it might be sensible to simply remove those non-informative samples from the data set.
 
-This function can be also employed to impute missing values with their conditional expectation using the EM algorithm under regular conditions by setting \code{imp.missing = TRUE}. For this case, the argument \code{label} indicates the unique label for missing values, the argument \code{dl} is ignored and \code{ini.cov} is set to \code{"complete.obs"}.
+\emph{Missing compositional data imputation}
+
+This function can be employed to impute missing data with their conditional expectation using the EM algorithm under regular conditions by setting \code{imp.missing = TRUE}. Either maximum-likelihood or robust estimation can be used through the \code{rob} argument. For this case, the argument \code{label} indicates the unique label for missing values. The argument \code{dl} is ignored as it is meaningless here and the \code{"complete.obs"} option is fixed for the \code{ini.cov} argument.
 }
 \value{
 A \code{\link{data.frame}} object containing the imputed compositional data set. The number of iterations required for convergence is also printed (this can be suppressed by setting \code{suppress.print=TRUE}).

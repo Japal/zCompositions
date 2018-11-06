@@ -158,8 +158,8 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
     nn <- nrow(X_alr); D <- ncol(X_alr)
     
     if (ini.cov != "multRepl"){
-      if (inherits(try(solve(cov(X,use=ini.cov)),silent=TRUE),"try-error"))
-        stop("ini.cov: too few complete cases for using 'complete.obs'")
+      if (inherits(try(solve(cov(X_alr,use=ini.cov)),silent=TRUE),"try-error"))
+        stop("ini.cov: singular initial covariance matrix. Probably too few complete rows in data set for using 'complete.obs'")
       M <- matrix(colMeans(X_alr,na.rm=T),ncol=1)
       C <- cov(X_alr,use=ini.cov)}
     else {X.mr <- multRepl(X,label=NA,dl=dl,delta=delta)
@@ -287,7 +287,7 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
                 if (nrow(regbasis[misspat==1,]) > ncol(regbasis[misspat==1,]))
                   robreg <- rlm(V1 ~ .,data=regbasis[misspat==1,],method="MM",maxit = rlm.maxit)
                 else
-                  stop("ini.cov: too few complete cases. Use ini.cov = 'multRepl' instead")
+                  stop("ini.cov: singular initial covariance matrix. Probably too few complete rows in data set. Use ini.cov = 'multRepl' instead")
               }
               if (ini.cov == "multRepl"){
                 target <- X.mr[,p]

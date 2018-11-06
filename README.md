@@ -1,4 +1,4 @@
 zCompositions
 =============
 
-Imputation of Zeros and Nondetects in Compositional Data Sets
+Imputation of Zeros, Nondetects and Missing Data in Compositional Data Sets
