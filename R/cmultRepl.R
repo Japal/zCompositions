@@ -1,5 +1,5 @@
 cmultRepl <-
-function(X,label=0,method=c("GBM","SQ","BL","CZM","user"),output=c("prop", "counts"),
+function(X,label=0,method=c("GBM","SQ","BL","CZM","user"),output=c("prop", "p-counts"),
          delta = 0.65,threshold=0.5,correct=TRUE,t=NULL,s=NULL,
          suppress.print=FALSE)
   {
@@ -67,9 +67,9 @@ for (i in 1:N){
   }
 }        
 
-# Rescale to counts
+# Rescale to p-counts
 
-if (output=="counts"){
+if (output=="p-counts"){
   for (i in 1:N){
     if (any(is.na(X[i,]))){
       zero <- which(is.na(X[i,]))

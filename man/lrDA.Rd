@@ -51,7 +51,7 @@ In the case of censoring patterns involving samples containing only one observed
 %Note that when \code{ini.cov="lrEM"} is chosen, the embedded lrEM procedure (\code{\link{lrEM}}) will consider multiplicative replacement (\code{\link{multRepl}}), with delta parameter equal to \code{delta}, for initial covariance estimate. This is simply done in order to prevent it from potentially failing due to matrix singularity issues if working with few complete samples in the data set.
 }
 \value{
-A \code{\link{data.frame}} object containing the imputed compositional data set or a \code{\link{list}} of imputed data sets if multiple imputation is carried out (\code{m>1}) and \code{store.mi=TRUE}.
+A \code{\link{data.frame}} object containing the imputed compositional data set in the same scale as the original, or a \code{\link{list}} of imputed data sets if multiple imputation is carried out (\code{m>1}) and \code{store.mi=TRUE}.
 }
 \references{
 Palarea-Albaladejo J, Martin-Fernandez JA, Olea, RA. A bootstrap estimation scheme for chemical compositional data with nondetects. Journal of Chemometrics 2014; 28: 585-599.

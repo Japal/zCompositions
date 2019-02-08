@@ -32,7 +32,7 @@ It produces an imputed data set on the same scale as the input data set. If \cod
 The level of smoothing of the estimated spline can be controlled by the \code{n.knots} argument. The function \code{\link{splineKM}} can assist in choosing a finer value, although the default setting works generally well.
 }
 \value{
-A \code{\link{data.frame}} object containing the imputed compositional data set.
+A \code{\link{data.frame}} object containing the imputed compositional data set in the same scale as the original.
 }
 
 \references{

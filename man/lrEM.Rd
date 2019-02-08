@@ -27,7 +27,7 @@ Logical value. \code{FALSE} provides maximum-likelihood estimates of model param
 }
   \item{ini.cov}{Initial estimation of either the log-ratio covariance matrix (ML estimation) or unobserved data (robust estimation). It can be based on either complete observations (\code{"complete.obs"}, default) or multiplicative simple replacement of left-censored data (\code{"multRepl"}).}
   \item{delta}{
-If \code{ini.cov="multRepl"}, delta parameter for initial multiplicative simple replacement of left-censored data (\code{\link{multRepl}}) in proportions (default = 0.65).
+If \code{ini.cov="multRepl"}, delta parameter for initial multiplicative simple replacement of left-censored data (see \code{\link{multRepl}}) expressed in proportions (default = 0.65).
 }
   \item{tolerance}{Convergence criterion for the EM algorithm (default = 0.0001).}
   \item{max.iter}{
@@ -54,12 +54,12 @@ Under robust estimation (\code{rob=TRUE}), the algorithm requires ilr transforma
 
 Note that conditional imputation based on log-ratio coordinates cannot be conducted when there exist censoring patterns including samples with only one observed component. As a workaround, \code{lrEM} applies multiplicative simple replacement (\code{\link{multRepl}}) on those and a warning message identifying the problematic cases is printed. Alternatively, it might be sensible to simply remove those non-informative samples from the data set.
 
-\emph{Missing compositional data imputation}
+\emph{Missing data imputation}
 
 This function can be employed to impute missing data with their conditional expectation using the EM algorithm under regular conditions by setting \code{imp.missing = TRUE}. Either maximum-likelihood or robust estimation can be used through the \code{rob} argument. For this case, the argument \code{label} indicates the unique label for missing values. The argument \code{dl} is ignored as it is meaningless here and the \code{"complete.obs"} option is fixed for the \code{ini.cov} argument.
 }
 \value{
-A \code{\link{data.frame}} object containing the imputed compositional data set. The number of iterations required for convergence is also printed (this can be suppressed by setting \code{suppress.print=TRUE}).
+A \code{\link{data.frame}} object containing the imputed compositional data set in the same scale as the original. The number of iterations required for convergence is also printed (this can be suppressed by setting \code{suppress.print=TRUE}).
 }
 \references{
 Martin-Fernandez, J.A., Hron, K., Templ, M., Filzmoser, P., Palarea-Albaladejo, J. Model-based replacement of rounded zeros in compositional data: classical and robust approaches. Computational Statistics & Data Analysis 2012; 56: 2688-2704.

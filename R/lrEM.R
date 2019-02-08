@@ -154,7 +154,6 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
     }
     
     X_alr <- log(X)-log(X[,pos]); X_alr <- as.matrix(X_alr[,-pos])
-    tol <- tolerance
     nn <- nrow(X_alr); D <- ncol(X_alr)
     
     if (ini.cov != "multRepl"){
@@ -224,7 +223,7 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
       # Convergence check
       Mdif <- max(abs(M-Mnew))    
       Cdif <- max(max(abs(C-Cnew)))  
-      if ((max(c(Mdif,Cdif)) < tol) | (niters == max.iter)) iter_again <- 0
+      if ((max(c(Mdif,Cdif)) < tolerance) | (niters == max.iter)) iter_again <- 0
     }
     
     Y <- inv.alr(Y,pos)

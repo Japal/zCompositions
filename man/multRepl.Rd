@@ -29,7 +29,7 @@ This function imputes left-censored compositional values by a given fraction \co
 It produces an imputed data set on the same scale as the input data set. If \code{X} is not closed to a constant sum, then the results are adjusted to provide a compositionally equivalent data set, expressed in the original scale, which leaves the absolute values of the observed components unaltered. Note that this adjustment only applies to data sets and not when a single composition is entered. In this latter case, the composition is treated as a closed vector.
 }
 \value{
-A \code{\link{data.frame}} object containing the imputed compositional vector or data set.
+A \code{\link{data.frame}} object containing the imputed compositional vector or data set in the same scale as the original.
 }
 \references{
 Martin-Fernandez JA, Barcelo-Vidal C, Pawlowsky-Glahn V. Dealing with zeros and missing values in compositional data sets using nonparametric imputation. Mathematical Geology 2003; 35: 253-78.

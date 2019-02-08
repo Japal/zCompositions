@@ -33,7 +33,7 @@ It depends on package \code{NADA} to produce the required model parameter estima
 It produces an imputed data set on the same scale as the input data set. If \code{X} is not closed to a constant sum, then the results are adjusted to provide a compositionally equivalent data set, expressed in the original scale, which leaves the absolute values of the observed components unaltered. Note that a normal distribution on the positive real line is considered. That is, it is defined with respect to a measure according to own geometry of the positive real line, instead of the standard lognormal based on the Lebesgue measure in real space.
 }
 \value{
-A \code{\link{data.frame}} object containing the imputed compositional data set.
+A \code{\link{data.frame}} object containing the imputed compositional data set in the same scale as the original.
 }
 \references{
 Mateu-Figueras G, Pawlowsky-Glahn V, Egozcue JJ. The normal distribution in some constrained sample spaces. SORT 2013; 37(1): 29-56.

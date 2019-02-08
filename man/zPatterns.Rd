@@ -1,10 +1,10 @@
 \name{zPatterns}
 \alias{zPatterns}
 \title{
-Find and display patterns of zeros or unobserved values in a data set
+Find and display patterns of zeros/missing values in a data set
 }
 \description{
-This function summarises the patterns of zero or unobserved values in a data set and returns a vector of pattern numbers.
+This function summarises the patterns of zero and/or missing values in a data set and returns a vector of pattern numbers.
 }
 \usage{
 zPatterns(X, label = NULL, plot = TRUE,
@@ -21,7 +21,7 @@ zPatterns(X, label = NULL, plot = TRUE,
 \arguments{
   \item{X}{
 Data set (\code{\link{matrix}} or \code{\link{data.frame}} class).}
-  \item{label}{Unique label (\code{\link{numeric}} or \code{\link{character}}) used to denote zero or unobserved values in \code{X}.}
+  \item{label}{Unique label (\code{\link{numeric}} or \code{\link{character}}) used to identify zero or unobserved values in \code{X}.}
   \item{plot}{Logical value indicating whether a graphical summary of the patterns is produced or not (default \code{plot=TRUE}).}
   \item{axis.labels}{Vector of axis labels for the table of patterns (format \code{c("x-axis","y-axis")}).}
   \item{bar.colors}{Colors for the margin barplots (format \code{c("col.top","col.right")}).}
@@ -42,13 +42,15 @@ Data set (\code{\link{matrix}} or \code{\link{data.frame}} class).}
 \value{
 Vector of pattern IDs corresponding to each row of \code{X}.
 
-It also prints a summary table (if \code{suppress.print=FALSE}) showing zero or non-observation patterns and some summary statistics: number of zero/unobserved components by pattern (No.Unobs), pattern frequency (absolute and percentage), percentage zero/unobserved values by component (column) and overall percentage of zero/unobserved values in the data set. The symbols + and - indicate, respectively, zero/unobserved and observed components within each pattern. A graphical version of the summary table is returned including barplots on the margins displaying percentage zero/unobserved and percentage compositional geometric means by pattern (if \code{show.means=TRUE}). Note that the posibility of computing ordinary arithmetic means (\code{type.means="am"}) is also included to give the function a wider use, however this measure should not be used if the data are compositional.
+It also prints a summary table (if \code{suppress.print=FALSE}) showing zero and/or missingness patterns in the data and some summary statistics: number of zero/missing components by pattern (No.Unobs), pattern frequency (absolute and percentage), percentage zero/missing values by component (column) and overall percentage of zero/missing values in the data set. The symbols + and - indicate, respectively, zero/missing and observed components within each pattern. A graphical version of the summary table is returned including barplots on the margins displaying percentage zero/missing and percentage compositional geometric means by pattern (if \code{show.means=TRUE}). Note that the posibility of computing ordinary arithmetic means (\code{type.means="am"}) is also included to give the function a wider use, however this measure is not recommended for compositional data.
+
+A warning message is shown if zeros or NA values not identified through \code{label} are present in the data set. Note that they, along with any other value specified in \code{label}, will be all treated as unobserved data for the graphical display and numerical summaries of patterns. Zeros and missing data can be dealt with simultaneously using the \code{lrEMplus} function.
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-\code{\link{lrEM}}, \code{\link{lrDA}}, \code{\link{multRepl}}, \code{\link{multLN}}, \code{\link{multKM}}, \code{\link{cmultRepl}}
+\code{\link{lrEM}}, \code{\link{lrEMplus}}, \code{\link{lrDA}}, \code{\link{multRepl}}, \code{\link{multLN}}, \code{\link{multKM}}, \code{\link{cmultRepl}}
 }
 \examples{
 data(LPdata)

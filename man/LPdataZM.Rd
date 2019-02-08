@@ -1,13 +1,16 @@
-\name{LPdata}
-\alias{LPdata}
+\name{LPdataZM}
+\alias{LPdataZM}
 \docType{data}
 \title{
-La Paloma data set
+La Paloma data set (incl. zeros and missing data)
 }
 \description{
-96 samples of a 15-part geochemical composition in micrograms/gram from La Paloma stream (Venezuela) including 6.11\% values below the limit of detection (coded as 0). For more details see Montero-Serrano et al. (2010).
+96 samples of a 15-part geochemical composition in micrograms/gram from La Paloma stream (Venezuela). For more details see Montero-Serrano et al. (2010).
+
+Duplicate of the \code{LPdata} data set including 2.43\% missing at random cells (36.45\% samples with missing data; coded as \code{NA}) along with 6.11\% values below the limit of detection (coded as 0).
+
 }
-\usage{data(LPdata)}
+\usage{data(LPdataZM)}
 \format{
   A \code{\link{data.frame}} with 96 observations on the following 15 variables.
   \describe{
@@ -31,9 +34,14 @@ La Paloma data set
 \references{
 Montero-Serrano JC, Palarea-Albaladejo J, Martin-Fernandez JA, and Martinez-Santana M and Gutierrez-Martin JV. Multivariate analysis applied to chemostratigraphic data: identification of chemofacies and stratigraphic correlation, Sedimentary Geology 2010; 228(3-4): 218-228 .
 }
-\examples{
-data(LPdata)
 
-zPatterns(LPdata,label=0)
+\seealso{
+\code{\link{LPdata}}
+}
+
+\examples{
+data(LPdataZM)
+
+zPatterns(LPdataZM,label=0) # Includes zero + missing data patterns
 }
 \keyword{datasets}

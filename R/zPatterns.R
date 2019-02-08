@@ -86,18 +86,18 @@ zPatterns <- function(X,label=NULL,plot=TRUE,
   if (is.null(label)) stop("A value for label must be given")
   if (!is.na(label)){
     if (!any(X==label,na.rm=T)) stop(paste("Label",label,"was not found in the data set"))
-    if (label!=0 & any(X==0,na.rm=T)) stop("Zero values not labelled as censored values were found in the data set")
-    if (any(is.na(X))) stop(paste("NA values not labelled as censored values were found in the data set"))
+    if (label!=0 & any(X==0,na.rm=T)) warning("Unidentified zero values were found in the data set")
+    if (any(is.na(X))) warning(paste("Unidentified NA values were found in the data set"))
   }
   if (is.na(label)){
-    if (any(X==0,na.rm=T)) stop("Zero values not labelled as censored values were found in the data set")
+    if (any(X==0,na.rm=T)) warning("Unidentified zero values were found in the data set")
     if (!any(is.na(X),na.rm=T)) stop(paste("Label",label,"was not found in the data set"))
   }
   
   X <- as.data.frame(X)
   
   n <- nrow(X); p <- ncol(X)
-  X[X==label] <- NA
+  X[X==label] <- NA; X[X==0] <- NA
   
   miss <- as.data.frame(is.na(X)*1)
 
@@ -131,10 +131,10 @@ zPatterns <- function(X,label=NULL,plot=TRUE,
     cat("Patterns ('+' means ",cell.labels[1],", '-' means ",cell.labels[2],") \n\n",sep="")
     print(tab,row.names=FALSE)
     cat("\n")
-    cat("Percentage cases by component \n")
+    cat("Percentage cells by component \n")
     print(prop_col)
     cat("\n")
-    cat(paste("Overall percentage cases: ",prop))
+    cat(paste("Overall percentage cells: ",prop,"% \n",sep=""))
   }
   invisible(pat.ID)
 }
