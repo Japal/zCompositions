@@ -1,6 +1,6 @@
 lrEMplus <- function(X, dl = NULL, rob = FALSE, ini.cov = c("complete.obs", "multRepl"), delta = 0.65,
                      tolerance = 0.0001, max.iter = 50, rlm.maxit=150, suppress.print = FALSE){
-
+  
   if (is.character(dl)) stop("dl must be a numeric vector or matrix")
   if (is.vector(dl)) dl <- matrix(dl,nrow=1)
 
@@ -9,7 +9,7 @@ lrEMplus <- function(X, dl = NULL, rob = FALSE, ini.cov = c("complete.obs", "mul
   if (ncol(dl)!=ncol(X)) stop("The number of columns in X and dl do not agree")
   if ((nrow(dl)>1) & (nrow(dl)!=nrow(X))) stop("The number of rows in X and dl do not agree")
   
-  if (any(is.na(X))==FALSE) stop("No NAs were found in the data set")
+  if (any(is.na(X))==FALSE) stop("No missing data were found in the data set")
   if (any(X==0)==FALSE) stop("No zeros were found in the data set")
 
   ini.cov <- match.arg(ini.cov)
@@ -27,18 +27,34 @@ lrEMplus <- function(X, dl = NULL, rob = FALSE, ini.cov = c("complete.obs", "mul
   closed <- 0
   if (all( abs(c - mean(c)) < .Machine$double.eps^0.5 )) closed <- 1
 
-  # Initial simple imputation of zeros
-  X.old <- X
-  for (i in 1:nn){
-    if (any(X.old[i, ]==0,na.rm=T)){
-      z <- which(X.old[i, ]==0)
-      X.old[i,z] <- delta*dl[i,z]
+  if (sum(is.na(X)) > sum(X==0,na.rm=T)){
+    X.old <- X
+    # Initial simple imputation of zero
+    for (i in 1:nn){
+      if (any(X.old[i, ]==0,na.rm=T)){
+        z <- which(X.old[i, ]==0)
+        X.old[i,z] <- delta*dl[i,z]
+      }
     }
+    # Initial lrEM imputation of missing data
+    X.old <- lrEM(X.old, label = NA, imp.missing = TRUE, ini.cov = ini.cov, rob = rob,
+                  tolerance = tolerance, max.iter = max.iter, rlm.maxit = rlm.maxit, suppress.print = TRUE)
   }
-
-  # Initial lrEM imputation of missing data
-  X.old <- lrEM(X.old, label = NA, imp.missing = TRUE, ini.cov = ini.cov, rob = rob,
-                tolerance = tolerance, max.iter = max.iter, rlm.maxit = rlm.maxit, suppress.print = TRUE)
+  
+  if (sum(is.na(X)) <= sum(X==0,na.rm=T)){
+    X.old <- X
+    # Initial ordinary mean imputation of missing
+    means <- colMeans(X.old,na.rm=T)
+    for (i in 1:nn){
+      if (any(is.na(X.old[i, ]))){
+        z <- which(is.na(X.old[i, ]))
+        X.old[i,z] <- means[z]
+      }
+    }
+    # Initial lrEM imputation of zeros
+    X.old <- lrEM(X.old, label = 0, dl = dl, ini.cov = ini.cov, rob = rob,
+                  tolerance = tolerance, max.iter = max.iter, rlm.maxit = rlm.maxit, suppress.print = TRUE)
+  }
 
   # Initial parameter estimates
   X.old_alr <- log(X.old)-log(X.old[,D])

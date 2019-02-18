@@ -10,7 +10,9 @@ zPatterns <- function(X,label=NULL,plot=TRUE,
   cgm <- function(X, round.means = round.means)
   {
     
-    ms <- apply(X,2,function(x) exp(mean(log(x))))
+    ms <- apply(X,2,function(x){
+      if (all(is.na(x))) {x <- NA} else {exp(mean(log(x),na.rm=T))}
+      })
     ms[is.na(ms)] <- 0
     round(ms/sum(ms)*100,round.means)
   
@@ -18,8 +20,10 @@ zPatterns <- function(X,label=NULL,plot=TRUE,
   
   am <- function(X, round.means = round.means)
   {
-    
-    ms <- apply(X,2,function(x) mean(x))
+
+    ms <- apply(X,2,function(x){
+      if (all(is.na(x))) {x <- NA} else {mean(x,na.rm=T)}
+      })
     round(ms,round.means)
     
   }
@@ -56,6 +60,7 @@ zPatterns <- function(X,label=NULL,plot=TRUE,
       amp <- by(X,pat.ID,am,round.means=round.means)
       amp <- do.call(rbind,amp)
       amp <- amp[nrow(a):1,]
+      
       for (i in 1:nrow(a)){
         for (j in 1:ncol(a)){
           text(j,i,label=amp[i,j],cex=cex.means)
@@ -76,7 +81,8 @@ zPatterns <- function(X,label=NULL,plot=TRUE,
     par(mar=c(0,0,3,0))
     plot.new()
     if (legend==TRUE){
-    legend("topleft",cell.labels,pch=c(22,22),bty="n",
+      if (any(is.na(cell.labels))) cell.labels[is.na(cell.labels)] <- "NA" 
+      legend("topleft",cell.labels,pch=c(22,22),bty="n",
            pt.bg=cell.colors,pt.cex=2,cex=1.1)}
   } 
   
@@ -86,20 +92,23 @@ zPatterns <- function(X,label=NULL,plot=TRUE,
   if (is.null(label)) stop("A value for label must be given")
   if (!is.na(label)){
     if (!any(X==label,na.rm=T)) stop(paste("Label",label,"was not found in the data set"))
-    if (label!=0 & any(X==0,na.rm=T)) warning("Unidentified zero values were found in the data set")
-    if (any(is.na(X))) warning(paste("Unidentified NA values were found in the data set"))
+    if (label!=0 & any(X==0,na.rm=T))
+      warning("Unidentified zero values were found and will be ignored")
+    if (any(is.na(X))) warning(paste("Unidentified NA values were found in the data set and will be ignored"))
   }
   if (is.na(label)){
-    if (any(X==0,na.rm=T)) warning("Unidentified zero values were found in the data set")
+    if (any(X==0,na.rm=T)) warning("Unidentified zero values were found in the data set and will be ignored")
     if (!any(is.na(X),na.rm=T)) stop(paste("Label",label,"was not found in the data set"))
   }
   
   X <- as.data.frame(X)
   
   n <- nrow(X); p <- ncol(X)
-  X[X==label] <- NA; X[X==0] <- NA
   
-  miss <- as.data.frame(is.na(X)*1)
+  if (is.na(label)) miss <- as.data.frame(is.na(X)*1)
+  else miss <- as.data.frame((X==label)*1)
+  
+  miss[is.na(miss)] <- 0 # Ignore any unlabelled NAs/zeros to graph patterns
 
   prop_col <- round(colSums(miss)/n*100,2)
   prop <- round(sum(miss)/(n*p)*100,2)
@@ -119,6 +128,9 @@ zPatterns <- function(X,label=NULL,plot=TRUE,
   tab <- tab[match(names(pat.freq),tab$pat),1:p]
   tab.num <- tab.num[match(names(pat.freq),tab.num$pat),1:p]
   rownames(tab.num) <- 1:nrow(tab.num)
+  
+  X[X==label] <- NA; X[X==0] <- NA # Ignore labelled/NAs/zeros for summaries
+  
   if (plot==TRUE) plot.patterns(tab.num, show.means=show.means,round.means=round.means,
                                 cex.means=cex.means,X = X, pat = pat.ID, ...)
   tab <- cbind(Patt.ID=1:length(levels(pat.ID)),

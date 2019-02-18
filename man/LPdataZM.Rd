@@ -7,7 +7,7 @@ La Paloma data set (incl. zeros and missing data)
 \description{
 96 samples of a 15-part geochemical composition in micrograms/gram from La Paloma stream (Venezuela). For more details see Montero-Serrano et al. (2010).
 
-Duplicate of the \code{LPdata} data set including 2.43\% missing at random cells (36.45\% samples with missing data; coded as \code{NA}) along with 6.11\% values below the limit of detection (coded as 0).
+Duplicate of the \code{LPdata} data set including 2.36\% missing at random cells (35.42\% samples with missing data; coded as \code{NA}) along with 6.11\% values below the limit of detection (coded as 0).
 
 }
 \usage{data(LPdataZM)}
@@ -42,6 +42,8 @@ Montero-Serrano JC, Palarea-Albaladejo J, Martin-Fernandez JA, and Martinez-Sant
 \examples{
 data(LPdataZM)
 
-zPatterns(LPdataZM,label=0) # Includes zero + missing data patterns
+zPatterns(LPdataZM,label=0) # Show zero patterns
+
+zPatterns(LPdataZM,label=NA) # Show missingness patterns
 }
 \keyword{datasets}

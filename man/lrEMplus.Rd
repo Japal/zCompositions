@@ -7,7 +7,7 @@ Log-ratio EM algorithm (plus)
 \description{
 This function implements an extended version of the log-ratio EM algorithm (\code{lrEM} function) to simultaneously deal with both zeros (i.e. data below detection limit, rounded zeros) and missing data in compositional data sets.
 
-Note: to use this function, zeros and missing data must be labelled using 0 and \code{NA} respectively.
+Note: zeros and missing data must be labelled using 0 and \code{NA} respectively to use this function.
 }
 \usage{
 lrEMplus(X, dl = NULL, rob = FALSE,
@@ -44,7 +44,7 @@ Suppress printed feedback (\code{suppress.print = FALSE}, default).
 
 
 \details{
-The procedure is started with an initial imputation of zeros by simple replacement (\code{delta*dl}). Subsequently, iterative calls to \code{lrEM} replace zeros and missing data alternately until convergence to a stable solution or the maximum number of iterations is reached (see \code{?lrEM} for more details).
+The procedure starts with an initial imputation of either zeros (using simple replacement with \code{delta*dl}) or missing values (using mean imputation) depending of which problem is the least frequent in the data set. Subsequently, iterative calls to \code{lrEM} replace zeros and missing data alternately until convergence to a stable solution or the maximum number of iterations is reached (see \code{?lrEM} for more details).
 }
 \value{
 A \code{\link{data.frame}} object containing the imputed compositional data set in the same scale as the original. The number of iterations required for convergence is also printed (this can be suppressed by setting \code{suppress.print=TRUE}).
@@ -66,8 +66,9 @@ Palarea-Albaladejo J, Martin-Fernandez JA. Values below detection limit in compo
 }
 \examples{
 # Data set closed to 100 (percentages, common dl = 1%)
+# (Note that zeros and missing in the same row are allowed)
 X <- matrix(c(26.91,8.08,12.59,31.58,6.45,14.39,
-              39.73,26.20,0.00,15.22,6.80,12.05,
+              39.73,41.42,0.00,NA,6.80,12.05,
               NA,35.13,7.96,14.28,35.12,7.51,
               10.85,46.40,31.89,10.86,0.00,0.00,
               10.85,16.27,NA,9.16,19.57,44.15,
@@ -94,11 +95,11 @@ X_lrEMplus2 <- lrEMplus(X,dl=mdl,ini.cov="multRepl")
 data(LPdataZM) # data (ppm/micrograms per gram; 0 is nondetect and NA is missing data)
 
 dl <- c(2,1,0,0,2,0,6,1,0.6,1,1,0,0,632,10) # limits of detection (0 for no limit)
-LPdata2 <- subset(LPdataZM,select=-c(Cu,Ni,La))  # select a subset for illustration purposes
+LPdataZM2 <- subset(LPdataZM,select=-c(Cu,Ni,La))  # select a subset for illustration purposes
 dl2 <- dl[-c(5,7,10)]
 
-LPdata2_lrEMplus <- lrEMplus(LPdata2,dl=dl2)
-LPdata2_roblrEMplus <- lrEMplus(LPdata2,dl=dl2,rob=TRUE,tolerance=0.005)
+LPdataZM2_lrEMplus <- lrEMplus(LPdataZM2,dl=dl2)
+LPdataZM2_roblrEMplus <- lrEMplus(LPdataZM2,dl=dl2,rob=TRUE,tolerance=0.005)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

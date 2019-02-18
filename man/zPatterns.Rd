@@ -42,9 +42,11 @@ Data set (\code{\link{matrix}} or \code{\link{data.frame}} class).}
 \value{
 Vector of pattern IDs corresponding to each row of \code{X}.
 
-It also prints a summary table (if \code{suppress.print=FALSE}) showing zero and/or missingness patterns in the data and some summary statistics: number of zero/missing components by pattern (No.Unobs), pattern frequency (absolute and percentage), percentage zero/missing values by component (column) and overall percentage of zero/missing values in the data set. The symbols + and - indicate, respectively, zero/missing and observed components within each pattern. A graphical version of the summary table is returned including barplots on the margins displaying percentage zero/missing and percentage compositional geometric means by pattern (if \code{show.means=TRUE}). Note that the posibility of computing ordinary arithmetic means (\code{type.means="am"}) is also included to give the function a wider use, however this measure is not recommended for compositional data.
+By default, a summary table is printed showing patterns in the data according to \code{label} and some summary statistics: number of zero/missing components by pattern (No.Unobs), pattern frequency (absolute and percentage), percentage zero/missing values by component (column) and overall percentage of zero/missing values in the data set. The symbols + and - indicate, respectively, zero/missing and observed components within each pattern. A graphical version of the summary table is returned including barplots on the margins displaying percentage zero/missing and compositional geometric means by pattern (if \code{show.means=TRUE}; expressed in percentage scale). Common arithmetic means can be also shown for the case of ordinary data (\code{type.means="am"}), however this is not recommended for compositional data.
 
-A warning message is shown if zeros or NA values not identified through \code{label} are present in the data set. Note that they, along with any other value specified in \code{label}, will be all treated as unobserved data for the graphical display and numerical summaries of patterns. Zeros and missing data can be dealt with simultaneously using the \code{lrEMplus} function.
+A warning message is shown if zeros or NA values not identified by \code{label} are present in the data set. These will be ignored for the graphical display and numerical summaries of patterns, which will be only based on \code{label}.
+
+Note that zeros and missing data can be dealt with simultaneously using the \code{lrEMplus} function.
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
@@ -65,7 +67,20 @@ LPdata[pattern.ID==10,]
 pattern.ID <- zPatterns(LPdata,label=0,
               cell.labels=c("Zero","Non-zero"),bar.labels=TRUE)
 
+# Show compositional geometric means (in \%) per zero pattern
+zPatterns(LPdata,label=0,show.means=TRUE)
+
+# Data sest with zeros and missing data (0 = zero; NA = missing) (see lrEMplus function).
+data(LPdataZM)
+
+# Show missingness patterns only
+zPatterns(LPdataZM,label=NA)
+
+# Show zero patterns only and means by pattern based on available data
+# (blanks indicate not enough data available for computation)
+zPatterns(LPdataZM,label=0,show.means=TRUE)
 }
+
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
 \keyword{ ~kwd1 }

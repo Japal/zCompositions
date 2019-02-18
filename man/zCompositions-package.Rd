@@ -45,6 +45,13 @@ Chemometrics and Intelligent Laboratory Systems 143: 85-96.
 \seealso{
 Aitchison, J., 1986. The Statistical Analysis of Compositional Data. Monographs on Statistics and Applied Probability. Chapman and Hall Ltd., London, UK (re-edited in 2003 with additional material).
 
+Filzmoser, P.,  Hron, K.,  Templ, M., 2018. Applied Compositional Data Analysis. With Worked Examples in R. Springer, Switzerland.
+
 Pawlowsky-Glahn, V., Buccianti, A. (Eds.), 2011. Compositional Data Analysis: Theory and Applications. John Wiley & Sons, Ltd., Chichester,UK.
+
+Pawlowsky-Glahn, V., Egozcue, J.J., Tolosana-Delgado, R., 2015. Modeling and analysis of compositional data. John Wiley & Sons, Ltd., Chichester, UK.
+
+van den Boogaart, K.G., Tolosana-Delgado, R., 2013, Analyzing Compositional Data with R. Springer-Verlag, Berlin, Germany.
+
 }
 
