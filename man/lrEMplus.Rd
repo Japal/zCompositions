@@ -99,9 +99,8 @@ LPdataZM2 <- subset(LPdataZM,select=-c(Cu,Ni,La))  # select a subset for illustr
 dl2 <- dl[-c(5,7,10)]
 
 LPdataZM2_lrEMplus <- lrEMplus(LPdataZM2,dl=dl2)
-LPdataZM2_roblrEMplus <- lrEMplus(LPdataZM2,dl=dl2,rob=TRUE,tolerance=0.005)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
-\keyword{ ~kwd1 }
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
+%\keyword{ ~kwd1 }
+%\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line

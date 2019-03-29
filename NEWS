@@ -1,16 +1,17 @@
 RELEASE HISTORY OF THE "zCompositions" PACKAGE
 ==============================================
 
-CHANGES IN zCompositions VERSION 1.2.0 [2019-02]:
+CHANGES IN zCompositions VERSION 1.2.1 [2019-03]:
 ----------------------------------------------------
 
 NEW FEATURES
 
 * lrEMplus: new function to simultaneously deal with zeros and missing data based on the EM algorithm.
+* multRepl now allows to impute missing data.
 
 MODIFICATIONS
 
-* zPatterns now warns about either zeros or NAs in the data not identified using the label argument.
+* zPatterns able to separate zero and missingness patterns. New warnings about either zeros or NAs not identified by the label argument.
 * Updated documentation.
 
 CHANGES IN zCompositions VERSION 1.1.2 [2018-11]:
