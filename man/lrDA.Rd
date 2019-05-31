@@ -5,7 +5,7 @@
 Log-ratio DA algorithm
 }
 \description{
-This function implements a simulation-based Data Augmentation (DA) algorithm to impute left-censored values (e.g. values below detection limit, rounded zeros) via coordinates representation of compositional data sets which incorporate the information of the relative covariance structure. Multiple imputation estimates can be also obtained from the output.
+This function implements a simulation-based Data Augmentation (DA) algorithm to impute left-censored values (e.g. values below detection limit, rounded zeros) via coordinates representation of compositional data sets which incorporates the information of the relative covariance structure. Multiple imputation estimates can be also obtained from the output.
 }
 \usage{
 lrDA(X, label = NULL, dl = NULL,
