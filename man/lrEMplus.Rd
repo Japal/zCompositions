@@ -13,7 +13,7 @@ Note: zeros and missing data must be labelled using 0 and \code{NA} respectively
 lrEMplus(X, dl = NULL, rob = FALSE,
         ini.cov = c("complete.obs", "multRepl"), delta = 0.65,
         tolerance = 0.0001, max.iter = 50, rlm.maxit = 150,
-        suppress.print = FALSE)
+        suppress.print = FALSE, closure = NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -26,7 +26,7 @@ Numeric vector or matrix of detection limits/thresholds. These must be given on 
   \item{rob}{
 Logical value. \code{FALSE} provides maximum-likelihood estimates of model parameters (default), \code{TRUE} provides robust parameter estimates.
 }
-  \item{ini.cov}{Initial estimation of either the log-ratio covariance matrix (ML estimation) or unobserved data (robust estimation). It can be based on either complete observations (\code{"complete.obs"}, default) or multiplicative simple replacement of left-censored data (\code{"multRepl"}).}
+  \item{ini.cov}{Initial estimation of either the log-ratio covariance matrix (ML estimation) or unobserved data (robust estimation). It can be based on either complete observations (\code{"complete.obs"}, default) or multiplicative simple replacement (\code{"multRepl"}).}
   \item{delta}{
 If \code{ini.cov="multRepl"}, delta parameter for initial multiplicative simple replacement of left-censored data (see \code{\link{multRepl}}) expressed in proportions (default = 0.65).
 }
@@ -40,11 +40,14 @@ If \code{rob=TRUE}, maximum number of iterations for the embedded robust regress
   \item{suppress.print}{
 Suppress printed feedback (\code{suppress.print = FALSE}, default).
 }
+  \item{closure}{Closure value used to add a residual part if needed when \code{ini.cov="multRepl"} is used (see \code{?multRepl}).}
 }
 
 
 \details{
-The procedure starts with an initial imputation of either zeros (using simple replacement with \code{delta*dl}) or missing values (using mean imputation) depending of which problem is the least frequent in the data set. Subsequently, iterative calls to \code{lrEM} replace zeros and missing data alternately until convergence to a stable solution or the maximum number of iterations is reached (see \code{?lrEM} for more details).
+The procedure starts with an initial imputation of either zeros (using simple replacement with \code{delta*dl}) or missing values (using geometric mean imputation from observed data) depending of which problem is the least frequent in the data set. Subsequently, iterative calls to \code{lrEM} replace zeros and missing data alternately until convergence to a stable solution or the maximum number of iterations is reached.
+
+See \code{?lrEM} for more details.
 }
 \value{
 A \code{\link{data.frame}} object containing the imputed compositional data set in the same scale as the original. The number of iterations required for convergence is also printed (this can be suppressed by setting \code{suppress.print=TRUE}).
@@ -57,6 +60,9 @@ Palarea-Albaladejo J, Martin-Fernandez JA, Gomez-Garcia J. A parametric approach
 Palarea-Albaladejo J, Martin-Fernandez JA. A modified EM alr-algorithm for replacing rounded zeros in compositional data sets. Computers & Geosciences 2008; 34(8): 902-917.
 
 Palarea-Albaladejo J, Martin-Fernandez JA. Values below detection limit in compositional chemical data. Analytica Chimica Acta 2013; 764: 32-43. DOI: \url{http://dx.doi.org/10.1016/j.aca.2012.12.029}.
+
+Palarea-Albaladejo J. and Martin-Fernandez JA. zCompositions -- R package for multivariate imputation of
+left-censored data under a compositional approach. Chemometrics and Intelligence Laboratory Systems 2015; 143: 85-96.
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
@@ -66,7 +72,7 @@ Palarea-Albaladejo J, Martin-Fernandez JA. Values below detection limit in compo
 }
 \examples{
 # Data set closed to 100 (percentages, common dl = 1%)
-# (Note that zeros and missing in the same row are allowed)
+# (Note that zeros and missing in the same row or column are allowed)
 X <- matrix(c(26.91,8.08,12.59,31.58,6.45,14.39,
               39.73,41.42,0.00,NA,6.80,12.05,
               NA,35.13,7.96,14.28,35.12,7.51,
@@ -92,7 +98,7 @@ mdl[10,] <- c(0,0,1,0,0.8,0.7)
 X_lrEMplus2 <- lrEMplus(X,dl=mdl,ini.cov="multRepl")
 
 # Non-closed compositional data set
-data(LPdataZM) # data (ppm/micrograms per gram; 0 is nondetect and NA is missing data)
+data(LPdataZM) # (in ppm; 0 is nondetect and NA is missing data)
 
 dl <- c(2,1,0,0,2,0,6,1,0.6,1,1,0,0,632,10) # limits of detection (0 for no limit)
 LPdataZM2 <- subset(LPdataZM,select=-c(Cu,Ni,La))  # select a subset for illustration purposes

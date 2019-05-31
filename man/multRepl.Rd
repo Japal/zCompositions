@@ -7,7 +7,8 @@
 This function implements non-parametric multiplicative simple imputation of left-censored (e.g. values below detection limit, rounded zeros) and missing data in compositional data sets.
 }
 \usage{
-multRepl(X, label = NULL, dl = NULL, delta = 0.65, imp.missing = FALSE)
+multRepl(X, label = NULL, dl = NULL, delta = 0.65,
+            imp.missing = FALSE, closure = NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -22,14 +23,16 @@ Numeric vector or matrix of detection limits/thresholds. These must be given on 
 Delta parameter (fraction of the threshold) used in proportions (default = 0.65).
 }
  \item{imp.missing}{If \code{TRUE} then unobserved values identified by \code{label} are treated as missing data (default = \code{FALSE}).}
+  \item{closure}{Closure value used to add a residual part for imputation (see below).}
 }
 \details{
 This function imputes left-censored compositional values by a given fraction \code{delta} of the corresponding limit of detection and applies a multiplicative adjustment to preserve the multivariate compositional properties of the samples. It allows for either single (\code{vector} form) or multiple (\code{matrix} form, same size as \code{X}) limits of detection by component. Any threshold value can be set for non-censored elements (e.g. use 0 if no threshold for a particular column or element of the data matrix).
 
-\emph{Missing data imputation}: \code{multRepl} can be employed to impute missing data by multiplicative replacement by setting \code{imp.missing = TRUE}. Missing values in a component are replaced by the estimated geometric mean based on the observed values for that component in the data set. The non-missing components of the composition are applied a multiplicative adjustment to preserve the multivariate compositional properties of the samples. The argument \code{dl} is ignored in this case.
+\emph{Missing data imputation}: missing data can be imputed by setting \code{imp.missing = TRUE}. They are replaced by the estimated column geometric mean from observed values. The non-missing parts in the composition are applied multiplicative adjustment. The argument \code{dl} and \code{delta} are ignored and \code{X} is require to be a data matrix in this case.
+
+Note: negative values can be generated when unobserved components are a large portion of the composition, which is more likely for missing data (e.g in major chemical elements) and non-closed compositions. A workaround is to add a residual filling the gap up to the closure/total when possible. This is done internally when a value for \code{closure} is specified (e.g. \code{closure=10^6} if ppm or \code{closure=100} if percentages). The residual is discarded after imputation.
 
 This function produces an imputed data set on the same scale as the input data set. If \code{X} is not closed to a constant sum, then the results are adjusted to provide a compositionally equivalent data set, expressed in the original scale, which leaves the absolute values of the observed components unaltered. Note that this adjustment only applies to data sets and not when a single composition is entered. In this latter case, the composition is treated as a closed vector.
-
 }
 \value{
 A \code{\link{data.frame}} object containing the imputed compositional vector or data set in the same scale as the original.
@@ -38,6 +41,9 @@ A \code{\link{data.frame}} object containing the imputed compositional vector or
 Martin-Fernandez JA, Barcelo-Vidal C, Pawlowsky-Glahn V. Dealing with zeros and missing values in compositional data sets using nonparametric imputation. Mathematical Geology 2003; 35: 253-78.
 
 Palarea-Albaladejo J, Martin-Fernandez JA. Values below detection limit in compositional chemical data. Analytica Chimica Acta 2013; 764: 32-43. DOI: http://dx.doi.org/10.1016/j.aca.2012.12.029.
+
+Palarea-Albaladejo J. and Martin-Fernandez JA. zCompositions -- R package for multivariate imputation of
+left-censored data under a compositional approach. Chemometrics and Intelligence Laboratory Systems 2015; 143: 85-96.
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
@@ -105,6 +111,17 @@ X <- matrix(c(10.47,8.58,59.72,19.30,1.93,
                7.02,6.30,75.65,11.03,NA),byrow=TRUE,ncol=5)
               
 X_multReplMiss <- multRepl(X,label=NA,imp.missing=TRUE)
+
+# Non-closed compositional data set
+data(LPdata) # (in ppm units)
+# Treating zeros as missing data for illustration purposes only
+LPdata_multReplMiss <- multRepl(LPdata,label=0,imp.missing=TRUE)
+# Negative values generated (see e.g. K and Rb in sample #60)
+
+# Workaround: use residual part to fill up the gap to 10^6 for imputation
+LPdata_multReplMiss2 <- multRepl(LPdata,label=0,imp.missing=TRUE,closure=10^6)
+
+
 
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

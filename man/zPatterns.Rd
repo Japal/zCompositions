@@ -46,13 +46,18 @@ By default, a summary table is printed showing patterns in the data according to
 
 A warning message is shown if zeros or NA values not identified by \code{label} are present in the data set. These will be ignored for the graphical display and numerical summaries of patterns, which will be only based on \code{label}.
 
-Note that zeros and missing data can be dealt with simultaneously using the \code{lrEMplus} function.
+Check out 'plus' functions to deal with zeros and missing data simultaneously.
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
+\references{
+Palarea-Albaladejo J. and Martin-Fernandez JA. zCompositions -- R package for multivariate imputation of
+left-censored data under a compositional approach. Chemometrics and Intelligence Laboratory Systems 2015; 143: 85-96.
+}
+
 \seealso{
-\code{\link{lrEM}}, \code{\link{lrEMplus}}, \code{\link{lrDA}}, \code{\link{multRepl}}, \code{\link{multLN}}, \code{\link{multKM}}, \code{\link{cmultRepl}}
+\code{\link{lrEM}}, \code{\link{lrEMplus}}, \code{\link{lrDA}}, \code{\link{multRepl}}, \code{\link{multReplus}}, \code{\link{multLN}}, \code{\link{multKM}}, \code{\link{cmultRepl}}
 }
 \examples{
 data(LPdata)

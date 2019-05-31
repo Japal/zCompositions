@@ -1,13 +1,26 @@
 RELEASE HISTORY OF THE "zCompositions" PACKAGE
 ==============================================
 
-CHANGES IN zCompositions VERSION 1.2.1 [2019-03]:
+CHANGES IN zCompositions VERSION 1.3.1 [2019-05]:
+----------------------------------------------------
+
+NEW FEATURES
+
+* multRepl allows to impute missing data (BETA).
+* multReplus: new function to simultaneously deal with zeros and missing data by multiplicative simple replacement (BETA).
+
+MODIFICATIONS
+
+* lrEM: multiplicative simple replacement can be also used to initiate the EM algorithm for missing data imputation.
+* Minor bugs fixed.
+* Updated documentation.
+
+CHANGES IN zCompositions VERSION 1.2.0 [2019-02]:
 ----------------------------------------------------
 
 NEW FEATURES
 
 * lrEMplus: new function to simultaneously deal with zeros and missing data based on the EM algorithm.
-* multRepl now allows to impute missing data.
 
 MODIFICATIONS
 

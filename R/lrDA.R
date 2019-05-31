@@ -1,6 +1,7 @@
 lrDA <-
   function(X,label=NULL,dl=NULL,ini.cov=c("lrEM","complete.obs","multRepl"),delta=0.65,n.iters=1000,m=1,store.mi=FALSE){
     
+    if (any(X<0, na.rm=T)) stop("X contains negative values")
     if (is.character(dl)) stop("dl must be a numeric vector or matrix")
     if (is.vector(dl)) dl <- matrix(dl,nrow=1)
     
@@ -120,7 +121,7 @@ lrDA <-
     
     # Check for closure
     closed <- 0
-    if (all( abs(c - mean(c)) < .Machine$double.eps^0.5 )) closed <- 1
+    if (all( abs(c - mean(c)) < .Machine$double.eps^0.3 )) closed <- 1
     
     pos <- which(!is.na(colSums(X)))[1]
     if (is.na(pos)) stop("lrDA requires at least one fully observed column")

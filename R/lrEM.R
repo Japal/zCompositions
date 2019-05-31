@@ -1,6 +1,8 @@
 lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRepl"),delta=0.65,tolerance=0.0001,
-         max.iter=50,rlm.maxit=150,imp.missing=FALSE,suppress.print=FALSE){
+         max.iter=50,rlm.maxit=150,imp.missing=FALSE,suppress.print=FALSE,
+         closure=NULL){
   
+  if (any(X<0, na.rm=T)) stop("X contains negative values")
   if (imp.missing==FALSE){
     if (is.character(dl)) stop("dl must be a numeric vector or matrix")
     if (is.vector(dl)) dl <- matrix(dl,nrow=1)
@@ -23,7 +25,6 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
   }
   
   ini.cov <- match.arg(ini.cov)
-  if (imp.missing==TRUE) {ini.cov <- "complete.obs"}
   
   lm.sweep <- function(M,C,varobs){
     
@@ -135,7 +136,7 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
   
   # Check for closure
   closed <- 0
-  if (all( abs(c - mean(c)) < .Machine$double.eps^0.5 )) closed <- 1
+  if (all( abs(c - mean(c)) < .Machine$double.eps^0.3 )) closed <- 1
   
   misspat <- as.data.frame(is.na(X)*1)
   misspat <- as.factor(do.call(paste,c(misspat,sep="")))
@@ -161,10 +162,13 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
         stop("ini.cov: singular initial covariance matrix. Probably too few complete rows in data set for using 'complete.obs'")
       M <- matrix(colMeans(X_alr,na.rm=T),ncol=1)
       C <- cov(X_alr,use=ini.cov)}
-    else {X.mr <- multRepl(X,label=NA,dl=dl,delta=delta)
-          X.mr_alr <- t(apply(X.mr,1,function(x) log(x)-log(x[pos])))[,-pos]
-          M <- matrix(colMeans(X.mr_alr,na.rm=T),ncol=1)
-          C <- cov(X.mr_alr)}  
+    else {
+        X.mr <- multRepl(X,label=NA,dl=dl,delta=delta,imp.missing=imp.missing,closure=closure)
+        if (any(X.mr < 0)) {stop("ini.cov: negative values produced using multRepl (please check out closure argument and multRepl help for advice)")}
+        X.mr_alr <- t(apply(X.mr,1,function(x) log(x)-log(x[pos])))[,-pos]
+        M <- matrix(colMeans(X.mr_alr,na.rm=T),ncol=1)
+        C <- cov(X.mr_alr)
+        }  
     
     iter_again <- 1
     niters <- 0
@@ -186,13 +190,8 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
         varmiss <- which(is.na(X_alr[i[1],]))
         if (length(varobs) == 0){
           alt.in <- TRUE
-          if (imp.missing==FALSE){
-            temp <- multRepl(X[i,,drop=FALSE],label=NA,dl=dl[i,,drop=FALSE],delta=delta)
-            Y[i,] <- t(apply(temp,1,function(x) log(x)-log(x[pos])))[,-pos]
-          }
-          if (imp.missing==TRUE){
-            stop("Please remove samples with only one observed component (check out using zPatterns).")
-          }
+          temp <- multRepl(X[i,,drop=FALSE],label=NA,dl=dl[i,,drop=FALSE],delta=delta,imp.missing=imp.missing,closure=closure)
+          Y[i,] <- t(apply(temp,1,function(x) log(x)-log(x[pos])))[,-pos]
           if (niters == 1){
             alt.pat <- c(alt.pat,npat)
             alt.mr <- list(alt.mr,i)
@@ -240,8 +239,16 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
   
   if (rob==TRUE){
     
-    if (ini.cov == "multRepl") X.mr <- multRepl(X,label=NA,dl=dl,delta=delta)
-    
+    if (ini.cov == "multRepl"){
+     if (imp.missing == TRUE){
+          X.mr <- multRepl(X,label=NA,imp.missing=T,closure=closure)
+          if (any(X.mr < 0)) {stop("ini.cov: negative values produced using multRepl (please check out closure argument and multRepl help for advice)")}
+          }
+     else {X.mr <- multRepl(X,label=NA,dl=dl,delta=delta,closure=closure)
+           if (any(X.mr < 0)) {stop("ini.cov: negative values produced using multRepl (please check out closure argument and multRepl help for advice)")}
+          }
+    }
+      
     miss <- by(X,misspat,function(x) which(is.na(x[1,])))
     obs <- by(X,misspat,function(x) which(!is.na(x[1,])))
     
@@ -263,7 +270,9 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
         if ((length(obs[[npat]]) == 1) & (!any(npat==alt.pat))){
           alt.in <- TRUE
           if (imp.missing==FALSE){
-            X[misspat==npat,] <- multRepl(X.old[misspat==npat,,drop=FALSE],label=NA,dl=dl[misspat==npat,,drop=FALSE],delta=delta)    
+            X[misspat==npat,] <- multRepl(X.old[misspat==npat,,drop=FALSE],
+                                          label=NA,dl=dl[misspat==npat,,drop=FALSE],
+                                          delta=delta,closure=closure)    
           }
           if (imp.missing==TRUE){
             stop("Please remove samples with only one observed component (check out using zPatterns).")

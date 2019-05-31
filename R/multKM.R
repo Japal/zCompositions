@@ -2,6 +2,7 @@ multKM <-
   function (X,label=NULL,dl=NULL,n.draws=1000,n.knots=NULL)
   {
     
+    if (any(X<0, na.rm=T)) stop("X contains negative values")
     if (is.character(dl)) stop("dl must be a numeric vector or matrix")
     if (is.vector(dl)) dl <- matrix(dl,nrow=1)
     
@@ -54,7 +55,7 @@ multKM <-
     
     # Check for closure
     closed <- 0
-    if (all( abs(c - mean(c)) < .Machine$double.eps^0.5 )) closed <- 1
+    if (all( abs(c - mean(c)) < .Machine$double.eps^0.3 )) closed <- 1
     
     if (nrow(dl)==1){
       dl <- matrix(rep(1,nn),ncol=1)%*%dl

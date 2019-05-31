@@ -41,6 +41,7 @@
 zVarArray <- function(X, label = 0, groups = NULL, suppress.print = FALSE)
 {
 
+  if (any(X<0, na.rm=T)) stop("X contains negative values")
   if (is.vector(X))
     stop("X must be a matrix or data.frame class object")
   if (is.null(label))

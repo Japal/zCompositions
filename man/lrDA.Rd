@@ -55,6 +55,9 @@ A \code{\link{data.frame}} object containing the imputed compositional data set 
 }
 \references{
 Palarea-Albaladejo J, Martin-Fernandez JA, Olea, RA. A bootstrap estimation scheme for chemical compositional data with nondetects. Journal of Chemometrics 2014; 28: 585-599.
+
+Palarea-Albaladejo J. and Martin-Fernandez JA. zCompositions -- R package for multivariate imputation of
+left-censored data under a compositional approach. Chemometrics and Intelligence Laboratory Systems 2015; 143: 85-96.
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~

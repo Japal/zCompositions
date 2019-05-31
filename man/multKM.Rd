@@ -36,7 +36,7 @@ A \code{\link{data.frame}} object containing the imputed compositional data set 
 }
 
 \references{
-Palarea-Albaladejo J. and Martin-Fernandez J.A. zCompositions -- R package
+Palarea-Albaladejo J. and Martin-Fernandez JA. zCompositions -- R package
 for multivariate imputation of left-censored data under a compositional approach.
 Chemometrics and Intelligent Laboratory Systems 2015; 143: 85-96.
 }

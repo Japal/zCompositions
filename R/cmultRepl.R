@@ -4,6 +4,7 @@ function(X,label=0,method=c("GBM","SQ","BL","CZM","user"),output=c("prop", "p-co
          suppress.print=FALSE)
   {
 
+  if (any(X<0, na.rm=T)) stop("X contains negative values")
   if (is.vector(X) | is.character(X) | (nrow(X)==1)) stop("X must be a data matrix")
   if (!is.na(label)){
     if (!any(X==label,na.rm=T)) stop(paste("Label",label,"was not found in the data set"))

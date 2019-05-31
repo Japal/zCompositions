@@ -36,6 +36,11 @@ arrays based on total weighted squared relative errors are also provided (see \c
 The log-contrast is specified by the \code{lc} argument using a vector of codes 1, -1 and 0 for components
 in the numerator, denominator and omitted respectively.
 }
+\references{
+Palarea-Albaladejo J. and Martin-Fernandez JA. zCompositions -- R package for multivariate imputation of
+left-censored data under a compositional approach. Chemometrics and Intelligence Laboratory Systems 2015; 143: 85-96.
+}
+
 \examples{
 data(Water)
 zPatterns(Water, label = 0)

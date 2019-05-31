@@ -1,6 +1,8 @@
 lrEMplus <- function(X, dl = NULL, rob = FALSE, ini.cov = c("complete.obs", "multRepl"), delta = 0.65,
-                     tolerance = 0.0001, max.iter = 50, rlm.maxit=150, suppress.print = FALSE){
+                     tolerance = 0.0001, max.iter = 50,
+                     rlm.maxit=150, suppress.print = FALSE, closure=NULL){
   
+  if (any(X<0, na.rm=T)) stop("X contains negative values")
   if (is.character(dl)) stop("dl must be a numeric vector or matrix")
   if (is.vector(dl)) dl <- matrix(dl,nrow=1)
 
@@ -10,9 +12,13 @@ lrEMplus <- function(X, dl = NULL, rob = FALSE, ini.cov = c("complete.obs", "mul
   if ((nrow(dl)>1) & (nrow(dl)!=nrow(X))) stop("The number of rows in X and dl do not agree")
   
   if (any(is.na(X))==FALSE) stop("No missing data were found in the data set")
-  if (any(X==0)==FALSE) stop("No zeros were found in the data set")
+  if (any(X==0, na.rm=T)==FALSE) stop("No zeros were found in the data set")
 
   ini.cov <- match.arg(ini.cov)
+  
+  gm <- function(x, na.rm=TRUE){
+    exp(sum(log(x), na.rm=na.rm) / length(x))
+  }
   
   ## Preliminaries ----
 
@@ -25,7 +31,7 @@ lrEMplus <- function(X, dl = NULL, rob = FALSE, ini.cov = c("complete.obs", "mul
 
   # Check for closure
   closed <- 0
-  if (all( abs(c - mean(c)) < .Machine$double.eps^0.5 )) closed <- 1
+  if (all( abs(c - mean(c)) < .Machine$double.eps^0.3 )) closed <- 1
 
   if (sum(is.na(X)) > sum(X==0,na.rm=T)){
     X.old <- X
@@ -38,22 +44,24 @@ lrEMplus <- function(X, dl = NULL, rob = FALSE, ini.cov = c("complete.obs", "mul
     }
     # Initial lrEM imputation of missing data
     X.old <- lrEM(X.old, label = NA, imp.missing = TRUE, ini.cov = ini.cov, rob = rob,
-                  tolerance = tolerance, max.iter = max.iter, rlm.maxit = rlm.maxit, suppress.print = TRUE)
+                  tolerance = tolerance, max.iter = max.iter, rlm.maxit = rlm.maxit,
+                  suppress.print = TRUE, closure = closure)
   }
   
   if (sum(is.na(X)) <= sum(X==0,na.rm=T)){
     X.old <- X
-    # Initial ordinary mean imputation of missing
-    means <- colMeans(X.old,na.rm=T)
+    # Initial ordinary geo mean imputation of missing (ignores 0s in the column if any)
+    gmeans <- apply(X.old,2,function(x) gm(x[x!=0]))
     for (i in 1:nn){
       if (any(is.na(X.old[i, ]))){
         z <- which(is.na(X.old[i, ]))
-        X.old[i,z] <- means[z]
+        X.old[i,z] <- gmeans[z]
       }
     }
     # Initial lrEM imputation of zeros
     X.old <- lrEM(X.old, label = 0, dl = dl, ini.cov = ini.cov, rob = rob,
-                  tolerance = tolerance, max.iter = max.iter, rlm.maxit = rlm.maxit, suppress.print = TRUE)
+                  tolerance = tolerance, max.iter = max.iter, rlm.maxit = rlm.maxit,
+                  suppress.print = TRUE, closure = closure)
   }
 
   # Initial parameter estimates
@@ -73,10 +81,12 @@ lrEMplus <- function(X, dl = NULL, rob = FALSE, ini.cov = c("complete.obs", "mul
     X.old <- as.matrix(X.old)
     X.old[which(X==0)] <- 0
     X.new <- lrEM(X.old, label = 0, dl = dl, ini.cov =  ini.cov, rob = rob,
-                  tolerance = tolerance, max.iter = max.iter, rlm.maxit = rlm.maxit, suppress.print = TRUE)
+                  tolerance = tolerance, max.iter = max.iter, rlm.maxit = rlm.maxit, suppress.print = TRUE,
+                  closure = closure)
     X.new[is.na(X)] <- NA
     X.new <- lrEM(X.new, label = NA, imp.missing = TRUE, ini.cov =  ini.cov, rob = rob,
-                  tolerance = tolerance, max.iter = max.iter, rlm.maxit = rlm.maxit, suppress.print = TRUE)
+                  tolerance = tolerance, max.iter = max.iter, rlm.maxit = rlm.maxit, suppress.print = TRUE,
+                  closure = closure)
 
     X.new_alr <- log(X.new)-log(X.new[,D])
     X.new_alr <- as.matrix(X.new_alr[,-D])

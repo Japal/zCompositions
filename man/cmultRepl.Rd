@@ -55,6 +55,9 @@ When \code{correct=TRUE} and \code{verbose=TRUE}, the number of times, if any, a
 }
 \references{
 Martin-Fernandez, J.A., Hron, K., Templ, M., Filzmoser, P., Palarea-Albaladejo, J. Bayesian-multiplicative treatment of count zeros in compositional data sets. Statistical Modelling 2015; 15 (2): 134-158.
+
+Palarea-Albaladejo J. and Martin-Fernandez JA. zCompositions -- R package for multivariate imputation of
+left-censored data under a compositional approach. Chemometrics and Intelligence Laboratory Systems 2015; 143: 85-96.
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
