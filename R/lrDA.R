@@ -1,23 +1,28 @@
 lrDA <-
-  function(X,label=NULL,dl=NULL,ini.cov=c("lrEM","complete.obs","multRepl"),delta=0.65,n.iters=1000,m=1,store.mi=FALSE){
+  function(X,label=NULL,dl=NULL,ini.cov=c("lrEM","complete.obs","multRepl"),delta=0.65,
+           imp.missing=FALSE,n.iters=1000,m=1,store.mi=FALSE,closure=NULL){
     
     if (any(X<0, na.rm=T)) stop("X contains negative values")
-    if (is.character(dl)) stop("dl must be a numeric vector or matrix")
-    if (is.vector(dl)) dl <- matrix(dl,nrow=1)
+    if (imp.missing==FALSE){
+      if (is.character(dl)) stop("dl must be a numeric vector or matrix")
+      if (is.vector(dl)) dl <- matrix(dl,nrow=1)
+    }
     
     if ((is.vector(X)) | (nrow(X)==1)) stop("X must be a data matrix")
     if (is.null(label)) stop("A value for label must be given")
     if (!is.na(label)){
       if (!any(X==label,na.rm=T)) stop(paste("Label",label,"was not found in the data set"))
-      if (label!=0 & any(X==0,na.rm=T)) stop("Zero values not labelled as censored values were found in the data set")
-      if (any(is.na(X))) stop(paste("NA values not labelled as censored values were found in the data set"))
+      if (label!=0 & any(X==0,na.rm=T)) stop("Zero values not labelled as censored or missing values were found in the data set")
+      if (any(is.na(X))) stop(paste("NA values not labelled as censored or missing values were found in the data set"))
     }
     if (is.na(label)){
-      if (any(X==0,na.rm=T)) stop("Zero values not labelled as censored values were found in the data set")
+      if (any(X==0,na.rm=T)) stop("Zero values not labelled as censored or missing values were found in the data set")
       if (!any(is.na(X),na.rm=T)) stop(paste("Label",label,"was not found in the data set"))
     }
-    if (ncol(dl)!=ncol(X)) stop("The number of columns in X and dl do not agree")
-    if ((nrow(dl)>1) & (nrow(dl)!=nrow(X))) stop("The number of rows in X and dl do not agree")
+    if (imp.missing==FALSE){
+      if (ncol(dl)!=ncol(X)) stop("The number of columns in X and dl do not agree")
+      if ((nrow(dl)>1) & (nrow(dl)!=nrow(X))) stop("The number of rows in X and dl do not agree")
+    }
     
     if ((store.mi==TRUE) & (m==1)) store.mi <- FALSE
     
@@ -117,7 +122,7 @@ lrDA <-
     X <- apply(X,2,as.numeric)
     c <- apply(X,1,sum,na.rm=TRUE)
     
-    if (nrow(dl)==1) dl <- matrix(rep(1,nn),ncol=1)%*%dl
+    if (imp.missing==FALSE) {if (nrow(dl)==1) dl <- matrix(rep(1,nn),ncol=1)%*%dl}
     
     # Check for closure
     closed <- 0
@@ -126,8 +131,10 @@ lrDA <-
     pos <- which(!is.na(colSums(X)))[1]
     if (is.na(pos)) stop("lrDA requires at least one fully observed column")
     
-    cpoints <- log(dl)-log(X[,pos])-.Machine$double.eps
-    cpoints <- cpoints[,-pos]
+    if (imp.missing==FALSE){
+      cpoints <- log(dl)-log(X[,pos])-.Machine$double.eps
+      cpoints <- cpoints[,-pos]
+    }
     
     X_alr <- log(X)-log(X[,pos]); X_alr <- as.matrix(X_alr[,-pos])
     nn <- nrow(X_alr); p <- ncol(X_alr)
@@ -138,12 +145,12 @@ lrDA <-
       M <- matrix(colMeans(X_alr,na.rm=T),ncol=1)
       C <- cov(X_alr,use=ini.cov)}
     if (ini.cov == "multRepl"){
-      X.mr <- multRepl(X,label=NA,dl=dl,delta=delta)
+      X.mr <- multRepl(X,label=NA,dl=dl,delta=delta,imp.missing=imp.missing,closure=closure)
       X.mr_alr <- t(apply(X.mr,1,function(x) log(x)-log(x[pos])))[,-pos]
       M <- matrix(colMeans(X.mr_alr,na.rm=T),ncol=1)
       C <- cov(X.mr_alr)}
     if (ini.cov == "lrEM"){
-      X.em <- lrEM(X,label=NA,dl=dl,ini.cov="multRepl",delta=delta,suppress.print=TRUE)
+      X.em <- lrEM(X,label=NA,dl=dl,ini.cov="multRepl",delta=delta,imp.missing=imp.missing,closure=closure,suppress.print=TRUE)
       X.em_alr <- t(apply(X.em,1,function(x) log(x)-log(x[pos])))[,-pos]
       M <- matrix(colMeans(X.em_alr,na.rm=T),ncol=1)
       C <- cov(X.em_alr)}
@@ -164,7 +171,7 @@ lrDA <-
       if (store.mi==TRUE) mi.list <- vector(mode="list",m)
     }
     
-    while (t <= n.iters*m){
+    while (t < n.iters*m){
       
       Y <- X_alr                              
       runs <- runs + 1
@@ -177,7 +184,7 @@ lrDA <-
         varmiss <- which(is.na(X_alr[i[1],]))
         if (length(varobs) == 0){
           alt.in <- TRUE
-          temp <- multRepl(X[i,,drop=FALSE],label=NA,dl=dl[i,,drop=FALSE],delta=delta)
+          temp <- multRepl(X[i,,drop=FALSE],label=NA,dl=dl[i,,drop=FALSE],delta=delta,imp.missing=imp.missing,closure=closure)
           Y[i,] <- t(apply(temp,1,function(x) log(x)-log(x[pos])))[,-pos]
           if (runs == 1){
             alt.pat <- c(alt.pat,npat)
@@ -190,9 +197,17 @@ lrDA <-
         CR <- lm.sweep(M,C,varobs)[[2]]
         Y[i,varmiss] <- matrix(1,nrow=length(i))%*%B[1,] + X_alr[i, varobs, drop=FALSE]%*%B[2:(length(varobs)+1),]
         sigmas[varmiss] <- sqrt(diag(as.matrix(CR)))
-        for (j in 1:length(varmiss)){                                
-          sigma <- sigmas[varmiss[j]]
-          Y[i,varmiss[j]] <- rtruncnorm(1,-Inf,cpoints[i,varmiss[j]],Y[i,varmiss[j]],sigma)
+        if (imp.missing==FALSE){
+          for (j in 1:length(varmiss)){                                
+            sigma <- sigmas[varmiss[j]]
+            Y[i,varmiss[j]] <- rtruncnorm(1,-Inf,cpoints[i,varmiss[j]],Y[i,varmiss[j]],sigma)
+          }
+        }
+        if (imp.missing==TRUE){
+          for (j in 1:length(varmiss)){                                
+            sigma <- sigmas[varmiss[j]]
+            Y[i,varmiss[j]] <- rnorm(1,Y[i,varmiss[j]],sigma)
+          }
         }
       }
       
@@ -206,9 +221,10 @@ lrDA <-
 
       # P-step
       
-      C <- rWishart(1,nn-1,solve(nn*cov(Y)))[,,1]
-      M <- mvrnorm(1,colMeans(Y),1/nn*C)
-
+      theta <- mvn.bayes(Y,1,prior="Conjugate")
+      M <- theta$Mu.save
+      C <- theta$Sigma.save[,,1]
+      
     t <- t + 1
 
     }
@@ -220,11 +236,14 @@ lrDA <-
     if (store.mi==TRUE) X <- lapply(mi.list,FUN=function(x) inv.raw(x,X,pos,closed,nn,c))
     
     if (alt.in) {
+      if (imp.missing==FALSE){
       cat("Warning: samples with only one observed component were found \n")
-      for (i in 2:length(alt.pat)){
-        cat(paste("  Pattern no.",alt.pat[i],"was imputed using multiplicative simple replacement \n"))
-        cat("   Affected samples id: "); cat(alt.mr[[i]]); cat("\n\n")
+        for (i in 2:length(alt.pat)){
+          cat(paste("  Pattern no.",alt.pat[i],"was imputed using multiplicative simple replacement \n"))
+          cat("   Affected samples id: "); cat(alt.mr[[i]]); cat("\n\n")
+        }
       }
     }
+    
     return(X)
   }
