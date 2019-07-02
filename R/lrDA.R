@@ -113,6 +113,24 @@ lrDA <-
       return(as.data.frame(X))
     }
     
+    riwish <- function(v,S){ # From ratematrix package
+      S <- solve(S)
+      if (!is.matrix(S)) S <- matrix(S)
+      if (v < nrow(S)) {
+        stop(message = "v is less than the dimension of S in rwish().\n")
+      }
+      p <- nrow(S)
+      CC <- chol(S)
+      Z <- matrix(0, p, p)
+      diag(Z) <- sqrt(stats::rchisq(p, v:(v - p + 1)))
+      if (p > 1) {
+        pseq <- 1:(p - 1)
+        Z[rep(p * pseq, pseq) + unlist(lapply(pseq, seq))] <- stats::rnorm(p *(p - 1)/2)
+      }
+      out <- crossprod(Z %*% CC)
+      return(solve(out))
+    }
+    
     ini.cov <- match.arg(ini.cov)
     
     X <- as.data.frame(X)
@@ -221,12 +239,8 @@ lrDA <-
 
       # P-step
       
-      #C <- riwish(nn-1,solve(nn*cov(Y)))
-      #M <- mvrnorm(1,colMeans(Y),(1/nn)*C)
-      
-      theta <- mvn.bayes(Y,1,prior="Conjugate")
-      M <- theta$Mu.save
-      C <- theta$Sigma.save[,,1]
+      C <- riwish(nn-1,nn*cov(Y))
+      M <- mvrnorm(1,colMeans(Y),(1/nn)*C)
       
     t <- t + 1
 

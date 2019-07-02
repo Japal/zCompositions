@@ -1,7 +1,6 @@
 import("MASS")
 import("NADA")
 import("truncnorm")
-import("miscF")
 importFrom("graphics", "abline", "axis", "barplot", "box", "grid",
      "image", "layout", "legend", "mtext", "par", "plot.new",
      "text")
