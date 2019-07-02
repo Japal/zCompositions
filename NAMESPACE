@@ -7,5 +7,5 @@ importFrom("graphics", "abline", "axis", "barplot", "box", "grid",
      "text")
 importFrom("stats", "approxfun", "cov", "dnorm", "pnorm", "rWishart",
      "runif", "smooth.spline", "anova", "bartlett.test", "fligner.test",
-             "kruskal.test", "lm", "var")
+             "kruskal.test", "lm", "var","rnorm")
 exportPattern("^[[:alpha:]]+")

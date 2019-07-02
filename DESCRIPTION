@@ -9,7 +9,8 @@ Depends:
     R (>= 2.14.0),
     MASS,
     NADA,
-    truncnorm
+    truncnorm,
+    miscF
 ByteCompile: yes
 Description: Principled methods for the imputation of zeros, left-censored and missing data in
     compositional data sets.

@@ -10,7 +10,7 @@ This function implements a simulation-based Data Augmentation (DA) algorithm to 
 \usage{
 lrDA(X, label = NULL, dl = NULL,
         ini.cov=c("lrEM","complete.obs","multRepl"), delta = 0.65,
-        imp.missing = FALSE, n.iters = 1000, m = 1, store.mi = FALSE, closure = TRUE)
+        imp.missing = FALSE, n.iters = 1000, m = 1, store.mi = FALSE, closure = NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -111,7 +111,7 @@ LPdata2_lrDA <- lrDA(LPdata2,label=0,dl=dl2)}
 
 \dontrun{ # May take a little while
 # Treating zeros as missing data for illustration purposes only
-LPdata2_lrDAmiss <- lrDA(LPdata2,label=0,imp.missing=TRUE)}
+LPdata2_lrDAmiss <- lrDA(LPdata2,label=0,imp.missing=TRUE,closure=10^6)}
 
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

@@ -221,6 +221,9 @@ lrDA <-
 
       # P-step
       
+      #C <- riwish(nn-1,solve(nn*cov(Y)))
+      #M <- mvrnorm(1,colMeans(Y),(1/nn)*C)
+      
       theta <- mvn.bayes(Y,1,prior="Conjugate")
       M <- theta$Mu.save
       C <- theta$Sigma.save[,,1]
