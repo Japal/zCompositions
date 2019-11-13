@@ -29,7 +29,7 @@ splineKM <- function(x,label=NULL,dl=NULL,n.knots=NULL,
   
   dat <- data.frame(x,xcen)
   km.ecdf <- cenfit(dat$x,dat$xcen)
-  
+
   x <- rev(km.ecdf@survfit$time) 
   y <- rev(km.ecdf@survfit$surv)
   
@@ -37,7 +37,7 @@ splineKM <- function(x,label=NULL,dl=NULL,n.knots=NULL,
   if (!is.null(n.knots)) {scdf <- smooth.spline(x,y,nknots=n.knots)}
   scdf <- approxfun(scdf$x,scdf$y)
   
-  plot(km.ecdf,conf.int=FALSE,ylab=ylab,xlab=xlab,
+  plot(km.ecdf@survfit,conf.int=FALSE,ylab=ylab,xlab=xlab,
        col=col.km,lty=lty.km,lwd=lwd.km, ...)
   lines(x,scdf(x),type="l",
        col=col.sm,lty=lty.sm,lwd=lwd.sm)
