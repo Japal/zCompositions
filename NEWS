@@ -1,12 +1,13 @@
 RELEASE HISTORY OF THE "zCompositions" PACKAGE
 ==============================================
 
-CHANGES IN zCompositions VERSION 1.3.2-1 [2019-07]:
+CHANGES IN zCompositions VERSION 1.3.2-2 [2019-11]:
 ----------------------------------------------------
 
 MODIFICATIONS
 
 * lrDA: external dependence on miscF and related removed.
+* multKM: minor bug related to dependency on NADA smashed.
 
 CHANGES IN zCompositions VERSION 1.3.2 [2019-06]:
 ----------------------------------------------------

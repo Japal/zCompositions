@@ -12,8 +12,8 @@ Following compositional data analysis principles, this package provides simple a
 \tabular{ll}{
 Package: \tab zCompositions\cr
 Type: \tab Package\cr
-Version: \tab 1.3.2-1\cr
-Date: \tab 2019-07-02\cr
+Version: \tab 1.3.2-2\cr
+Date: \tab 2019-11-13\cr
 License: \tab GPL (>= 2)\cr
 }
 }
