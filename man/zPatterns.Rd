@@ -8,7 +8,8 @@ This function summarises the patterns of zero and/or missing values in a data se
 }
 \usage{
 zPatterns(X, label = NULL, plot = TRUE,
-             axis.labels = c("Component", "Pattern number"),
+             axis.labels = c("Component", "Pattern ID"),
+             bar.ordered = as.character(c(FALSE,FALSE)),
              bar.colors = c("red3", "red3"), bar.labels = FALSE,
              show.means = FALSE, round.means = 2, cex.means = 1,
              type.means = c("cgm","am"),
@@ -24,6 +25,7 @@ Data set (\code{\link{matrix}} or \code{\link{data.frame}} class).}
   \item{label}{Unique label (\code{\link{numeric}} or \code{\link{character}}) used to identify zero or unobserved values in \code{X}.}
   \item{plot}{Logical value indicating whether a graphical summary of the patterns is produced or not (default \code{plot=TRUE}).}
   \item{axis.labels}{Vector of axis labels for the table of patterns (format \code{c("x-axis","y-axis")}).}
+  \item{bar.ordered}{Vector of logical values to order table of patterns according to frequencies by patterns, component or both; with the first element referring to the patterns and the second to the components (default \code{c(FALSE,FALSE)}).}
   \item{bar.colors}{Colors for the margin barplots (format \code{c("col.top","col.right")}).}
   \item{bar.labels}{Logical value indicating if labels showing percentages must be added to the margin barplots (default \code{bar.labels=FALSE}).}
   \item{show.means}{Logical value indicating if mean values by pattern are shown on the graphical summary table (default \code{show.means=FALSE}).}
@@ -40,9 +42,11 @@ Data set (\code{\link{matrix}} or \code{\link{data.frame}} class).}
   \item{...}{Other graphical parameters.}
 }
 \value{
-Vector of pattern IDs corresponding to each row of \code{X}.
+Vector (factor type) of pattern IDs corresponding to each row of \code{X}.
 
-By default, a summary table is printed showing patterns in the data according to \code{label} and some summary statistics: number of zero/missing components by pattern (No.Unobs), pattern frequency (absolute and percentage), percentage zero/missing values by component (column) and overall percentage of zero/missing values in the data set. The symbols + and - indicate, respectively, zero/missing and observed components within each pattern. A graphical version of the summary table is returned including barplots on the margins displaying percentage zero/missing and compositional geometric means by pattern (if \code{show.means=TRUE}; expressed in percentage scale). Common arithmetic means can be also shown for the case of ordinary data (\code{type.means="am"}), however this is not recommended for compositional data.
+By default, a summary table is printed showing patterns in the data according to \code{label} and some summary statistics: number of zero/missing components by pattern (No.Unobs), pattern frequency in percentage, percentage zero/missing values by component (column) and overall percentage of zero/missing values in the data set. The symbols + and - indicate, respectively, zero/missing and observed components within each pattern. A graphical version of the summary table is returned including barplots on the margins displaying percentage zero/missing and compositional geometric means by pattern (if \code{show.means=TRUE}; expressed in percentage scale). Common arithmetic means can be also shown for the case of ordinary data (\code{type.means="am"}), however this is not recommended for compositional data.
+
+The patterns are assigned ID number and by default arranged in the table in the same order as they are found in the data set. The argument \code{bar.ordered} can be used to re-arrange the display according to frequencies of patterns, of unobserved values by component or both.
 
 A warning message is shown if zeros or NA values not identified by \code{label} are present in the data set. These will be ignored for the graphical display and numerical summaries of patterns, which will be only based on \code{label}.
 
@@ -75,7 +79,10 @@ pattern.ID <- zPatterns(LPdata,label=0,
 # Show compositional geometric means (in \%) per zero pattern
 zPatterns(LPdata,label=0,show.means=TRUE)
 
-# Data sest with zeros and missing data (0 = zero; NA = missing) (see lrEMplus function).
+# Same but orderer by pattern frequency and incidence of zeros by component
+zPatterns(LPdata,label=0,bar.ordered=c(TRUE,TRUE),,bar.labels=TRUE,show.means=TRUE)
+
+# Data set with zeros and missing data (0 = zero; NA = missing) (see lrEMplus function).
 data(LPdataZM)
 
 # Show missingness patterns only

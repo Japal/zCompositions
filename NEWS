@@ -1,6 +1,18 @@
 RELEASE HISTORY OF THE "zCompositions" PACKAGE
 ==============================================
 
+CHANGES IN zCompositions VERSION 1.3.3 [2019-11]:
+----------------------------------------------------
+
+NEW FEATURES
+
+* zPatterns allows to personalise display of patterns (see new bar.ordered argument).
+
+MODIFICATIONS
+
+* zPatterns: internal tidyng-up.
+* Updated documentation.
+
 CHANGES IN zCompositions VERSION 1.3.2-2 [2019-11]:
 ----------------------------------------------------
 
