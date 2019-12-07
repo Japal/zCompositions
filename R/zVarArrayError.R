@@ -202,7 +202,7 @@ names(ErrPropArr) <- names(VMZ)[1:(length(VMZ)-1)]
     
 if (suppress.print == FALSE) {
   print(lapply(result,function(x){
-   if (class(x)=="list") {lapply(x,round,4)}
+   if (is(x, "list")) {lapply(x,round,4)}
     else {round(x,4)}
   }))
 }
