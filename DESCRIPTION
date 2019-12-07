@@ -7,6 +7,7 @@ Author: Javier Palarea-Albaladejo and Josep Antoni Martin-Fernandez
 Maintainer: Javier Palarea-Albaladejo <javier.palarea@bioss.ac.uk>
 Depends:
     R (>= 2.14.0),
+    methods,
     MASS,
     NADA,
     truncnorm
