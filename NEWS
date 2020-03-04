@@ -1,6 +1,14 @@
 RELEASE HISTORY OF THE "zCompositions" PACKAGE
 ==============================================
 
+CHANGES IN zCompositions VERSION 1.3.4 [2020-03]:
+----------------------------------------------------
+
+MODIFICATIONS
+
+* Minor fix to meet upcoming R version requirement.
+* Bug found in lrDA fixed.
+
 CHANGES IN zCompositions VERSION 1.3.3-1 [2019-12]:
 ----------------------------------------------------
 
