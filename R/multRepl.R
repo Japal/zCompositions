@@ -20,7 +20,7 @@ multRepl <-
     }
     if (is.vector(X)){
       if (imp.missing==TRUE) stop("Data matrix required: missing values cannot be imputed in single vectors")
-      if (ncol(dl)!=ncol(as.data.frame(matrix(X,ncol=length(X))))) stop("The number of columns in X and dl do not agree")
+      if (ncol(dl)!=ncol(as.data.frame(matrix(X,ncol=length(X)),stringsAsFactors=TRUE))) stop("The number of columns in X and dl do not agree")
     }
     if (!is.vector(X)){
       if (imp.missing==FALSE){
@@ -35,11 +35,11 @@ multRepl <-
     
     nam <- NULL
     if (!is.null(names(X))) nam <- names(X)
-    if (is.vector(X)) X <- as.data.frame(matrix(X,ncol=length(X)))
+    if (is.vector(X)) X <- as.data.frame(matrix(X,ncol=length(X)),stringsAsFactors=TRUE)
     
     X[X==label] <- NA
     X <- apply(X,2,as.numeric)
-    if (is.vector(X)) X <- as.data.frame(matrix(X,ncol=length(X)))
+    if (is.vector(X)) X <- as.data.frame(matrix(X,ncol=length(X)),stringsAsFactors=TRUE)
     
     nn <- nrow(X); D <- ncol(X)
     c <- apply(X,1,sum,na.rm=TRUE)
@@ -107,5 +107,5 @@ multRepl <-
     
     if (any(X < 0)) warning("multRepl: negative imputed values were generated (please check out help for advice)")
     
-    return(as.data.frame(X))
+    return(as.data.frame(X,stringsAsFactors=TRUE))
   }

@@ -22,9 +22,9 @@ lrEMplus <- function(X, dl = NULL, rob = FALSE, ini.cov = c("complete.obs", "mul
   
   ## Preliminaries ----
 
-  X <- as.data.frame(X)
+  X <- as.data.frame(X,stringsAsFactors=TRUE)
   nn <- nrow(X); D <- ncol(X)
-  X <- as.data.frame(apply(X,2,as.numeric))
+  X <- as.data.frame(apply(X,2,as.numeric),stringsAsFactors=TRUE)
   c <- apply(X,1,sum,na.rm=TRUE)
 
   if (nrow(dl)==1) dl <- matrix(rep(1,nn),ncol=1)%*%dl
@@ -106,6 +106,6 @@ lrEMplus <- function(X, dl = NULL, rob = FALSE, ini.cov = c("complete.obs", "mul
 
   if (suppress.print==FALSE) cat(paste("No. iterations to converge: ",niters,"\n\n"))
   
-  return(as.data.frame(X.new))
+  return(as.data.frame(X.new,stringsAsFactors=TRUE))
   
 }

@@ -27,7 +27,7 @@ splineKM <- function(x,label=NULL,dl=NULL,n.knots=NULL,
   xcen <- ifelse(who,TRUE,FALSE)
   x[who] <- dl[who]
   
-  dat <- data.frame(x,xcen)
+  dat <- data.frame(x,xcen,stringsAsFactors=TRUE)
   km.ecdf <- cenfit(dat$x,dat$xcen)
 
   x <- rev(km.ecdf@survfit$time) 

@@ -125,11 +125,11 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
   
   ## Preliminaries ----  
   
-  X <- as.data.frame(X)
+  X <- as.data.frame(X,stringsAsFactors=TRUE)
   nn <- nrow(X); D <- ncol(X)
   
   X[X==label] <- NA
-  X <- as.data.frame(apply(X,2,as.numeric))
+  X <- as.data.frame(apply(X,2,as.numeric),stringsAsFactors=TRUE)
   c <- apply(X,1,sum,na.rm=TRUE)
   
   if (imp.missing==FALSE) {if (nrow(dl)==1) dl <- matrix(rep(1,nn),ncol=1)%*%dl}
@@ -138,7 +138,7 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
   closed <- 0
   if (all( abs(c - mean(c)) < .Machine$double.eps^0.3 )) closed <- 1
   
-  misspat <- as.data.frame(is.na(X)*1)
+  misspat <- as.data.frame(is.na(X)*1,stringsAsFactors=TRUE)
   misspat <- as.factor(do.call(paste,c(misspat,sep="")))
   levels(misspat) <- 1:(length(levels(misspat)))
   
@@ -288,7 +288,7 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
             if (imp.missing==FALSE){
               phi <- t(apply(cbind(dl=dl[misspat==npat,p],feeder[misspat==npat,]),1,ilr))
             }
-            regbasis <- as.data.frame(t(apply(cbind(target,feeder),1,ilr)))
+            regbasis <- as.data.frame(t(apply(cbind(target,feeder),1,ilr)),stringsAsFactors=TRUE)
             
             if (niters == 1){
               if (ini.cov == "complete.obs"){
@@ -300,7 +300,7 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
               if (ini.cov == "multRepl"){
                 target <- X.mr[,p]
                 feeder <- X.mr[,obs[[npat]]]
-                regbasis.mr <- as.data.frame(t(apply(cbind(target,feeder),1,ilr)))
+                regbasis.mr <- as.data.frame(t(apply(cbind(target,feeder),1,ilr)),stringsAsFactors=TRUE)
                 robreg <- rlm(V1 ~ .,data=regbasis.mr,method="MM",maxit = rlm.maxit)
               }  
             }
@@ -349,6 +349,6 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
   cat(paste("No. iterations to converge: ",niters,"\n\n"))
   }
   
-  return(as.data.frame(X))  
+  return(as.data.frame(X,stringsAsFactors=TRUE))  
   
 }

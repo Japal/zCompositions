@@ -20,13 +20,13 @@ multReplus <- function(X, dl = NULL, delta = 0.65, suppress.print = FALSE,
   
   nam <- NULL
   if (!is.null(names(X))) nam <- names(X)
-  if (is.vector(X)) X <- as.data.frame(matrix(X,ncol=length(X)))
+  if (is.vector(X)) X <- as.data.frame(matrix(X,ncol=length(X)),stringsAsFactors=TRUE)
   
   ## Preliminaries ----
 
-  X <- as.data.frame(X)
+  X <- as.data.frame(X,stringsAsFactors=TRUE)
   nn <- nrow(X); D <- ncol(X)
-  X <- as.data.frame(apply(X,2,as.numeric))
+  X <- as.data.frame(apply(X,2,as.numeric),stringsAsFactors=TRUE)
   c <- apply(X,1,sum,na.rm=TRUE)
 
   if (nrow(dl)==1) dl <- matrix(rep(1,nn),ncol=1)%*%dl
@@ -80,6 +80,6 @@ multReplus <- function(X, dl = NULL, delta = 0.65, suppress.print = FALSE,
   
   if (!is.null(nam)) names(X) <- nam
   
-  return(as.data.frame(X))
+  return(as.data.frame(X,stringsAsFactors=TRUE))
   
 }

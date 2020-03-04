@@ -67,7 +67,7 @@ zVarArrayError <- function(X, label = 0, groups = NULL, breakdown = FALSE, suppr
       stop(paste("Label", label, "was not found in the data set"))
   }
 
-  X <- as.data.frame(X)
+  X <- as.data.frame(X,stringsAsFactors=TRUE)
   if (is.null(groups)){
     g <- zPatterns(X,label = label, plot = FALSE, suppress.print = TRUE)
     ifelse(is.na(label), X[is.na(X)] <- 0, X[X == label] <- 0)

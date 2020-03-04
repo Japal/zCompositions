@@ -25,7 +25,7 @@
 zVarArrayTest <- function(X, label = 0, groups = NULL, b = 1000){
   
   if (any(X<0, na.rm=T)) stop("X contains negative values")
-  X <- as.data.frame(X)
+  X <- as.data.frame(X,stringsAsFactors=TRUE)
   if (is.null(groups)){
     g <- zPatterns(X,label = label, plot = FALSE, suppress.print = TRUE)
     ifelse(is.na(label), X[is.na(X)] <- 0, X[X == label] <- 0)

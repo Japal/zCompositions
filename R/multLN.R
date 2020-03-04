@@ -114,5 +114,5 @@ multLN <-
       X <- t(apply(X,1,function(x) x/sum(x)*c[1]))
     }
     
-    return(as.data.frame(X))
+    return(as.data.frame(X,stringsAsFactors=TRUE))
   }

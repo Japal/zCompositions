@@ -105,16 +105,16 @@ zPatterns <- function(X,label=NULL,plot=TRUE,
     if (!any(is.na(X),na.rm=T)) stop(paste("Label",label,"was not found in the data set"))
   }
   
-  X <- as.data.frame(X)
+  X <- as.data.frame(X,stringsAsFactors=TRUE)
   
   n <- nrow(X); p <- ncol(X)
   
-  if (is.na(label)) miss <- as.data.frame(is.na(X)*1)
-  else miss <- as.data.frame((X==label)*1)
+  if (is.na(label)) miss <- as.data.frame(is.na(X)*1,stringsAsFactors=TRUE)
+  else miss <- as.data.frame((X==label)*1,stringsAsFactors=TRUE)
   
   miss[is.na(miss)] <- 0 # Ignore any unlabelled NAs/zeros to graph patterns
   miss <- cbind(miss,pat=do.call(paste,c(miss,sep="")))
-  tmp <-data.frame(Pattern=names(table(miss$pat)),ID=1:nlevels(miss$pat))
+  tmp <-data.frame(Pattern=names(table(miss$pat)),ID=1:nlevels(miss$pat),stringsAsFactors=TRUE)
   pat.ID <- as.factor(tmp$ID[match(miss$pat,tmp$Pattern)]) # IDs in original row order
   miss <- miss[order(miss$pat),] # Order according to patterns
 

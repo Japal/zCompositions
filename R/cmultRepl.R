@@ -16,7 +16,7 @@ function(X,label=0,method=c("GBM","SQ","BL","CZM","user"),output=c("prop", "p-co
     if (!any(is.na(X),na.rm=T)) stop(paste("Label",label,"was not found in the data set"))
   }
   
-X <- as.data.frame(X)
+X <- as.data.frame(X,stringsAsFactors=TRUE)
 X[X==label] <- NA
   
 N <- nrow(X); D <- ncol(X)
@@ -84,5 +84,5 @@ ifelse(output=="prop",res<-X2,res<-X)
 if (suppress.print == FALSE){
   if ((correct==TRUE) & (corrected > 0)) {cat(paste("No. corrected values: ",corrected,"\n"))}
 }
-return(as.data.frame(res))
+return(as.data.frame(res,stringsAsFactors=TRUE))
 }
