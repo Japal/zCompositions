@@ -10,7 +10,7 @@ This function implements an extended version of multiplicative simple imputation
 Note: zeros and missing data must be labelled using 0 and \code{NA} respectively to use this function.
 }
 \usage{
-multReplus(X, dl = NULL, delta = 0.65,
+multReplus(X, dl = NULL, frac = 0.65,
               suppress.print = FALSE, closure = NULL)
 }
 %- maybe also 'usage' for other objects documented here.
@@ -21,8 +21,8 @@ Compositional data set (\code{\link{matrix}} or \code{\link{data.frame}} class).
   \item{dl}{
 Numeric vector or matrix of detection limits/thresholds. These must be given on the same scale as \code{X}.
 }
-  \item{delta}{
-Delta parameter (fraction of the threshold) used in proportions (default = 0.65).
+  \item{frac}{
+Fraction of the detection limit/threshold used for imputation (default = 0.65, expressed as a proportion).
 }
   \item{suppress.print}{
 Suppress printed feedback (\code{suppress.print = FALSE}, default).
@@ -31,7 +31,7 @@ Suppress printed feedback (\code{suppress.print = FALSE}, default).
 }
 
 \details{
-The procedure firstly replaces missing data using the estimated geometric mean based on the observed values and then zeros using \code{delta*dl}. The observed components are applied a multiplicative adjustment to preserve the multivariate compositional properties of the samples.
+The procedure firstly replaces missing data using the estimated geometric mean based on the observed values and then zeros using \code{frac*dl}. The observed components are applied a multiplicative adjustment to preserve the multivariate compositional properties of the samples.
 
 Note: negative values can be generated when unobserved components are a large portion of the composition, which is more likely for missing data (e.g in major chemical elements) and non-closed compositions. A workaround is to add a residual filling the gap up to the closure/total when possible. This is done internally when a value for \code{closure} is specified (e.g. \code{closure=10^6} if ppm or \code{closure=100} if percentages). The residual is discarded after imputation.
 

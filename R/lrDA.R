@@ -1,5 +1,5 @@
 lrDA <-
-  function(X,label=NULL,dl=NULL,ini.cov=c("lrEM","complete.obs","multRepl"),delta=0.65,
+  function(X,label=NULL,dl=NULL,ini.cov=c("lrEM","complete.obs","multRepl"),frac=0.65,
            imp.missing=FALSE,n.iters=1000,m=1,store.mi=FALSE,closure=NULL){
     
     if (any(X<0, na.rm=T)) stop("X contains negative values")
@@ -86,14 +86,14 @@ lrDA <-
         ad<-1/(rowSums(exp(x))+1)
         ax<-exp(x)*ad
         if(pos==1) {
-          a<-cbind(ad,ax)
+          a<-cbind(ad,ax,stringsAsFactors=TRUE)
         }
         else { 
           if (dim(x)[2] < pos){
-            a<-cbind(ax,ad)
+            a<-cbind(ax,ad,stringsAsFactors=TRUE)
           }   
           else {
-            a<-cbind(ax[,1:(pos-1)],ad,ax[,pos:(dim(x)[2])])
+            a<-cbind(ax[,1:(pos-1)],ad,ax[,pos:(dim(x)[2])],stringsAsFactors=TRUE)
           }
         }
         return(a)
@@ -163,12 +163,12 @@ lrDA <-
       M <- matrix(colMeans(X_alr,na.rm=T),ncol=1)
       C <- cov(X_alr,use=ini.cov)}
     if (ini.cov == "multRepl"){
-      X.mr <- multRepl(X,label=NA,dl=dl,delta=delta,imp.missing=imp.missing,closure=closure)
+      X.mr <- multRepl(X,label=NA,dl=dl,frac=frac,imp.missing=imp.missing,closure=closure)
       X.mr_alr <- t(apply(X.mr,1,function(x) log(x)-log(x[pos])))[,-pos]
       M <- matrix(colMeans(X.mr_alr,na.rm=T),ncol=1)
       C <- cov(X.mr_alr)}
     if (ini.cov == "lrEM"){
-      X.em <- lrEM(X,label=NA,dl=dl,ini.cov="multRepl",delta=delta,imp.missing=imp.missing,closure=closure,suppress.print=TRUE)
+      X.em <- lrEM(X,label=NA,dl=dl,ini.cov="multRepl",frac=frac,imp.missing=imp.missing,closure=closure,suppress.print=TRUE)
       X.em_alr <- t(apply(X.em,1,function(x) log(x)-log(x[pos])))[,-pos]
       M <- matrix(colMeans(X.em_alr,na.rm=T),ncol=1)
       C <- cov(X.em_alr)}
@@ -202,7 +202,7 @@ lrDA <-
         varmiss <- which(is.na(X_alr[i[1],]))
         if (length(varobs) == 0){
           alt.in <- TRUE
-          temp <- multRepl(X[i,,drop=FALSE],label=NA,dl=dl[i,,drop=FALSE],delta=delta,imp.missing=imp.missing,closure=closure)
+          temp <- multRepl(X[i,,drop=FALSE],label=NA,dl=dl[i,,drop=FALSE],frac=frac,imp.missing=imp.missing,closure=closure)
           Y[i,] <- t(apply(temp,1,function(x) log(x)-log(x[pos])))[,-pos]
           if (runs == 1){
             alt.pat <- c(alt.pat,npat)

@@ -9,7 +9,7 @@ This function implements a simulation-based Data Augmentation (DA) algorithm to 
 }
 \usage{
 lrDA(X, label = NULL, dl = NULL,
-        ini.cov=c("lrEM","complete.obs","multRepl"), delta = 0.65,
+        ini.cov=c("lrEM","complete.obs","multRepl"), frac = 0.65,
         imp.missing = FALSE, n.iters = 1000, m = 1, store.mi = FALSE, closure = NULL)
 }
 %- maybe also 'usage' for other objects documented here.
@@ -22,8 +22,8 @@ Compositional data set (\code{\link{matrix}} or \code{\link{data.frame}} class).
 Numeric vector or matrix of detection limits/thresholds. These must be given on the same scale as \code{X}.
 }
   \item{ini.cov}{Initial estimation of the log-ratio covariance matrix. It can be based on lrEM estimation (\code{"lrEM"}, default), complete observations (\code{"complete.obs"})  or multiplicative simple replacement (\code{"multRepl"}).}
-  \item{delta}{
-If \code{ini.cov="multRepl"}, delta parameter for initial multiplicative simple replacement (\code{\link{multRepl}}) in proportions (default = 0.65).
+  \item{frac}{
+If \code{ini.cov="multRepl"}, parameter for initial multiplicative simple replacement (\code{\link{multRepl}}) (default = 0.65).
 }
   \item{imp.missing}{If \code{TRUE} then unobserved data identified by \code{label} are treated as missing data (default = \code{FALSE}).}
   \item{n.iters}{
@@ -50,7 +50,7 @@ By setting \code{m} greater than 1, the procedure also allows for multiple imput
 
 In the case of censoring patterns involving samples containing only one observed component, these are imputed by multiplicative simple replacement (\code{\link{multRepl}}) and a warning message identifying them is printed.
 
-%Note that when \code{ini.cov="lrEM"} is chosen, the embedded lrEM procedure (\code{\link{lrEM}}) will consider multiplicative replacement (\code{\link{multRepl}}), with delta parameter equal to \code{delta}, for initial covariance estimate. This is simply done in order to prevent it from potentially failing due to matrix singularity issues if working with few complete samples in the data set.
+%Note that when \code{ini.cov="lrEM"} is chosen, the embedded lrEM procedure (\code{\link{lrEM}}) will consider multiplicative replacement (\code{\link{multRepl}}), with frac parameter equal to \code{frac}, for initial covariance estimate. This is simply done in order to prevent it from potentially failing due to matrix singularity issues if working with few complete samples in the data set.
 
 \emph{Missing data imputation}
 

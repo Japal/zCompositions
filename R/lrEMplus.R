@@ -1,4 +1,4 @@
-lrEMplus <- function(X, dl = NULL, rob = FALSE, ini.cov = c("complete.obs", "multRepl"), delta = 0.65,
+lrEMplus <- function(X, dl = NULL, rob = FALSE, ini.cov = c("complete.obs", "multRepl"), frac = 0.65,
                      tolerance = 0.0001, max.iter = 50,
                      rlm.maxit=150, suppress.print = FALSE, closure=NULL){
   
@@ -39,7 +39,7 @@ lrEMplus <- function(X, dl = NULL, rob = FALSE, ini.cov = c("complete.obs", "mul
     for (i in 1:nn){
       if (any(X.old[i, ]==0,na.rm=T)){
         z <- which(X.old[i, ]==0)
-        X.old[i,z] <- delta*dl[i,z]
+        X.old[i,z] <- frac*dl[i,z]
       }
     }
     # Initial lrEM imputation of missing data

@@ -94,7 +94,7 @@ lcTest <- function(X, label = 0, groups = NULL, lc = NULL, method = c("parametri
     x <- X[g == pat,usepart]
 
     if (all(x[1,] > 0)){
-      usePat <- cbind(usePat,pat)
+      usePat <- cbind(usePat,pat,stringsAsFactors=TRUE)
       Xfeas <- rbind(Xfeas,x)
       gfeas <- c(gfeas,g[g==pat])
       nifeas <- c(nifeas,ni[pat])

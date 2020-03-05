@@ -1,5 +1,5 @@
 multRepl <-
-  function(X,label=NULL,dl=NULL,delta=0.65,imp.missing=FALSE,closure=NULL){
+  function(X,label=NULL,dl=NULL,frac=0.65,imp.missing=FALSE,closure=NULL){
     
     if (any(X<0, na.rm=T)) stop("X contains negative values")
     if (imp.missing==FALSE){
@@ -57,7 +57,7 @@ multRepl <-
     if (!is.null(closure)){
       if (closed == 1) {stop("closure: The data are already closed to ",c[1])}
       resid <- apply(X,1, function(x) closure-sum(x, na.rm = TRUE))
-      Xresid <- cbind(X,resid)
+      Xresid <- cbind(X,resid,stringsAsFactors=TRUE)
       c <- rep(closure,nn)
       Y <- Xresid
     }
@@ -66,7 +66,7 @@ multRepl <-
       for (i in 1:nn){
         if (any(is.na(X[i,]))){
           z <- which(is.na(X[i,]))
-          Y[i,z] <- delta*dl[i,z]
+          Y[i,z] <- frac*dl[i,z]
           if (!is.null(closure)){
             Y[i,-z] <- (1-(sum(Y[i,z]))/c[i])*Xresid[i,-z]
             tmp <- Y[i,-(D+1)]

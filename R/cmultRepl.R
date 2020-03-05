@@ -1,6 +1,6 @@
 cmultRepl <-
 function(X,label=0,method=c("GBM","SQ","BL","CZM","user"),output=c("prop", "p-counts"),
-         delta = 0.65,threshold=0.5,correct=TRUE,t=NULL,s=NULL,
+         frac = 0.65,threshold=0.5,correct=TRUE,t=NULL,s=NULL,
          suppress.print=FALSE)
   {
 
@@ -44,7 +44,7 @@ if (method!="CZM"){
 }
 
 if (method=="CZM"){
-  repl <- delta*matrix(1,ncol=D,nrow=N)*(threshold/n)
+  repl <- frac*matrix(1,ncol=D,nrow=N)*(threshold/n)
 }
 
 # Multiplicative replacement on the closed data
@@ -60,7 +60,7 @@ for (i in 1:N){
       if (correct==TRUE){
         if (any(X2[i,z] > colmins[z])){
           f <- which(X2[i,z] > colmins[z])
-          X2[i,z][f] <- delta*colmins[z][f]
+          X2[i,z][f] <- frac*colmins[z][f]
           corrected <- corrected + length(f)
         }
       }

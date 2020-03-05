@@ -1,4 +1,4 @@
-lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRepl"),delta=0.65,tolerance=0.0001,
+lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRepl"),frac=0.65,tolerance=0.0001,
          max.iter=50,rlm.maxit=150,imp.missing=FALSE,suppress.print=FALSE,
          closure=NULL){
   
@@ -84,14 +84,14 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
     ad<-1/(rowSums(exp(x))+1)
     ax<-exp(x)*ad
     if(pos==1) {
-      a<-cbind(ad,ax)
+      a<-cbind(ad,ax,stringsAsFactors=TRUE)
     }
     else { 
       if (dim(x)[2] < pos){
-        a<-cbind(ax,ad)
+        a<-cbind(ax,ad,stringsAsFactors=TRUE)
       }   
       else {
-        a<-cbind(ax[,1:(pos-1)],ad,ax[,pos:(dim(x)[2])])
+        a<-cbind(ax[,1:(pos-1)],ad,ax[,pos:(dim(x)[2])],stringsAsFactors=TRUE)
       }
     }
     return(a)
@@ -163,7 +163,7 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
       M <- matrix(colMeans(X_alr,na.rm=T),ncol=1)
       C <- cov(X_alr,use=ini.cov)}
     else {
-        X.mr <- multRepl(X,label=NA,dl=dl,delta=delta,imp.missing=imp.missing,closure=closure)
+        X.mr <- multRepl(X,label=NA,dl=dl,frac=frac,imp.missing=imp.missing,closure=closure)
         if (any(X.mr < 0)) {stop("ini.cov: negative values produced using multRepl (please check out closure argument and multRepl help for advice)")}
         X.mr_alr <- t(apply(X.mr,1,function(x) log(x)-log(x[pos])))[,-pos]
         M <- matrix(colMeans(X.mr_alr,na.rm=T),ncol=1)
@@ -190,7 +190,7 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
         varmiss <- which(is.na(X_alr[i[1],]))
         if (length(varobs) == 0){
           alt.in <- TRUE
-          temp <- multRepl(X[i,,drop=FALSE],label=NA,dl=dl[i,,drop=FALSE],delta=delta,imp.missing=imp.missing,closure=closure)
+          temp <- multRepl(X[i,,drop=FALSE],label=NA,dl=dl[i,,drop=FALSE],frac=frac,imp.missing=imp.missing,closure=closure)
           Y[i,] <- t(apply(temp,1,function(x) log(x)-log(x[pos])))[,-pos]
           if (niters == 1){
             alt.pat <- c(alt.pat,npat)
@@ -244,7 +244,7 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
           X.mr <- multRepl(X,label=NA,imp.missing=T,closure=closure)
           if (any(X.mr < 0)) {stop("ini.cov: negative values produced using multRepl (please check out closure argument and multRepl help for advice)")}
           }
-     else {X.mr <- multRepl(X,label=NA,dl=dl,delta=delta,closure=closure)
+     else {X.mr <- multRepl(X,label=NA,dl=dl,frac=frac,closure=closure)
            if (any(X.mr < 0)) {stop("ini.cov: negative values produced using multRepl (please check out closure argument and multRepl help for advice)")}
           }
     }
@@ -272,7 +272,7 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
           if (imp.missing==FALSE){
             X[misspat==npat,] <- multRepl(X.old[misspat==npat,,drop=FALSE],
                                           label=NA,dl=dl[misspat==npat,,drop=FALSE],
-                                          delta=delta,closure=closure)    
+                                          frac=frac,closure=closure)    
           }
           if (imp.missing==TRUE){
             stop("Please remove samples with only one observed component (check out using zPatterns).")
@@ -286,7 +286,7 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
             p <- miss[[npat]][m]
             target <- X.old[,p]
             if (imp.missing==FALSE){
-              phi <- t(apply(cbind(dl=dl[misspat==npat,p],feeder[misspat==npat,]),1,ilr))
+              phi <- t(apply(cbind(dl=dl[misspat==npat,p],feeder[misspat==npat,],stringsAsFactors=TRUE),1,ilr))
             }
             regbasis <- as.data.frame(t(apply(cbind(target,feeder),1,ilr)),stringsAsFactors=TRUE)
             
@@ -309,7 +309,7 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
             
             B <- matrix(robreg$coefficients,ncol=1)
             sigma <- robreg$s
-            est <- cbind(V1=B[1,] + as.matrix(regbasis[misspat==npat,-1])%*%B[-1,],regbasis[misspat==npat,-1])
+            est <- cbind(V1=B[1,] + as.matrix(regbasis[misspat==npat,-1])%*%B[-1,],regbasis[misspat==npat,-1],stringsAsFactors=TRUE)
             if (imp.missing==FALSE){
               est[,1] <- est[,1] - sigma*(dnorm((phi[,1]-est[,1])/sigma)/pnorm((phi[,1]-est[,1])/sigma))
             }

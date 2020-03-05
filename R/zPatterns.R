@@ -113,7 +113,7 @@ zPatterns <- function(X,label=NULL,plot=TRUE,
   else miss <- as.data.frame((X==label)*1,stringsAsFactors=TRUE)
   
   miss[is.na(miss)] <- 0 # Ignore any unlabelled NAs/zeros to graph patterns
-  miss <- cbind(miss,pat=do.call(paste,c(miss,sep="")))
+  miss <- cbind(miss,pat=do.call(paste,c(miss,sep="")),stringsAsFactors=TRUE)
   tmp <-data.frame(Pattern=names(table(miss$pat)),ID=1:nlevels(miss$pat),stringsAsFactors=TRUE)
   pat.ID <- as.factor(tmp$ID[match(miss$pat,tmp$Pattern)]) # IDs in original row order
   miss <- miss[order(miss$pat),] # Order according to patterns

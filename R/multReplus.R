@@ -1,4 +1,4 @@
-multReplus <- function(X, dl = NULL, delta = 0.65, suppress.print = FALSE,
+multReplus <- function(X, dl = NULL, frac = 0.65, suppress.print = FALSE,
                        closure = NULL){
   
   if (any(X<0, na.rm=T)) stop("X contains negative values")
@@ -40,7 +40,7 @@ multReplus <- function(X, dl = NULL, delta = 0.65, suppress.print = FALSE,
   if (!is.null(closure)){
     if (closed == 1) {stop("closure: The data are already closed to ",c[1])}
     resid <- apply(X,1, function(x) closure-sum(x, na.rm = TRUE))
-    Xresid <- cbind(X,resid)
+    Xresid <- cbind(X,resid,stringsAsFactors=TRUE)
     c <- rep(closure,nn)
     Y <- Xresid
   }
@@ -74,7 +74,7 @@ multReplus <- function(X, dl = NULL, delta = 0.65, suppress.print = FALSE,
   
   ## Imputation of zeros ----
   
-  X <- multRepl(X,label=0,dl=dl,delta=delta,closure=closure)
+  X <- multRepl(X,label=0,dl=dl,frac=frac,closure=closure)
   
   ## Final section ----
   

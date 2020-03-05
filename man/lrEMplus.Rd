@@ -11,7 +11,7 @@ Note: zeros and missing data must be labelled using 0 and \code{NA} respectively
 }
 \usage{
 lrEMplus(X, dl = NULL, rob = FALSE,
-        ini.cov = c("complete.obs", "multRepl"), delta = 0.65,
+        ini.cov = c("complete.obs", "multRepl"), frac = 0.65,
         tolerance = 0.0001, max.iter = 50, rlm.maxit = 150,
         suppress.print = FALSE, closure = NULL)
 }
@@ -27,8 +27,8 @@ Numeric vector or matrix of detection limits/thresholds. These must be given on 
 Logical value. \code{FALSE} provides maximum-likelihood estimates of model parameters (default), \code{TRUE} provides robust parameter estimates.
 }
   \item{ini.cov}{Initial estimation of either the log-ratio covariance matrix (ML estimation) or unobserved data (robust estimation). It can be based on either complete observations (\code{"complete.obs"}, default) or multiplicative simple replacement (\code{"multRepl"}).}
-  \item{delta}{
-If \code{ini.cov="multRepl"}, delta parameter for initial multiplicative simple replacement of left-censored data (see \code{\link{multRepl}}) expressed in proportions (default = 0.65).
+  \item{frac}{
+If \code{ini.cov="multRepl"}, parameter for initial multiplicative simple replacement of left-censored data (see \code{\link{multRepl}}) (default = 0.65).
 }
   \item{tolerance}{Convergence criterion (default = 0.0001).}
   \item{max.iter}{
@@ -45,7 +45,7 @@ Suppress printed feedback (\code{suppress.print = FALSE}, default).
 
 
 \details{
-The procedure starts with an initial imputation of either zeros (using simple replacement with \code{delta*dl}) or missing values (using geometric mean imputation from observed data) depending of which problem is the least frequent in the data set. Subsequently, iterative calls to \code{lrEM} replace zeros and missing data alternately until convergence to a stable solution or the maximum number of iterations is reached.
+The procedure starts with an initial imputation of either zeros (using simple replacement with \code{frac*dl}) or missing values (using geometric mean imputation from observed data) depending of which problem is the least frequent in the data set. Subsequently, iterative calls to \code{lrEM} replace zeros and missing data alternately until convergence to a stable solution or the maximum number of iterations is reached.
 
 See \code{?lrEM} for more details.
 }

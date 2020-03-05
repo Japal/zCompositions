@@ -7,7 +7,7 @@
 This function implements non-parametric multiplicative simple imputation of left-censored (e.g. values below detection limit, rounded zeros) and missing data in compositional data sets.
 }
 \usage{
-multRepl(X, label = NULL, dl = NULL, delta = 0.65,
+multRepl(X, label = NULL, dl = NULL, frac = 0.65,
             imp.missing = FALSE, closure = NULL)
 }
 %- maybe also 'usage' for other objects documented here.
@@ -19,16 +19,16 @@ Compositional vector (\code{numeric} class) or data set (\code{\link{matrix}} or
   \item{dl}{
 Numeric vector or matrix of detection limits/thresholds. These must be given on the same scale as \code{X}.
 }
-  \item{delta}{
-Delta parameter (fraction of the threshold) used in proportions (default = 0.65).
+  \item{frac}{
+Fraction of the detection limit/threshold used for imputation (default = 0.65, expressed as a proportion).
 }
  \item{imp.missing}{If \code{TRUE} then unobserved values identified by \code{label} are treated as missing data (default = \code{FALSE}).}
   \item{closure}{Closure value used to add a residual part for imputation (see below).}
 }
 \details{
-This function imputes left-censored compositional values by a given fraction \code{delta} of the corresponding limit of detection and applies a multiplicative adjustment to preserve the multivariate compositional properties of the samples. It allows for either single (\code{vector} form) or multiple (\code{matrix} form, same size as \code{X}) limits of detection by component. Any threshold value can be set for non-censored elements (e.g. use 0 if no threshold for a particular column or element of the data matrix).
+This function imputes left-censored compositional values by a given fraction \code{frac} of the corresponding limit of detection and applies a multiplicative adjustment to preserve the multivariate compositional properties of the samples. It allows for either single (\code{vector} form) or multiple (\code{matrix} form, same size as \code{X}) limits of detection by component. Any threshold value can be set for non-censored elements (e.g. use 0 if no threshold for a particular column or element of the data matrix).
 
-\emph{Missing data imputation}: missing data can be imputed by setting \code{imp.missing = TRUE}. They are replaced by the estimated column geometric mean from observed values. The non-missing parts in the composition are applied multiplicative adjustment. The argument \code{dl} and \code{delta} are ignored and \code{X} is require to be a data matrix in this case.
+\emph{Missing data imputation}: missing data can be imputed by setting \code{imp.missing = TRUE}. They are replaced by the estimated column geometric mean from observed values. The non-missing parts in the composition are applied multiplicative adjustment. The argument \code{dl} and \code{frac} are ignored and \code{X} is require to be a data matrix in this case.
 
 Note: negative values can be generated when unobserved components are a large portion of the composition, which is more likely for missing data (e.g in major chemical elements) and non-closed compositions. A workaround is to add a residual filling the gap up to the closure/total when possible. This is done internally when a value for \code{closure} is specified (e.g. \code{closure=10^6} if ppm or \code{closure=100} if percentages). The residual is discarded after imputation.
 
@@ -55,7 +55,7 @@ left-censored data under a compositional approach. Chemometrics and Intelligence
 # A compositional vector (NA indicates nondetect)
 y <- c(0.6,NA,0.25,0.03,0.12,NA)
 dl <- c(0,0.01,0,0,0,0.005)
-# Using the default delta = 0.65
+# Using the default frac = 0.65
 yr <- multRepl(y,label=NA,dl=dl)
 round(yr,4)
 
