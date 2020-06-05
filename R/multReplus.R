@@ -1,5 +1,5 @@
 multReplus <- function(X, dl = NULL, frac = 0.65, suppress.print = FALSE,
-                       closure = NULL){
+                       closure = NULL,delta=NULL){
   
   if (any(X<0, na.rm=T)) stop("X contains negative values")
   if (is.character(dl)) stop("dl must be a numeric vector or matrix")
@@ -13,6 +13,10 @@ multReplus <- function(X, dl = NULL, frac = 0.65, suppress.print = FALSE,
   if (any(is.na(X))==FALSE) stop("No missing data were found in the data set")
   if (any(X==0, na.rm=T)==FALSE) stop("No zeros were found in the data set")
   
+  if (!missing("delta")){
+    warning("The delta argument is deprecated, use frac instead: frac has been set equal to delta.")
+    frac <- delta
+  }
   
   gm <- function(x, na.rm=TRUE){
     exp(sum(log(x), na.rm=na.rm) / length(x[!is.na(x)]))

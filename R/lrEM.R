@@ -1,6 +1,6 @@
 lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRepl"),frac=0.65,tolerance=0.0001,
          max.iter=50,rlm.maxit=150,imp.missing=FALSE,suppress.print=FALSE,
-         closure=NULL){
+         closure=NULL,delta=NULL){
   
   if (any(X<0, na.rm=T)) stop("X contains negative values")
   if (imp.missing==FALSE){
@@ -22,6 +22,11 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
   if (imp.missing==FALSE){
     if (ncol(dl)!=ncol(X)) stop("The number of columns in X and dl do not agree")
     if ((nrow(dl)>1) & (nrow(dl)!=nrow(X))) stop("The number of rows in X and dl do not agree")
+  }
+  
+  if (!missing("delta")){
+    warning("The delta argument is deprecated, use frac instead: frac has been set equal to delta.")
+    frac <- delta
   }
   
   ini.cov <- match.arg(ini.cov)

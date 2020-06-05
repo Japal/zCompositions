@@ -4,8 +4,14 @@
 \alias{lcTest}
 \title{Log-contrast homogeneity test}
 \usage{
-lcTest(X, label = 0, groups = NULL, lc = NULL, method = c("parametric",
-  "nonparametric"), b = 1000)
+lcTest(
+  X,
+  label = 0,
+  groups = NULL,
+  lc = NULL,
+  method = c("parametric", "nonparametric"),
+  b = 1000
+)
 }
 \arguments{
 \item{X}{Compositional data set (\code{\link{matrix}} or \code{\link{data.frame}} class).}
@@ -36,11 +42,6 @@ arrays based on total weighted squared relative errors are also provided (see \c
 The log-contrast is specified by the \code{lc} argument using a vector of codes 1, -1 and 0 for components
 in the numerator, denominator and omitted respectively.
 }
-\references{
-Palarea-Albaladejo J. and Martin-Fernandez JA. zCompositions -- R package for multivariate imputation of
-left-censored data under a compositional approach. Chemometrics and Intelligence Laboratory Systems 2015; 143: 85-96.
-}
-
 \examples{
 data(Water)
 zPatterns(Water, label = 0)
@@ -49,6 +50,5 @@ zPatterns(Water, label = 0)
 lcTest(Water, label = 0, lc = c(1,-1,-1,0))
 }
 \seealso{
-\code{\link{zPatterns}}, \code{\link{zVarArray}}, \code{\link{zVarArrayError}}
+\code{\link{zPatterns}}, \code{\link{zVarArray}}, \code{\link{zVarArrayError}}.
 }
-

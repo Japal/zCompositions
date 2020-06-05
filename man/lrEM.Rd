@@ -11,7 +11,8 @@ This function implements model-based ordinary and robust Expectation-Maximisatio
 lrEM(X, label = NULL, dl = NULL, rob = FALSE,
         ini.cov = c("complete.obs", "multRepl"), frac = 0.65,
         tolerance = 0.0001, max.iter = 50, rlm.maxit = 150,
-        imp.missing = FALSE, suppress.print = FALSE, closure = NULL)
+        imp.missing = FALSE, suppress.print = FALSE, closure = NULL,
+        delta = NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -41,6 +42,7 @@ If \code{rob=TRUE}, maximum number of iterations for the embedded robust regress
 Suppress printed feedback (\code{suppress.print = FALSE}, default).
 }
   \item{closure}{Closure value used to add a residual part if needed when \code{ini.cov="multRepl"} is used (see \code{?multRepl}).}
+  \item{delta}{This argument has been deprecated and replaced by \code{frac} (see package's NEWS for details).}
 }
 
 

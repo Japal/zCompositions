@@ -7,8 +7,8 @@
 This function implements non-parametric multiplicative simple imputation of left-censored (e.g. values below detection limit, rounded zeros) and missing data in compositional data sets.
 }
 \usage{
-multRepl(X, label = NULL, dl = NULL, frac = 0.65,
-            imp.missing = FALSE, closure = NULL)
+multRepl(X, label = NULL, dl = NULL, frac = 0.65, imp.missing = FALSE, closure = NULL,
+            delta = NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -24,6 +24,7 @@ Fraction of the detection limit/threshold used for imputation (default = 0.65, e
 }
  \item{imp.missing}{If \code{TRUE} then unobserved values identified by \code{label} are treated as missing data (default = \code{FALSE}).}
   \item{closure}{Closure value used to add a residual part for imputation (see below).}
+  \item{delta}{This argument has been deprecated and replaced by \code{frac} (see package's NEWS for details).}
 }
 \details{
 This function imputes left-censored compositional values by a given fraction \code{frac} of the corresponding limit of detection and applies a multiplicative adjustment to preserve the multivariate compositional properties of the samples. It allows for either single (\code{vector} form) or multiple (\code{matrix} form, same size as \code{X}) limits of detection by component. Any threshold value can be set for non-censored elements (e.g. use 0 if no threshold for a particular column or element of the data matrix).

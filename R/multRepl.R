@@ -1,5 +1,5 @@
 multRepl <-
-  function(X,label=NULL,dl=NULL,frac=0.65,imp.missing=FALSE,closure=NULL){
+  function(X,label=NULL,dl=NULL,frac=0.65,imp.missing=FALSE,closure=NULL,delta=NULL){
     
     if (any(X<0, na.rm=T)) stop("X contains negative values")
     if (imp.missing==FALSE){
@@ -27,6 +27,11 @@ multRepl <-
         if (ncol(dl)!=ncol(X)) stop("The number of columns in X and dl do not agree")
         if ((nrow(dl)>1) & (nrow(dl)!=nrow(X))) stop("The number of rows in X and dl do not agree")
       }
+    }
+    
+    if (!missing("delta")){
+      warning("The delta argument is deprecated, use frac instead: frac has been set equal to delta.")
+      frac <- delta
     }
     
     gm <- function(x, na.rm=TRUE){

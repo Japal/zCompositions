@@ -1,6 +1,6 @@
 lrEMplus <- function(X, dl = NULL, rob = FALSE, ini.cov = c("complete.obs", "multRepl"), frac = 0.65,
                      tolerance = 0.0001, max.iter = 50,
-                     rlm.maxit=150, suppress.print = FALSE, closure=NULL){
+                     rlm.maxit=150, suppress.print = FALSE, closure=NULL, delta=NULL){
   
   if (any(X<0, na.rm=T)) stop("X contains negative values")
   if (is.character(dl)) stop("dl must be a numeric vector or matrix")
@@ -14,6 +14,11 @@ lrEMplus <- function(X, dl = NULL, rob = FALSE, ini.cov = c("complete.obs", "mul
   if (any(is.na(X))==FALSE) stop("No missing data were found in the data set")
   if (any(X==0, na.rm=T)==FALSE) stop("No zeros were found in the data set")
 
+  if (!missing("delta")){
+    warning("The delta argument is deprecated, use frac instead: frac has been set equal to delta.")
+    frac <- delta
+  }
+  
   ini.cov <- match.arg(ini.cov)
   
   gm <- function(x, na.rm=TRUE){

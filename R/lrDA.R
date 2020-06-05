@@ -1,6 +1,6 @@
 lrDA <-
   function(X,label=NULL,dl=NULL,ini.cov=c("lrEM","complete.obs","multRepl"),frac=0.65,
-           imp.missing=FALSE,n.iters=1000,m=1,store.mi=FALSE,closure=NULL){
+           imp.missing=FALSE,n.iters=1000,m=1,store.mi=FALSE,closure=NULL,delta=NULL){
     
     if (any(X<0, na.rm=T)) stop("X contains negative values")
     if (imp.missing==FALSE){
@@ -25,6 +25,12 @@ lrDA <-
     }
     
     if ((store.mi==TRUE) & (m==1)) store.mi <- FALSE
+    
+    if (!missing("delta")){
+      warning("The delta argument is deprecated, use frac instead: frac has been set equal to delta.")
+      frac <- delta
+    }
+    
     
     lm.sweep <- function(M,C,varobs){
       

@@ -11,7 +11,8 @@ Note: zeros and missing data must be labelled using 0 and \code{NA} respectively
 }
 \usage{
 multReplus(X, dl = NULL, frac = 0.65,
-              suppress.print = FALSE, closure = NULL)
+              suppress.print = FALSE, closure = NULL,
+              delta = NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -28,6 +29,7 @@ Fraction of the detection limit/threshold used for imputation (default = 0.65, e
 Suppress printed feedback (\code{suppress.print = FALSE}, default).
 }
   \item{closure}{Closure value used to add a residual part for imputation (see below).}
+  \item{delta}{This argument has been deprecated and replaced by \code{frac} (see package's NEWS for details).}
 }
 
 \details{

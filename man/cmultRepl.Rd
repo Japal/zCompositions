@@ -9,9 +9,10 @@ This function implements methods for imputing zeros in compositional count data 
 }
 \usage{
 cmultRepl(X, label = 0,
-          method = c("GBM","SQ","BL","CZM","user"), output = c("prop","p-counts"),
-          frac = 0.65, threshold = 0.5, correct = TRUE, t = NULL, s = NULL,
-          suppress.print = FALSE)
+             method = c("GBM","SQ","BL","CZM","user"), output = c("prop","p-counts"),
+             frac = 0.65, threshold = 0.5, correct = TRUE, t = NULL, s = NULL,
+             suppress.print = FALSE,
+             delta = NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -41,6 +42,7 @@ If \code{method="user"}, user-specified \emph{t} hyper-parameter of the Dirichle
   \item{suppress.print}{
 Suppress printed feedback (\code{suppress.print=FALSE}, default).
 }
+  \item{delta}{This argument has been deprecated and replaced by \code{frac} (see package's NEWS for details).}
 }
 
 \details{
