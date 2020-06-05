@@ -5,6 +5,7 @@ multRepl <-
     if (imp.missing==FALSE){
       if (is.character(dl)) stop("dl must be a numeric vector or matrix")
       if (is.vector(dl)) dl <- matrix(dl,nrow=1)
+      dl <- as.matrix(dl) # Avoids problems when dl might be multiple classes
     }
     
     if (is.character(X)) stop("X is not a valid data matrix or vector.")

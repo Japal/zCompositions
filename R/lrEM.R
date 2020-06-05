@@ -6,6 +6,7 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
   if (imp.missing==FALSE){
     if (is.character(dl)) stop("dl must be a numeric vector or matrix")
     if (is.vector(dl)) dl <- matrix(dl,nrow=1)
+    dl <- as.matrix(dl) # Avoids problems when dl might be multiple classes
   }
   
   if ((is.vector(X)) | (nrow(X)==1)) stop("X must be a data matrix")

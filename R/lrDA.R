@@ -6,6 +6,7 @@ lrDA <-
     if (imp.missing==FALSE){
       if (is.character(dl)) stop("dl must be a numeric vector or matrix")
       if (is.vector(dl)) dl <- matrix(dl,nrow=1)
+      dl <- as.matrix(dl) # Avoids problems when dl might be multiple classes
     }
     
     if ((is.vector(X)) | (nrow(X)==1)) stop("X must be a data matrix")
@@ -30,7 +31,6 @@ lrDA <-
       warning("The delta argument is deprecated, use frac instead: frac has been set equal to delta.")
       frac <- delta
     }
-    
     
     lm.sweep <- function(M,C,varobs){
       

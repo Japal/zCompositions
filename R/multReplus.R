@@ -4,12 +4,10 @@ multReplus <- function(X, dl = NULL, frac = 0.65, suppress.print = FALSE,
   if (any(X<0, na.rm=T)) stop("X contains negative values")
   if (is.character(dl)) stop("dl must be a numeric vector or matrix")
   if (is.vector(dl)) dl <- matrix(dl,nrow=1)
-
+  dl <- as.matrix(dl) # Avoids problems when dl might be multiple classes
   if ((is.vector(X)) | (nrow(X)==1)) stop("X must be a data matrix")
-
   if (ncol(dl)!=ncol(X)) stop("The number of columns in X and dl do not agree")
   if ((nrow(dl)>1) & (nrow(dl)!=nrow(X))) stop("The number of rows in X and dl do not agree")
-  
   if (any(is.na(X))==FALSE) stop("No missing data were found in the data set")
   if (any(X==0, na.rm=T)==FALSE) stop("No zeros were found in the data set")
   

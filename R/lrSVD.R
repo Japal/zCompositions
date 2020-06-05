@@ -32,7 +32,7 @@ lrSVD <- function(X,label=NULL,dl=NULL,frac=0.65,ncp=2,beta=0.5,scale=FALSE,meth
   if (any(X<0, na.rm=T)) stop("X contains negative values")
   if (is.character(dl)) stop("dl must be a numeric vector or matrix")
   if (is.vector(dl)) dl <- matrix(dl,nrow=1)
-  
+  dl <- as.matrix(dl) # Avoids problems when dl might be multiple classes
   if ((is.vector(X)) | (nrow(X)==1)) stop("X must be a data matrix")
   if (is.null(label)) stop("A value for label must be given")
   if (!is.na(label)){
