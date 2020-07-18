@@ -202,10 +202,11 @@ lrDA <-
       
       # I-step
       
-      for (npat in 2:length(levels(misspat))){                     
+      for (npat in 1:length(levels(misspat))){                     
         i <- which(misspat==npat) 
-        varobs <- which(!is.na(X_alr[i[1],]))
         varmiss <- which(is.na(X_alr[i[1],]))
+        if (length(varmiss) == 0) {next} # Skip first pattern if all obs
+        varobs <- which(!is.na(X_alr[i[1],]))
         if (length(varobs) == 0){
           alt.in <- TRUE
           temp <- multRepl(X[i,,drop=FALSE],label=NA,dl=dl[i,,drop=FALSE],frac=frac,imp.missing=imp.missing,closure=closure)

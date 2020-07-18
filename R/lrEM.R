@@ -190,10 +190,11 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
       Y <- X_alr                              
       v <- matrix(0,D,D)
       
-      for (npat in 2:length(levels(misspat))){                    
+      for (npat in 1:length(levels(misspat))){
         i <- which(misspat==npat) 
-        varobs <- which(!is.na(X_alr[i[1],]))
         varmiss <- which(is.na(X_alr[i[1],]))
+        if (length(varmiss) == 0) {next} # Skip first pattern if all obs
+        varobs <- which(!is.na(X_alr[i[1],]))
         if (length(varobs) == 0){
           alt.in <- TRUE
           temp <- multRepl(X[i,,drop=FALSE],label=NA,dl=dl[i,,drop=FALSE],frac=frac,imp.missing=imp.missing,closure=closure)
@@ -272,7 +273,8 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
       niters <- niters+1
       if (niters > 1) {X.old <- X; C.old <- C}
       
-      for (npat in 2:length(levels(misspat))){                    
+      for (npat in 1:length(levels(misspat))){
+        if (length(miss[[npat]]) == 0) {next} # Skip first pattern if all obs
         if ((length(obs[[npat]]) == 1) & (!any(npat==alt.pat))){
           alt.in <- TRUE
           if (imp.missing==FALSE){

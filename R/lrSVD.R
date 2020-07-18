@@ -137,8 +137,8 @@ lrSVD <- function(X,label=NULL,dl=NULL,frac=0.65,ncp=2,beta=0.5,scale=FALSE,meth
     return(res)
   }
   
-  impute <- function (X,dl,bal,frac=frac,ncp=4,beta=0.5,scale=FALSE,method=NULL,threshold = 1e-6,
-                      seed = NULL,init=1,maxiter=1000,row.w=NULL,coeff.ridge=1,...){
+  impute <- function (X=NULL,dl=NULL,bal=NULL,frac=0.65,ncp=2,beta=0.5,scale=FALSE,method="Regularized",row.w=NULL,
+                      coeff.ridge=1,threshold=1e-4,seed=NULL,maxiter=1000,init=1,...){
     # X == CoDa DATA
     # dl ==  matrix of DL
     # bal == MATRIX balances (rows) (D-1 x D)
@@ -311,6 +311,7 @@ lrSVD <- function(X,label=NULL,dl=NULL,frac=0.65,ncp=2,beta=0.5,scale=FALSE,meth
     return(result) 
   }
   
+  
   method <- match.arg(method,c("Regularized","regularized","EM","em"),several.ok=T)[1]
   method <- tolower(method)
   
@@ -373,15 +374,14 @@ lrSVD <- function(X,label=NULL,dl=NULL,frac=0.65,ncp=2,beta=0.5,scale=FALSE,meth
   
   for (i in 1:nb.init){
     if (!any(is.na(X))) return(X)
-
-    res.impute <- impute(X,dl,bal,ncp=ncp,scale=scale,method=method,threshold=threshold,
-                         seed=if(!is.null(seed)){(seed*(i-1))}else{NULL},
-                         init=i,maxiter=maxiter,row.w=row.w,coeff.ridge=coeff.ridge)
+    
+    res.impute <- impute(X=X,dl=dl,bal=bal,frac=frac,ncp=ncp,beta=beta,scale=scale,method=method,row.w=row.w,
+                         coeff.ridge=coeff.ridge,threshold=threshold,seed=if(!is.null(seed)){(seed*(i-1))}else{NULL},
+                         maxiter=maxiter,init=i)
     diffRaw <- as.matrix(XauxClosed/res.impute$fittedX)
     diffRaw[missingRaw] <- 1
     # OLR-coordinates
     diff <-t(bal%*%t(log(diffRaw)))
-    #
     res <- res.impute
     obj <- mean((diff)^2)
   }
