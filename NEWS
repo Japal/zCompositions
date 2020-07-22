@@ -6,7 +6,7 @@ CHANGES IN zCompositions VERSION 1.4.0 [2020-??]:
 
 NEW FEATURES
 
-* lrSVD and lrSVDplus: imputation algorithm based on singular value decomposition for censored, missing data or both simultaneously. Particularly thought for wide data sets (more columns than rows).
+* lrSVD and lrSVDplus: imputation algorithm based on singular value decomposition for censored, missing data, or both simultaneously. Particularly thought for wide data sets (more columns than rows).
 
 MODIFICATIONS
 
