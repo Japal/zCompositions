@@ -1,5 +1,5 @@
 lrSVDplus <- function(X,dl=NULL,frac=0.65,ncp=2,beta=0.5,method=c("ridge","EM"),row.w=NULL,
-                  coeff.ridge=1,threshold=1e-4,seed=NULL,nb.init=1,maxiter=1000,...){
+                  coeff.ridge=1,threshold=1e-4,seed=NULL,nb.init=1,max.iter=1000,...){
   
   if (any(X<0, na.rm=T)) stop("X contains negative values")
   if (is.character(dl)) stop("dl must be a numeric vector or matrix")
@@ -102,7 +102,7 @@ lrSVDplus <- function(X,dl=NULL,frac=0.65,ncp=2,beta=0.5,method=c("ridge","EM"),
   }
   
   impute <- function (X=NULL,dl=NULL,bal=NULL,frac=0.65,ncp=2,beta=0.5,method=c("ridge","EM"),row.w=NULL,
-                      coeff.ridge=1,threshold=1e-4,seed=NULL,maxiter=1000,init=1,...){
+                      coeff.ridge=1,threshold=1e-4,seed=NULL,max.iter=1000,init=1,...){
 
     # (scale argument removed: no scaling of olr columns by (weighted) variance allowed)
     
@@ -233,9 +233,9 @@ lrSVDplus <- function(X,dl=NULL,frac=0.65,ncp=2,beta=0.5,method=c("ridge","EM"),
         if ((criterion < threshold) && (nb.iter > 5))  nb.iter <- 0
         if ((objective < threshold) && (nb.iter > 5))  nb.iter <- 0
       }
-      if (nb.iter > maxiter) {
+      if (nb.iter > max.iter) {
         nb.iter <- 0
-        warning(paste("Stopped after ",maxiter," iterations"))
+        warning(paste("Stopped after ",max.iter," iterations"))
       }
     }
     # END LOOP WHILE
@@ -329,7 +329,7 @@ lrSVDplus <- function(X,dl=NULL,frac=0.65,ncp=2,beta=0.5,method=c("ridge","EM"),
     
     res.impute <- impute(X=X,dl=dl,bal=bal,frac=frac,ncp=ncp,beta=beta,method=method,row.w=row.w,
                          coeff.ridge=coeff.ridge,threshold=threshold,seed=if(!is.null(seed)){(seed*(i-1))}else{NULL},
-                         maxiter=maxiter,init=i)
+                         max.iter=max.iter,init=i)
     
     diffRaw <- as.matrix(XauxClosed/res.impute$fittedX)
     diffRaw[missingRaw] <- 1
