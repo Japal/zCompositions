@@ -1,10 +1,13 @@
-lrSVD <- function(X,label=NULL,dl=NULL,frac=0.65,ncp=2,beta=0.5,method=c("ridge","EM"),row.w=NULL,
+lrSVD <- function(X,label=NULL,dl=NULL,frac=0.65,ncp=2,imp.missing=FALSE,beta=0.5,method=c("ridge","EM"),row.w=NULL,
                   coeff.ridge=1,threshold=1e-4,seed=NULL,nb.init=1,max.iter=1000,...){
   
   if (any(X<0, na.rm=T)) stop("X contains negative values")
-  if (is.character(dl)) stop("dl must be a numeric vector or matrix")
-  if (is.vector(dl)) dl <- matrix(dl,nrow=1)
-  dl <- as.matrix(dl) # Avoids problems when dl might be multiple classes
+  if (imp.missing==FALSE){
+    if (is.character(dl) || is.null(dl)) stop("dl must be a numeric vector or matrix")
+    if (is.vector(dl)) dl <- matrix(dl,nrow=1)
+    dl <- as.matrix(dl) # Avoids problems when dl might be multiple classes
+  }
+  
   if ((is.vector(X)) | (nrow(X)==1)) stop("X must be a data matrix")
   if (is.null(label)) stop("A value for label must be given")
   if (!is.na(label)){
@@ -16,9 +19,10 @@ lrSVD <- function(X,label=NULL,dl=NULL,frac=0.65,ncp=2,beta=0.5,method=c("ridge"
     if (any(X==0,na.rm=T)) stop("Zero values not labelled as censored values were found in the data set")
     if (!any(is.na(X),na.rm=T)) stop(paste("Label",label,"was not found in the data set"))
   }
-  if (ncol(dl)!=ncol(X)) stop("The number of columns in X and dl do not agree")
-  if ((nrow(dl)>1) & (nrow(dl)!=nrow(X))) stop("The number of rows in X and dl do not agree")
-  
+  if (imp.missing==FALSE){
+    if (ncol(dl)!=ncol(X)) stop("The number of columns in X and dl do not agree")
+    if ((nrow(dl)>1) & (nrow(dl)!=nrow(X))) stop("The number of rows in X and dl do not agree")
+  }
   if (ncp>min(nrow(X)-2,ncol(X)-1)) stop("ncp is too large for the size of the data matrix")
   if (is.null(row.w)) row.w = rep(1,nrow(X))/nrow(X) # Equal weight for all rows
   
@@ -119,6 +123,11 @@ lrSVD <- function(X,label=NULL,dl=NULL,frac=0.65,ncp=2,beta=0.5,method=c("ridge"
       res <- sum(V * poids,na.rm=TRUE)/sum(poids[!is.na(V)])
     }
     
+    # Geometric mean by columns (for missing data case)
+    gm <- function(x, na.rm=TRUE){
+      exp(sum(log(x), na.rm=na.rm)/length(x))
+    }
+    
     nb.iter <- 1
     old <- Inf
     objective <- 0
@@ -133,15 +142,25 @@ lrSVD <- function(X,label=NULL,dl=NULL,frac=0.65,ncp=2,beta=0.5,method=c("ridge"
     Xaux <- X # copy original raw data with NA
     caux <- apply(Xaux, 1, sum, na.rm = TRUE)
     
-    # Impute random values to the unobserved if init > 1 (= 1 DEFAULT value)
-    if (init==1){
-      X[missRaw] <- frac*dl[missRaw]}
-    else{
-      X[missRaw]<-runif(1,0.50,0.8)*dl[missRaw] #random
+    # Initial imputation
+    if (imp.missing == FALSE){
+      if (init==1){
+        X[missRaw] <- frac*dl[missRaw]} # mult repl
+      else{
+        X[missRaw] <- runif(1,0.50,0.8)*dl[missRaw] # random otherwise
+      }
     }
+    else{
+      # Initial geo mean imputation of missing
+      gmeans <- apply(Xaux,2,function(x) gm(x))
+      nn <- nrow(X)
+      gmeans <- matrix(rep(1, nn), ncol = 1)%*%gmeans
+      X[missRaw] <- gmeans[missRaw]
+    }
+
     # Xhat: OLR-coordinates
     Xhat <- t(bal%*%t(log(X)))
-    #
+    
     # Number of components
     ncp <- min(ncp,ncol(Xhat),nrow(Xhat)-1)
     # Weighted column mean  
@@ -174,12 +193,13 @@ lrSVD <- function(X,label=NULL,dl=NULL,frac=0.65,ncp=2,beta=0.5,method=c("ridge"
       fittedXusRCRaw <- fittedXusRCRaw/apply(fittedXusRCRaw,1,sum)
       
       X[obsRaw] <- ((fittedXusRCRaw[obsRaw])^(1-beta))*((X[obsRaw])^beta)
-      # check the detection limit DL
-      X <- X/apply(X,1,sum)
       
-      Xaux2 <- X*caux # original units
-      viol <- which(Xaux2>dl)
+      # check DL
+      X <- X/apply(X,1,sum)
+      Xaux2 <- X*caux # re-scaled to original
+      viol <- which(Xaux2 > dl)
       Xaux2[viol] <- dl[viol]
+      
       # Xhat: OLR-coordinates
       Xhat <- t(bal%*%t(log(Xaux2)))
       # Update mean
@@ -285,9 +305,12 @@ lrSVD <- function(X,label=NULL,dl=NULL,frac=0.65,ncp=2,beta=0.5,method=c("ridge"
   pz <- apply(apply(Xna,2,is.na),2,sum)/nn
   # Ordered decreasingly by number of zeros (NA)
   X <- Xna[,order(-pz)]
-  if (nrow(dl)==1) {dl <- matrix(dl[,order(-pz)],nrow=1)}
-  else{
+  
+  if (imp.missing==FALSE) {
+    if (nrow(dl)==1) {dl <- matrix(dl[,order(-pz)],nrow=1)}
+    else{
     dl <- dl[,order(-pz)]
+    }
   }
 
   # Balance matrix for olr
@@ -304,16 +327,19 @@ lrSVD <- function(X,label=NULL,dl=NULL,frac=0.65,ncp=2,beta=0.5,method=c("ridge"
   }
   
   # Build dl matrix for SVD imputation
-  if (nrow(dl) == 1)  dl <- matrix(rep(1, nn), ncol = 1)%*%dl
-  # set observed data as upper bound for estimates of observed values
+  
+  if (imp.missing==FALSE) {if (nrow(dl) == 1)  dl <- matrix(rep(1, nn), ncol = 1)%*%dl}
+  else {dl <- matrix(0, nrow = nn, ncol = D)} # fake dl matrix for the case of missing
+  
+  # Set observed data as upper bound for estimates of observed values
   observedRaw <- which(!is.na(X))
   missingRaw <- which(is.na(X))
   Xaux2 <- as.matrix(X)
-  # DL observed values = maximum value = observed = infinity upper bound
-  #dl[observedRaw] <- Xaux2[observedRaw] 
+  # DL observed and missing values = maximum value = observed = infinity upper bound
   Xmax <- apply(X,2,max,na.rm=TRUE)
   Xmax <- matrix(rep(1, nn), ncol = 1)%*%Xmax
   dl[observedRaw] <- Xmax[observedRaw]
+  if (imp.missing==TRUE) {dl[missingRaw] <- Xmax[missingRaw]}
   colnames(dl) <- colnames(X)
   
   ## Imputation ---

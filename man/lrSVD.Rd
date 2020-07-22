@@ -1,9 +1,15 @@
 \name{lrSVD}
 \alias{lrSVD}
 \title{Log-ratio SVD algorithm}
+\description{
+This function implements an iterative algorithm to impute left-censored data (e.g. values below detection limit,
+rounded zeros) based on the singular value decomposition (SVD) of a compositional data set.
+
+This function can be also used to impute missing data instead by setting \code{imp.missing = TRUE} (see \code{\link{lrSVDplus}} to treat censored and missing data simultaneously).
+}
 \usage{
-lrSVD(X, label = NULL, dl = NULL, frac = 0.65,
-         ncp = 2, beta = 0.5, method = c("ridge", "EM"), row.w = NULL,
+lrSVD(X, label = NULL, dl = NULL, frac = 0.65, ncp = 2, imp.missing=FALSE,
+         beta = 0.5, method = c("ridge", "EM"), row.w = NULL,
          coeff.ridge = 1, threshold = 1e-04, seed = NULL, nb.init = 1,
          max.iter = 1000, ...)
 }
@@ -17,6 +23,8 @@ lrSVD(X, label = NULL, dl = NULL, frac = 0.65,
 \item{frac}{Parameter for initial multiplicative simple replacement of left-censored data (see \code{\link{multRepl}}) (default = 0.65).}
 
 \item{ncp}{Number of components in low-rank matrix approximation (default = 2).}
+
+\item{imp.missing}{If \code{TRUE} then unobserved data identified by \code{label} are treated as missing data (default = \code{FALSE}).}
 
 \item{beta}{Weighting parameter, balance between the two conditions in objective function (default = 0.5).}
 
@@ -39,16 +47,14 @@ lrSVD(X, label = NULL, dl = NULL, frac = 0.65,
 \value{
 A \code{\link{data.frame}} object containing the imputed compositional data set in the same scale as the original.
 }
-\description{
-This function implements an iterative algorithm to impute left-censored data (e.g. values below detection limit,
-rounded zeros) based on the singular value decomposition (SVD) of a compositional data set.
-}
 \details{
-
 This function implements an efficient imputation algorithm particularly suitable for the case of continuous high-dimensional and wide compositional data sets (more columns than rows), although it is equally applicable to regular data sets. It is based on a low-rank representation of the data set by a principal components (PC) model as derived by singular value decomposition (SVD) of the data matrix, extending recent work on principal component imputation and matrix completion methods to the case of censored compositional data (the code builds on the function \code{imputePCA}; see \code{missMDA} package for more details). A preliminary imputation by multiplicative replacement (see \code{\link{multRepl}}) is conducted to initiate the iterative algorithm in log-ratio coordinates. Two steps, estimation of latent PC model loadings and imputation of empty data matrix cells using the model, are iteratively repeated until convergence. Parameter fitting in this context is performed by a regularisation method (ridge regression in this case) or by the expectation-maximisation (EM) algorithm. Regularization has been shown generally preferable and it is set as default method (note the regularisation parameter \code{coeff.ridge} set to 1 by default. If it is < 1 the result is closer to EM estimation, whereas for values > 1 it is closer to mean estimation). 
 
 It produces an imputed data set on the same scale as the input data set. If \code{X} is not closed to a constant sum, then the results are adjusted to provide a compositionally equivalent data set, expressed in the original scale, which leaves the absolute values of the observed components unaltered.
 
+\emph{Missing data imputation}
+
+When \code{imp.missing = TRUE}, unobserved values are treated as general missing data. For this case, the argument \code{label} indicates the unique label for missing values and the argument \code{dl} is ignored.
 }
 \examples{
  # Data set closed to 100 (percentages, common dl = 1\%)
@@ -82,6 +88,9 @@ It produces an imputed data set on the same scale as the input data set. If \cod
  dl2 <- dl[-c(5,7,10)]
  
  LPdata2_lrSVD <- lrSVD(LPdata2,label=0,dl=dl2)
+ 
+ # Treating zeros as general missing data for illustration purposes only
+ LPdata2_miss <- lrSVD(LPdata2,label=0,imp.missing=TRUE)
 }
 \seealso{
 \code{\link{zPatterns}}, \code{\link{lrEM}}, \code{\link{lrDA}}, \code{\link{multRepl}}, \code{\link{multLN}}, \code{\link{multKM}}}

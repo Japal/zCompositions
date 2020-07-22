@@ -44,7 +44,7 @@ Chemometrics and Intelligent Laboratory Systems 2015; 143: 85-96.
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-\code{\link{zPatterns}}, \code{\link{splineKM}}, \code{\link{lrEM}}, \code{\link{lrDA}}, \code{\link{multRepl}}, \code{\link{multLN}}, \code{\link{cmultRepl}}
+\code{\link{zPatterns}}, \code{\link{splineKM}}, \code{\link{lrEM}}, \code{\link{lrSVD}}, \code{\link{lrDA}}, \code{\link{multRepl}}, \code{\link{multLN}}, \code{\link{cmultRepl}}
 }
 \examples{
 data(Water)

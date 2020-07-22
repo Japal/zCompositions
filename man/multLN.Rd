@@ -47,7 +47,7 @@ left-censored data under a compositional approach. Chemometrics and Intelligence
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-\code{\link{zPatterns}}, \code{\link{lrEM}}, \code{\link{lrDA}}, \code{\link{multRepl}}, \code{\link{multKM}}, \code{\link{cmultRepl}}
+\code{\link{zPatterns}}, \code{\link{lrEM}}, \code{\link{lrSVD}}, \code{\link{lrDA}}, \code{\link{multRepl}}, \code{\link{multKM}}, \code{\link{cmultRepl}}
 }
 \examples{
 # Data set closed to 100 (percentages, common dl = 1%)

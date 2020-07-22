@@ -5,7 +5,7 @@ splineKM <- function(x,label=NULL,dl=NULL,n.knots=NULL,
                      col.km="black",lty.km=1,lwd.km=1,
                      col.sm="red",lty.sm=2,lwd.sm=2,...){
   
-  if (is.character(dl)) stop("The argument dl must be a numeric vector")
+  if (is.character(dl) || is.null(dl)) stop("dl must be a numeric vector or matrix")
   if (length(dl)!=length(x)) stop("x and dl must be two vectors of the same length")
   
   if (is.null(label)) stop("A value for label must be given")

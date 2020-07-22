@@ -4,7 +4,7 @@ lrDA <-
     
     if (any(X<0, na.rm=T)) stop("X contains negative values")
     if (imp.missing==FALSE){
-      if (is.character(dl)) stop("dl must be a numeric vector or matrix")
+      if (is.character(dl) || is.null(dl)) stop("dl must be a numeric vector or matrix")
       if (is.vector(dl)) dl <- matrix(dl,nrow=1)
       dl <- as.matrix(dl) # Avoids problems when dl might be multiple classes
     }

@@ -5,7 +5,9 @@
 Log-ratio EM algorithm
 }
 \description{
-This function implements model-based ordinary and robust Expectation-Maximisation algorithms to impute left-censored data (e.g. values below detection limit, rounded zeros) via coordinates representation of compositional data which incorporate the information of the relative covariance structure. Alternatively, this function can be used to impute missing data.
+This function implements model-based ordinary and robust Expectation-Maximisation algorithms to impute left-censored data (e.g. values below detection limit, rounded zeros) via coordinates representation of compositional data which incorporate the information of the relative covariance structure.
+
+This function can be also used to impute missing data instead by setting \code{imp.missing = TRUE} (see \code{\link{lrEMplus}} to treat censored and missing data simultaneously).
 }
 \usage{
 lrEM(X, label = NULL, dl = NULL, rob = FALSE,
@@ -59,7 +61,7 @@ Note that conditional imputation based on log-ratio coordinates cannot be conduc
 
 \emph{Missing data imputation}
 
-This function can be employed to impute missing data with their conditional expectation using the EM algorithm under regular conditions by setting \code{imp.missing = TRUE}. Either maximum-likelihood or robust estimation can be used through the \code{rob} argument. For this case, the argument \code{label} indicates the unique label for missing values. The algorithm can be initiated using either \code{"complete.obs"} or \code{"multRepl"} (for missing data) as specified by the \code{ini.cov} argument. The argument \code{dl} is ignored as it is meaningless here.
+When \code{imp.missing = TRUE}, unobserved values are treated as general missing data and imputed by their conditional expectation using the EM algorithm. Either maximum-likelihood or robust estimation can be used through the \code{rob} argument. For this case, the argument \code{label} indicates the unique label for missing values. The algorithm can be initiated using either \code{"complete.obs"} or \code{"multRepl"} (for missing data) as specified by the \code{ini.cov} argument. The argument \code{dl} is ignored.
 }
 \value{
 A \code{\link{data.frame}} object containing the imputed compositional data set in the same scale as the original. The number of iterations required for convergence is also printed (this can be suppressed by setting \code{suppress.print=TRUE}).
@@ -80,7 +82,7 @@ left-censored data under a compositional approach. Chemometrics and Intelligence
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-\code{\link{zPatterns}}, \code{\link{lrDA}}, \code{\link{multRepl}}, \code{\link{multLN}}, \code{\link{multKM}}, \code{\link{cmultRepl}}
+\code{\link{zPatterns}}, \code{\link{lrSVD}}, \code{\link{lrDA}}, \code{\link{multRepl}}, \code{\link{multLN}}, \code{\link{multKM}}, \code{\link{cmultRepl}}
 }
 \examples{
 # Data set closed to 100 (percentages, common dl = 1%)
@@ -130,7 +132,7 @@ dl2b <- matrix(rep(1,46),ncol=1)\%*\%c(1,0.5,0,0,0,0.75,0.3,1,0,0,600,8)
 mdl <- rbind(dl2a,dl2b)
 LPdata2_roblrEM <- lrEM(LPdata2,label=0,dl=mdl,rob=TRUE,tolerance=0.005)
 
-# Treating zeros as missing data for illustration purposes only
+# Treating zeros as general missing data for illustration purposes only
 LPdata2_miss <- lrEM(LPdata2,label=0,imp.missing=TRUE)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

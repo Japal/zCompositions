@@ -2,7 +2,7 @@ lrSVDplus <- function(X,dl=NULL,frac=0.65,ncp=2,beta=0.5,method=c("ridge","EM"),
                   coeff.ridge=1,threshold=1e-4,seed=NULL,nb.init=1,max.iter=1000,...){
   
   if (any(X<0, na.rm=T)) stop("X contains negative values")
-  if (is.character(dl)) stop("dl must be a numeric vector or matrix")
+  if (is.character(dl) || is.null(dl)) stop("dl must be a numeric vector or matrix")
   if (is.vector(dl)) dl <- matrix(dl,nrow=1)
   dl <- as.matrix(dl) # Avoids problems when dl might be multiple classes
   if ((is.vector(X)) | (nrow(X)==1)) stop("X must be a data matrix")
@@ -135,7 +135,7 @@ lrSVDplus <- function(X,dl=NULL,frac=0.65,ncp=2,beta=0.5,method=c("ridge","EM"),
     
     # Initial imputation of zeros
     if (init==1) {X[zeRaw] <- frac*dl[zeRaw]} # mult repl
-    else {X[zeRaw]<-runif(1,0.50,0.8)*dl[zeRaw]} # random otherwise
+    else {X[zeRaw] <- runif(1,0.50,0.8)*dl[zeRaw]} # random otherwise
     
     # Initial geo mean imputation of missing (ignores 0s in original column if any)
     gmeans <- apply(Xaux,2,function(x) gm(x[x!=0]))
@@ -180,18 +180,20 @@ lrSVDplus <- function(X,dl=NULL,frac=0.65,ncp=2,beta=0.5,method=c("ridge","EM"),
       fittedXusRCRaw <- fittedXusRCRaw/apply(fittedXusRCRaw,1,sum)
       
       X[obsRaw] <- ((fittedXusRCRaw[obsRaw])^(1-beta))*((X[obsRaw])^beta)
+      
       # check DL
       X <- X/apply(X,1,sum)
-      #
       Xaux2 <- X*caux # re-scaled to original
-      viol <- which(Xaux2>dl)
+      viol <- which(Xaux2 > dl)
       Xaux2[viol] <- dl[viol]
+      
       # Xhat: OLR-coordinates
       Xhat <- t(bal%*%t(log(Xaux2)))
       # Update mean
       mean.p <- apply(Xhat, 2, moy.p,row.w)
       # Centring
       Xhat <- t(t(Xhat)-mean.p)
+      
       # Update X
       # INV-OLR 
       X <- exp(t(t(bal)%*%t(Xhat)))
@@ -314,8 +316,7 @@ lrSVDplus <- function(X,dl=NULL,frac=0.65,ncp=2,beta=0.5,method=c("ridge","EM"),
   if (nrow(dl) == 1) dl <- matrix(rep(1, nn),ncol=1)%*%dl
   # Set observed data as upper bound for estimates of observed values
   Xaux2 <- as.matrix(X)
-  # DL observed and NA values = maximum value = observed = infinity upper bound
-  #dl[observedRaw]<-Xaux2[observedRaw] 
+  # DL observed and missing values = maximum value = observed = infinity upper bound
   Xmax <- apply(X,2,max,na.rm=TRUE)
   Xmax <- matrix(rep(1, nn), ncol = 1)%*%Xmax
   dl[observedRaw] <- Xmax[observedRaw] # dl observed
