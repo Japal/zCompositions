@@ -6,12 +6,13 @@ CHANGES IN zCompositions VERSION 1.4.0 [2020-??]:
 
 NEW FEATURES
 
-* lrSVD: new imputation algorithm based on singular value decomposition.
+* lrSVD and lrSVDplus: imputation algorithm based on singular value decomposition for censored, missing data or both simultaneously. Particularly thought for wide data sets (more columns than rows).
 
 MODIFICATIONS
 
 * Error control: dl argument checked for unique vector or matrix internally and converted if possible.
 * multRepl & others: previous parameter 'delta' is deprecated and replaced by 'frac' to avoid confusion with original notation used in multiplicative replacement method's literature.
+* Minor bugs fixed and edits to the documentation.
 
 CHANGES IN zCompositions VERSION 1.3.4 [2020-03]:
 ----------------------------------------------------
