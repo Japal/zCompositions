@@ -1,21 +1,13 @@
-lrSVD <- function(X,label=NULL,dl=NULL,frac=0.65,ncp=2,beta=0.5,method=c("ridge","EM"),row.w=NULL,
-                  coeff.ridge=1,threshold=1e-4,seed=NULL,nb.init=1,max.iter=1000,...){
+lrSVDplus <- function(X,dl=NULL,frac=0.65,ncp=2,beta=0.5,method=c("ridge","EM"),row.w=NULL,
+                  coeff.ridge=1,threshold=1e-4,seed=NULL,nb.init=1,maxiter=1000,...){
   
   if (any(X<0, na.rm=T)) stop("X contains negative values")
   if (is.character(dl)) stop("dl must be a numeric vector or matrix")
   if (is.vector(dl)) dl <- matrix(dl,nrow=1)
   dl <- as.matrix(dl) # Avoids problems when dl might be multiple classes
   if ((is.vector(X)) | (nrow(X)==1)) stop("X must be a data matrix")
-  if (is.null(label)) stop("A value for label must be given")
-  if (!is.na(label)){
-    if (!any(X==label,na.rm=T)) stop(paste("Label",label,"was not found in the data set"))
-    if (label!=0 & any(X==0,na.rm=T)) stop("Zero values not labelled as censored values were found in the data set")
-    if (any(is.na(X))) stop(paste("NA values not labelled as censored values were found in the data set"))
-  }
-  if (is.na(label)){
-    if (any(X==0,na.rm=T)) stop("Zero values not labelled as censored values were found in the data set")
-    if (!any(is.na(X),na.rm=T)) stop(paste("Label",label,"was not found in the data set"))
-  }
+  if (any(is.na(X))==FALSE) stop("No missing data were found in the data set")
+  if (any(X==0, na.rm=T)==FALSE) stop("No zeros were found in the data set")
   if (ncol(dl)!=ncol(X)) stop("The number of columns in X and dl do not agree")
   if ((nrow(dl)>1) & (nrow(dl)!=nrow(X))) stop("The number of rows in X and dl do not agree")
   
@@ -109,49 +101,62 @@ lrSVD <- function(X,label=NULL,dl=NULL,frac=0.65,ncp=2,beta=0.5,method=c("ridge"
     return(res)
   }
   
-  impute <- function (X = NULL, dl = NULL, bal = NULL, frac = 0.65, ncp = 2, beta = 0.5, method=c("ridge","EM"),
-              row.w = NULL, coeff.ridge = 1, threshold = 1e-4, seed = NULL, max.iter = 1000, init = 1,...) {
-    
+  impute <- function (X=NULL,dl=NULL,bal=NULL,frac=0.65,ncp=2,beta=0.5,method=c("ridge","EM"),row.w=NULL,
+                      coeff.ridge=1,threshold=1e-4,seed=NULL,maxiter=1000,init=1,...){
+
     # (scale argument removed: no scaling of olr columns by (weighted) variance allowed)
-      
+    
     # Weighted AVERAGE = moyenne poids
     moy.p <- function(V, poids) {
       res <- sum(V * poids,na.rm=TRUE)/sum(poids[!is.na(V)])
     }
     
+    # Geometric mean by columns
+    gm <- function(x, na.rm=TRUE){
+      exp(sum(log(x), na.rm=na.rm)/length(x))
+    }
+
     nb.iter <- 1
     old <- Inf
     objective <- 0
     if (!is.null(seed)){set.seed(seed)} # fix seed to have same results
     
     # OLR of initial DATA MATRIX
+    # patterns
     
-    # Missing pattern
     missRaw <- which(is.na(X))
-    obsRaw <- which(!is.na(X))
+    zeRaw <- which(X==0)
+    obsRaw <- which((!is.na(X))&(!(X==0)))
+    
     X <- as.matrix(X)
-    Xaux <- X # copy original raw data with NA
+    Xaux <- X # copy original raw data with NA and zeros
+    
     caux <- apply(Xaux, 1, sum, na.rm = TRUE)
     
-    # Impute random values to the unobserved if init > 1 (= 1 DEFAULT value)
-    if (init==1){
-      X[missRaw] <- frac*dl[missRaw]}
-    else{
-      X[missRaw]<-runif(1,0.50,0.8)*dl[missRaw] #random
-    }
+    # Initial imputation of zeros
+    if (init==1) {X[zeRaw] <- frac*dl[zeRaw]} # mult repl
+    else {X[zeRaw]<-runif(1,0.50,0.8)*dl[zeRaw]} # random otherwise
+    
+    # Initial geo mean imputation of missing (ignores 0s in original column if any)
+    gmeans <- apply(Xaux,2,function(x) gm(x[x!=0]))
+    nn <- nrow(X)
+    gmeans <- matrix(rep(1, nn), ncol = 1)%*%gmeans
+    X[missRaw] <- gmeans[missRaw]
+    
     # Xhat: OLR-coordinates
     Xhat <- t(bal%*%t(log(X)))
-    #
+    
     # Number of components
     ncp <- min(ncp,ncol(Xhat),nrow(Xhat)-1)
     # Weighted column mean  
     mean.p <- apply(Xhat, 2, moy.p,row.w)
     # Matrix centring
     Xhat <- t(t(Xhat)-mean.p)
-    # Update X: olr.inv(Xhat)
-    X <- exp(t(t(bal)%*%t(Xhat)))
+
+    # update X: olr.inv(Xhat)
+    X <-exp(t(t(bal)%*%t(Xhat)))
     X <- X/apply(X,1,sum)
-    # Aux data matrix for observed and non-observed data
+    # aux data matrix for observed and non-observed data
     fittedX <- fittedXus <- Xhat
     fittedXRaw <- fittedXusRaw <- X
     if (ncp==0) {nb.iter <- 0}
@@ -159,6 +164,7 @@ lrSVD <- function(X,label=NULL,dl=NULL,frac=0.65,ncp=2,beta=0.5,method=c("ridge"
     while (nb.iter > 0) {
       # Update data matrix  
       X[missRaw] <- fittedXRaw[missRaw]
+      X[zeRaw] <- fittedXRaw[zeRaw]
       # Xhat: OLR-coordinates
       Xhat <- t(bal%*%t(log(X)))
       # Recover the centre
@@ -169,15 +175,15 @@ lrSVD <- function(X,label=NULL,dl=NULL,frac=0.65,ncp=2,beta=0.5,method=c("ridge"
       # Impute observed values
       fittedXusRC <- t(t(fittedXus)+mean.p)# recover centre
       # RAW values
-      # INV-OLR # 
+      # INV-OLR 
       fittedXusRCRaw <- exp(t(t(bal)%*%t(fittedXusRC)))
       fittedXusRCRaw <- fittedXusRCRaw/apply(fittedXusRCRaw,1,sum)
       
       X[obsRaw] <- ((fittedXusRCRaw[obsRaw])^(1-beta))*((X[obsRaw])^beta)
-      # check the detection limit DL
+      # check DL
       X <- X/apply(X,1,sum)
-      
-      Xaux2 <- X*caux # original units
+      #
+      Xaux2 <- X*caux # re-scaled to original
       viol <- which(Xaux2>dl)
       Xaux2[viol] <- dl[viol]
       # Xhat: OLR-coordinates
@@ -192,31 +198,32 @@ lrSVD <- function(X,label=NULL,dl=NULL,frac=0.65,ncp=2,beta=0.5,method=c("ridge"
       X <- X/apply(X,1,sum)
       # SVD calculation WEIGHTED by row.w and rank ncp
       svd.res <- svd.triplet(Xhat,row.w=row.w,ncp=ncp)
-      sigma2 <- nrow(Xhat)*ncol(Xhat)/min(ncol(Xhat),nrow(Xhat)-1)* sum((svd.res$vs[-c(1:ncp)]^2)/((nrow(Xhat)-1) * ncol(Xhat) - (nrow(Xhat)-1) * ncp - ncol(Xhat) * ncp + ncp^2))
+      sigma2  <- nrow(Xhat)*ncol(Xhat)/min(ncol(Xhat),nrow(Xhat)-1)* sum((svd.res$vs[-c(1:ncp)]^2)/((nrow(Xhat)-1) * ncol(Xhat) - (nrow(Xhat)-1) * ncp - ncol(Xhat) * ncp + ncp^2))
       sigma2 <- min(sigma2*coeff.ridge,svd.res$vs[ncp+1]^2)
       if (method=="EM") sigma2 <- 0
-      # usual lambda 
+      # Usual lambda 
       lambda.us <- svd.res$vs[1:ncp]
-      # calculate the usual new matrix
+      # Calculate the usual new matrix
       fittedXus <- tcrossprod(t(t(svd.res$U[,1:ncp,drop=FALSE]*row.w)*lambda.us),svd.res$V[,1:ncp,drop=FALSE])
       fittedXus <- fittedXus/row.w
-      # lambda for regularisation
+      # Lambda for regularisation
       lambda.shrinked <- (svd.res$vs[1:ncp]^2-sigma2)/svd.res$vs[1:ncp]
-      # calculate the new matrix for regularisation
+      # Calculate new matrix for regularisation
       fittedX <- tcrossprod(t(t(svd.res$U[,1:ncp,drop=FALSE]*row.w)*lambda.shrinked),svd.res$V[,1:ncp,drop=FALSE])
       fittedX <- fittedX/row.w
-      # calculate the Frobenius norm of the difference between iterations (convergence)
+      # Calculate Frobenius norm of the difference between iterations (convergence)
       # INV-OLR 
       fittedXRaw <-exp(t(t(bal)%*%t(fittedX)))
       fittedXRaw <- fittedXRaw/apply(fittedXRaw,1,sum)
-      #
+      
       diffRaw <- X/fittedXRaw
       diffRaw[missRaw] <- 1
+      diffRaw[zeRaw] <- 1
       # OLR-coordinates
       diff <- t(bal%*%t(log(diffRaw)))
-      #
+      
       objective <- sum(diff^2*row.w)
-      # objective <- mean((Xhat[-missing]-fittedX[-missing])^2)
+      #  objective <- mean((Xhat[-missing]-fittedX[-missing])^2)
       
       # Convergence
       criterion <- abs(1 - objective/old)
@@ -226,24 +233,24 @@ lrSVD <- function(X,label=NULL,dl=NULL,frac=0.65,ncp=2,beta=0.5,method=c("ridge"
         if ((criterion < threshold) && (nb.iter > 5))  nb.iter <- 0
         if ((objective < threshold) && (nb.iter > 5))  nb.iter <- 0
       }
-      if (nb.iter > max.iter) {
+      if (nb.iter > maxiter) {
         nb.iter <- 0
-        warning(paste("Stopped after ",max.iter," iterations"))
+        warning(paste("Stopped after ",maxiter," iterations"))
       }
     }
     # END LOOP WHILE
     
-    # Preparing the resuls
+    # Preparing the result
     Xhat <- t(t(Xhat)+mean.p)
     
     # Update X
     # INV-OLR
     X <-exp(t(t(bal)%*%t(Xhat)))
     X <- X/apply(X,1,sum)
-    
     # completeObs
     completeObs<-Xaux/apply(Xaux,1,sum,na.rm=TRUE)
     completeObs[missRaw]<-X[missRaw]
+    completeObs[zeRaw]<-X[zeRaw]
     completeObs<-completeObs/apply(completeObs,1,sum)
     
     fittedX <- t(t(fittedX)+mean.p)
@@ -256,7 +263,6 @@ lrSVD <- function(X,label=NULL,dl=NULL,frac=0.65,ncp=2,beta=0.5,method=c("ridge"
     result <- list()
     result$completeObs <- completeObs
     result$fittedX <- fittedXRaw
-    
     return(result) 
   }
   
@@ -268,7 +274,6 @@ lrSVD <- function(X,label=NULL,dl=NULL,frac=0.65,ncp=2,beta=0.5,method=c("ridge"
   
   X <- as.data.frame(X,stringsAsFactors=TRUE)
   nn <- nrow(X); D <- ncol(X)
-  X[X==label] <- NA
   X <- as.data.frame(apply(X,2,as.numeric),stringsAsFactors=TRUE)
   c <- apply(X,1,sum,na.rm=TRUE)
   
@@ -276,19 +281,21 @@ lrSVD <- function(X,label=NULL,dl=NULL,frac=0.65,ncp=2,beta=0.5,method=c("ridge"
   closed <- 0
   if (all(abs(c - mean(c)) < .Machine$double.eps^0.3 )) closed <- 1
   
-  # Sort columns decreasingly according to observed cells
   Xaux <- as.matrix(X)
-  XauxClosed <- Xaux/apply(Xaux,1,sum,na.rm=TRUE) #as.matrix(X) # copy original data set
-  # Replace zeros by NA
-  Xna <- X # copy of original data
-  #colnames(Xna)
-  pz <- apply(apply(Xna,2,is.na),2,sum)/nn
-  # Ordered decreasingly by number of zeros (NA)
-  X <- Xna[,order(-pz)]
+  XauxClosed <- Xaux/apply(Xaux,1,sum,na.rm=TRUE)
+  
+  # Order columns by number of zeros
+  Xtmp <- X # copy of original data
+  Xtmp[X==0] <- NA
+  pz <- apply(apply(Xtmp,2,is.na),2,sum)/nn
+  X <- X[,order(-pz)] # decreasing order 
   if (nrow(dl)==1) {dl <- matrix(dl[,order(-pz)],nrow=1)}
-  else{
-    dl <- dl[,order(-pz)]
-  }
+  else {dl <- dl[,order(-pz)]}
+
+  # Indexes type of values
+  missingRaw <- which(is.na(X)) # missing
+  zeroRaw <- which(X==0) # zeros 
+  observedRaw <- which((!is.na(X)) & (!(X==0))) # observed
 
   # Balance matrix for olr
   Smat <- diag(rep(1,D))
@@ -304,16 +311,15 @@ lrSVD <- function(X,label=NULL,dl=NULL,frac=0.65,ncp=2,beta=0.5,method=c("ridge"
   }
   
   # Build dl matrix for SVD imputation
-  if (nrow(dl) == 1)  dl <- matrix(rep(1, nn), ncol = 1)%*%dl
-  # set observed data as upper bound for estimates of observed values
-  observedRaw <- which(!is.na(X))
-  missingRaw <- which(is.na(X))
+  if (nrow(dl) == 1) dl <- matrix(rep(1, nn),ncol=1)%*%dl
+  # Set observed data as upper bound for estimates of observed values
   Xaux2 <- as.matrix(X)
-  # DL observed values = maximum value = observed = infinity upper bound
-  #dl[observedRaw] <- Xaux2[observedRaw] 
+  # DL observed and NA values = maximum value = observed = infinity upper bound
+  #dl[observedRaw]<-Xaux2[observedRaw] 
   Xmax <- apply(X,2,max,na.rm=TRUE)
   Xmax <- matrix(rep(1, nn), ncol = 1)%*%Xmax
-  dl[observedRaw] <- Xmax[observedRaw]
+  dl[observedRaw] <- Xmax[observedRaw] # dl observed
+  dl[missingRaw] <- Xmax[missingRaw] # dl missing
   colnames(dl) <- colnames(X)
   
   ## Imputation ---
@@ -323,10 +329,11 @@ lrSVD <- function(X,label=NULL,dl=NULL,frac=0.65,ncp=2,beta=0.5,method=c("ridge"
     
     res.impute <- impute(X=X,dl=dl,bal=bal,frac=frac,ncp=ncp,beta=beta,method=method,row.w=row.w,
                          coeff.ridge=coeff.ridge,threshold=threshold,seed=if(!is.null(seed)){(seed*(i-1))}else{NULL},
-                         max.iter=max.iter,init=i)
+                         maxiter=maxiter,init=i)
     
     diffRaw <- as.matrix(XauxClosed/res.impute$fittedX)
     diffRaw[missingRaw] <- 1
+    diffRaw[zeroRaw] <- 1
     # OLR-coordinates
     diff <- t(bal%*%t(log(diffRaw)))
     res <- res.impute
@@ -339,14 +346,15 @@ lrSVD <- function(X,label=NULL,dl=NULL,frac=0.65,ncp=2,beta=0.5,method=c("ridge"
    Y <- res.impute$completeObs
    XauxClosed <- XauxClosed[,order(-pz)]
    XauxClosed[missingRaw] <- Y[missingRaw]
+   XauxClosed[zeroRaw] <- Y[zeroRaw]
    X <- XauxClosed*c
    
   if (closed == 1) {
-    X <- (X/apply(X,1,sum))*c[1]
+   X <- (X/apply(X,1,sum))*c[1]
   }
   
   # Original order
-  X <- X[,colnames(Xna)]
+  X <- X[,colnames(Xtmp)]
   
   return(as.data.frame(X,stringsAsFactors=TRUE))
 }
