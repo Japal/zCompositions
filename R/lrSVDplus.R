@@ -135,7 +135,7 @@ lrSVDplus <- function(X,dl=NULL,frac=0.65,ncp=2,beta=0.5,method=c("ridge","EM"),
     
     # Initial imputation of zeros
     if (init==1) {X[zeRaw] <- frac*dl[zeRaw]} # mult repl
-    else {X[zeRaw] <- runif(1,0.50,0.8)*dl[zeRaw]} # random otherwise
+    else {X[zeRaw] <- runif(1,0.50,0.8)*dl[zeRaw]} # # random initialisations if nb.init/init > 1
     
     # Initial geo mean imputation of missing (ignores 0s in original column if any)
     gmeans <- apply(Xaux,2,function(x) gm(x[x!=0]))
@@ -331,14 +331,6 @@ lrSVDplus <- function(X,dl=NULL,frac=0.65,ncp=2,beta=0.5,method=c("ridge","EM"),
     res.impute <- impute(X=X,dl=dl,bal=bal,frac=frac,ncp=ncp,beta=beta,method=method,row.w=row.w,
                          coeff.ridge=coeff.ridge,threshold=threshold,seed=if(!is.null(seed)){(seed*(i-1))}else{NULL},
                          max.iter=max.iter,init=i)
-    
-    diffRaw <- as.matrix(XauxClosed/res.impute$fittedX)
-    diffRaw[missingRaw] <- 1
-    diffRaw[zeroRaw] <- 1
-    # OLR-coordinates
-    diff <- t(bal%*%t(log(diffRaw)))
-    res <- res.impute
-    obj <- mean((diff)^2)
   }
   
   ## Final section ---

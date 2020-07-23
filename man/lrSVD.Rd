@@ -10,8 +10,8 @@ This function can be also used to impute missing data instead by setting \code{i
 \usage{
 lrSVD(X, label = NULL, dl = NULL, frac = 0.65, ncp = 2, imp.missing=FALSE,
          beta = 0.5, method = c("ridge", "EM"), row.w = NULL,
-         coeff.ridge = 1, threshold = 1e-04, seed = NULL, nb.init = 1,
-         max.iter = 1000, ...)
+         coeff.ridge = 1, ncp.min = 0, ncp.max = 5, threshold = 1e-04,
+         seed = NULL, nb.init = 1, max.iter = 1000, ...)
 }
 \arguments{
 \item{X}{Compositional data set (\code{\link{matrix}} or \code{\link{data.frame}} class).}

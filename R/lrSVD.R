@@ -1,5 +1,5 @@
 lrSVD <- function(X,label=NULL,dl=NULL,frac=0.65,ncp=2,imp.missing=FALSE,beta=0.5,method=c("ridge","EM"),row.w=NULL,
-                  coeff.ridge=1,threshold=1e-4,seed=NULL,nb.init=1,max.iter=1000,...){
+                  coeff.ridge=1,ncp.min=0,ncp.max=5,threshold=1e-4,seed=NULL,nb.init=1,max.iter=1000,...){
   
   if (any(X<0, na.rm=T)) stop("X contains negative values")
   if (imp.missing==FALSE){
@@ -133,7 +133,7 @@ lrSVD <- function(X,label=NULL,dl=NULL,frac=0.65,ncp=2,imp.missing=FALSE,beta=0.
     objective <- 0
     if (!is.null(seed)){set.seed(seed)} # fix seed to have same results
     
-    # OLR of initial DATA MATRIX
+    # OLR of initial data matrix
     
     # Missing pattern
     missRaw <- which(is.na(X))
@@ -147,7 +147,7 @@ lrSVD <- function(X,label=NULL,dl=NULL,frac=0.65,ncp=2,imp.missing=FALSE,beta=0.
       if (init==1){
         X[missRaw] <- frac*dl[missRaw]} # mult repl
       else{
-        X[missRaw] <- runif(1,0.50,0.8)*dl[missRaw] # random otherwise
+        X[missRaw] <- runif(1,0.50,0.8)*dl[missRaw] # random initialisations if nb.init/init > 1
       }
     }
     else{
@@ -342,6 +342,29 @@ lrSVD <- function(X,label=NULL,dl=NULL,frac=0.65,ncp=2,imp.missing=FALSE,beta=0.
   if (imp.missing==TRUE) {dl[missingRaw] <- Xmax[missingRaw]}
   colnames(dl) <- colnames(X)
   
+  ## CV selection no. low-rank comps ---
+
+  if (ncp=="cv"){ # reduced/modified version of estim_ncpPCA (missMDA)
+
+    ncp.max <- min(nn-2,D-1,ncp.max)
+    crit <- NULL
+    for (q in max(ncp.min, 1):ncp.max) {
+      rec <- impute(X,dl=dl,bal=bal,frac=frac,ncp=q,beta=beta,method=method,row.w=row.w,
+                    coeff.ridge=coeff.ridge,threshold=threshold,seed=if(!is.null(seed)){(seed*(i-1))}else{NULL},
+                    max.iter=max.iter)$fittedX
+
+      crit <- c(crit,mean(((nn*D-sum(is.na(X)))*(X-rec)/((nn-1)*D-sum(is.na(X))-q*(nn+D-q-1)))^2, na.rm = T))
+    }
+    if (any(diff(crit) > 0)) {
+      ncp <- which(diff(crit) > 0)[1]
+    }
+    else ncp <- which.min(crit)
+
+    ncp <- as.integer(ncp + ncp.min - 1)
+
+  }
+  
+  
   ## Imputation ---
   
   for (i in 1:nb.init){
@@ -350,13 +373,6 @@ lrSVD <- function(X,label=NULL,dl=NULL,frac=0.65,ncp=2,imp.missing=FALSE,beta=0.
     res.impute <- impute(X=X,dl=dl,bal=bal,frac=frac,ncp=ncp,beta=beta,method=method,row.w=row.w,
                          coeff.ridge=coeff.ridge,threshold=threshold,seed=if(!is.null(seed)){(seed*(i-1))}else{NULL},
                          max.iter=max.iter,init=i)
-    
-    diffRaw <- as.matrix(XauxClosed/res.impute$fittedX)
-    diffRaw[missingRaw] <- 1
-    # OLR-coordinates
-    diff <- t(bal%*%t(log(diffRaw)))
-    res <- res.impute
-    obj <- mean((diff)^2)
   }
   
   ## Final section ---
