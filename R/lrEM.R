@@ -1,6 +1,6 @@
 lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRepl"),frac=0.65,tolerance=0.0001,
          max.iter=50,rlm.maxit=150,imp.missing=FALSE,suppress.print=FALSE,
-         closure=NULL,delta=NULL){
+         closure=NULL,z.warning=0.8,delta=NULL){
   
   if (any(X<0, na.rm=T)) stop("X contains negative values")
   if (imp.missing==FALSE){
@@ -137,6 +137,12 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
   X[X==label] <- NA
   X <- as.data.frame(apply(X,2,as.numeric),stringsAsFactors=TRUE)
   c <- apply(X,1,sum,na.rm=TRUE)
+  
+  checkNumZerosCol <- apply(X,2,function(x) sum(is.na(x)))
+  if (any(checkNumZerosCol/nrow(X) > z.warning)) {
+    warning(paste("Some column(s) containing more than ",z.warning*100,"% zeros/unobserved values (check it out using zPatterns).
+                  (Modify the threshold to be warned using the z.warning argument).",sep=""))
+  }
   
   if (imp.missing==FALSE) {if (nrow(dl)==1) dl <- matrix(rep(1,nn),ncol=1)%*%dl}
   
@@ -283,7 +289,7 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
                                           frac=frac,closure=closure)    
           }
           if (imp.missing==TRUE){
-            stop("Please remove samples with only one observed component (check out using zPatterns).")
+            stop("Please remove samples with only one observed component (check it out using zPatterns).")
           }
           alt.pat <- c(alt.pat,npat)
           alt.mr <- list(alt.mr,which(misspat==npat))

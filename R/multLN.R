@@ -1,5 +1,5 @@
 multLN <-
-  function (X,label=NULL,dl=NULL,rob=FALSE,random=FALSE)
+  function (X,label=NULL,dl=NULL,rob=FALSE,random=FALSE,z.warning=0.8)
   {
     
     if (any(X<0, na.rm=T)) stop("X contains negative values")
@@ -22,6 +22,12 @@ multLN <-
     
     X[X==label] <- NA
     X <- apply(X,2,as.numeric)
+    
+    checkNumZerosCol <- apply(X,2,function(x) sum(is.na(x)))
+    if (any(checkNumZerosCol/nrow(X) > z.warning)) {
+      warning(paste("Some column(s) containing more than ",z.warning*100,"% zeros/unobserved values (check it out using zPatterns).
+                  (Modify the threshold to be warned using the z.warning argument).",sep=""))
+    }
     
     nn <- nrow(X); p <- ncol(X)
     c <- apply(X,1,sum,na.rm=TRUE)

@@ -9,7 +9,7 @@
 #' \code{\link{zVarArray}} for more details). Note that for groups including less than two observations SRE is set to NA.
 #' 
 #' @param X Compositional data set (\code{\link{matrix}} or \code{\link{data.frame}} class).
-#' @param label Unique label (\code{\link{numeric}} or \code{\link{character}}) used to denote zero or unobserved data in \code{X} (\code{label = 0}, default).
+#' @param label Unique label (\code{\link{numeric}} or \code{\link{character}}) used to denote zeros/unobserved data in \code{X} (\code{label = 0}, default).
 #' @param groups Grouping factor in fully observed zero-free data sets (\code{groups = NULL}, default).
 #' @param b Number of bootstrap resamples used (\code{b = 1000}, default).
 #'

@@ -22,7 +22,7 @@ zPatterns(X, label = NULL, plot = TRUE,
 \arguments{
   \item{X}{
 Data set (\code{\link{matrix}} or \code{\link{data.frame}} class).}
-  \item{label}{Unique label (\code{\link{numeric}} or \code{\link{character}}) used to identify zero or unobserved values in \code{X}.}
+  \item{label}{Unique label (\code{\link{numeric}} or \code{\link{character}}) used to identify zeros/unobserved values in \code{X}.}
   \item{plot}{Logical value indicating whether a graphical summary of the patterns is produced or not (default \code{plot=TRUE}).}
   \item{axis.labels}{Vector of axis labels for the table of patterns (format \code{c("x-axis","y-axis")}).}
   \item{bar.ordered}{Vector of logical values to order table of patterns according to frequencies by patterns, component or both; with the first element referring to the patterns and the second to the components (default \code{c(FALSE,FALSE)}).}

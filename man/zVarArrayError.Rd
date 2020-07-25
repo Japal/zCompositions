@@ -15,7 +15,7 @@ zVarArrayError(
 \arguments{
 \item{X}{Compositional data set (\code{\link{matrix}} or \code{\link{data.frame}} class).}
 
-\item{label}{Unique label (\code{\link{numeric}} or \code{\link{character}}) used to denote zero or unobserved data in \code{X} (\code{label = 0}, default).}
+\item{label}{Unique label (\code{\link{numeric}} or \code{\link{character}}) used to denote zeros/unobserved data in \code{X} (\code{label = 0}, default).}
 
 \item{groups}{Grouping factor in fully observed zero-free data sets (\code{groups = NULL}, default).}
 

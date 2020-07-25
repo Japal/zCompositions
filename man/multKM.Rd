@@ -8,13 +8,13 @@ Multiplicative Kaplan-Meier smoothing spline (KMSS) replacement
 This function implements non-parametric multiplicative KMSS imputation of left-censored values (e.g. values below detection limit, rounded zeros) in compositional data sets. It is based on simulation from a smoothing spline fitted to the Kaplan-Meier (KM) estimate of the empirical cumulative distribution function (ECDF) of the data.
 }
 \usage{
-multKM(X, label = NULL, dl = NULL, n.draws = 1000, n.knots = NULL)
+multKM(X, label = NULL, dl = NULL, n.draws = 1000, n.knots = NULL, z.warning = 0.8)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{X}{Compositional data set (\code{\link{matrix}} or \code{\link{data.frame}} class).
 }
-  \item{label}{Unique label (\code{\link{numeric}} or \code{\link{character}}) used to denote unobserved left-censored values in \code{X}.}
+  \item{label}{Unique label (\code{\link{numeric}} or \code{\link{character}}) used to denote zeros/unobserved left-censored values in \code{X}.}
   \item{dl}{
 Numeric vector or matrix of detection limits/thresholds. These must be given on the same scale as \code{X}.
 }
@@ -22,6 +22,9 @@ Numeric vector or matrix of detection limits/thresholds. These must be given on 
 Number of random draws from the inverse KM ECDF generated to produce an averaged imputed value (\code{n.draws=1000}, default).
 }
   \item{n.knots}{Integer or function giving the number of knots used for fitting a cubic smoothing spline to the KM ECDF (see \code{\link{smooth.spline}} for default value). It allows for a vector or list of settings per column of \code{X}.
+}
+  \item{z.warning}{
+Print a warning message if the proportion of zeros/unobserved values in any column exceeds a given threshold (default \code{z.warning=0.8}, set to 1 for no warning).
 }
 }
 \details{

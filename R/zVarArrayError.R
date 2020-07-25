@@ -10,7 +10,7 @@
 #' provided by setting \code{breakdown = TRUE}.
 #' 
 #' @param X Compositional data set (\code{\link{matrix}} or \code{\link{data.frame}} class).
-#' @param label Unique label (\code{\link{numeric}} or \code{\link{character}}) used to denote zero or unobserved data in \code{X} (\code{label = 0}, default).
+#' @param label Unique label (\code{\link{numeric}} or \code{\link{character}}) used to denote zeros/unobserved data in \code{X} (\code{label = 0}, default).
 #' @param groups Grouping factor in fully observed zero-free data sets (\code{groups = NULL}, default).
 #' @param breakdown Logical value. Show results broken down by group (\code{breakdown = FALSE}, default).
 #' @param suppress.print Suppress printed feedback (\code{suppress.print = FALSE}, default).

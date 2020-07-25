@@ -1,6 +1,6 @@
 lrSVD <- function(X, label = NULL, dl = NULL, frac = 0.65, ncp = 2, imp.missing = FALSE, beta = 0.5, method = c("ridge", "EM"),
                   row.w = NULL, coeff.ridge = 1, threshold = 1e-4, seed = NULL, nb.init = 1,
-                  max.iter = 1000, ...) {
+                  max.iter = 1000, z.warning=0.8, ...) {
   
   if (any(X < 0, na.rm = T)) stop("X contains negative values")
   
@@ -301,6 +301,12 @@ lrSVD <- function(X, label = NULL, dl = NULL, frac = 0.65, ncp = 2, imp.missing 
   X[X == label] <- NA
   X <- as.data.frame(apply(X, 2, as.numeric), stringsAsFactors = TRUE)
   c <- apply(X, 1, sum, na.rm = TRUE)
+  
+  checkNumZerosCol <- apply(X,2,function(x) sum(is.na(x)))
+  if (any(checkNumZerosCol/nrow(X) > z.warning)) {
+    warning(paste("Some column(s) containing more than ",z.warning*100,"% zeros/unobserved values (check it out using zPatterns).
+                  (Modify the threshold to be warned using the z.warning argument).",sep=""))
+  }
   
   # Check for closure
   closed <- 0

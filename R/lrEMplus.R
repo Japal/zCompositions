@@ -1,6 +1,6 @@
 lrEMplus <- function(X, dl = NULL, rob = FALSE, ini.cov = c("complete.obs", "multRepl"), frac = 0.65,
                      tolerance = 0.0001, max.iter = 50,
-                     rlm.maxit=150, suppress.print = FALSE, closure=NULL, delta=NULL){
+                     rlm.maxit=150, suppress.print = FALSE, closure=NULL, z.warning=0.8, delta=NULL){
   
   if (any(X<0, na.rm=T)) stop("X contains negative values")
   if (is.character(dl) || is.null(dl)) stop("dl must be a numeric vector or matrix")
@@ -31,6 +31,13 @@ lrEMplus <- function(X, dl = NULL, rob = FALSE, ini.cov = c("complete.obs", "mul
   nn <- nrow(X); D <- ncol(X)
   X <- as.data.frame(apply(X,2,as.numeric),stringsAsFactors=TRUE)
   c <- apply(X,1,sum,na.rm=TRUE)
+  
+  # Number of zeros or missing per column for warning
+  checkNumZerosCol <- apply(X,2,function(x) sum(is.na(x) | (x==0)))
+  if (any(checkNumZerosCol/nrow(X) > z.warning)) {
+    warning(paste("Some column(s) containing more than ",z.warning*100,"% zeros/unobserved values (check it out using zPatterns).
+                  (Modify the threshold to be warned using the z.warning argument).",sep=""))
+  }
 
   if (nrow(dl)==1) dl <- matrix(rep(1,nn),ncol=1)%*%dl
 

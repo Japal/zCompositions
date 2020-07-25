@@ -11,14 +11,14 @@ This function implements a simulation-based Data Augmentation (DA) algorithm to 
 lrDA(X, label = NULL, dl = NULL,
         ini.cov=c("lrEM","complete.obs","multRepl"), frac = 0.65,
         imp.missing = FALSE, n.iters = 1000, m = 1, store.mi = FALSE, closure = NULL,
-        delta = NULL)
+        z.warning = 0.8, delta = NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{X}{
 Compositional data set (\code{\link{matrix}} or \code{\link{data.frame}} class).
 }
-  \item{label}{Unique label (\code{\link{numeric}} or \code{\link{character}}) used to denote unobserved left-censored values in \code{X}.}
+  \item{label}{Unique label (\code{\link{numeric}} or \code{\link{character}}) used to denote zeros/unobserved values in \code{X}.}
   \item{dl}{
 Numeric vector or matrix of detection limits/thresholds. These must be given on the same scale as \code{X}.
 }
@@ -37,6 +37,9 @@ Number of multiple imputations (default = 1).
 Logical value. If \code{m>1} creates a list with \code{m} imputed data matrices. (\code{store.mi=FALSE}, default).
 }
   \item{closure}{Closure value used to add a residual part if needed when multiplicative simple replacement is used to initiate the DA algorithm, either directly (\code{ini.cov="multRepl"}) or as part of lrEM estimation (\code{ini.cov="lrEM"}) (see \code{?multRepl}).}
+    \item{z.warning}{
+Print a warning message if the proportion of zeros/unobserved values in any column exceeds a given threshold (default \code{z.warning=0.8}, set to 1 for no warning).
+}
   \item{delta}{This argument has been deprecated and replaced by \code{frac} (see package's NEWS for details).}
 }
 

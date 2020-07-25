@@ -13,7 +13,7 @@ Note: zeros and missing data must be labelled using 0 and \code{NA} respectively
 lrSVDplus(X, dl = NULL, frac = 0.65,
              ncp = 2, beta = 0.5, method = c("ridge", "EM"), row.w = NULL,
              coeff.ridge = 1, threshold = 1e-04, seed = NULL, nb.init = 1,
-             max.iter = 1000, ...)
+             max.iter = 1000, z.warning = 0.8, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -40,6 +40,10 @@ lrSVDplus(X, dl = NULL, frac = 0.65,
 \item{nb.init}{Number of random initialisations (default = 1).}
 
 \item{max.iter}{Maximum number of iterations for the algorithm (default = 1000).}
+
+\item{z.warning}{
+Print a warning message if the proportion of zeros/unobserved values in any column exceeds a given threshold (default \code{z.warning=0.8}, set to 1 for no warning).
+}
 
 \item{...}{Further arguments.}
 }

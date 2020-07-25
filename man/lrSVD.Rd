@@ -10,12 +10,13 @@ This function can be also used to impute missing data instead by setting \code{i
 \usage{
 lrSVD(X, label = NULL, dl = NULL, frac = 0.65, ncp = 2, imp.missing=FALSE,
          beta = 0.5, method = c("ridge", "EM"), row.w = NULL, coeff.ridge = 1,
-         threshold = 1e-04, seed = NULL, nb.init = 1, max.iter = 1000, ...)
+         threshold = 1e-04, seed = NULL, nb.init = 1, max.iter = 1000, 
+         z.warning = 0.8, ...)
 }
 \arguments{
 \item{X}{Compositional data set (\code{\link{matrix}} or \code{\link{data.frame}} class).}
 
-\item{label}{Unique label (\code{\link{numeric}} or \code{\link{character}}) used to denote unobserved values in \code{X}.}
+\item{label}{Unique label (\code{\link{numeric}} or \code{\link{character}}) used to denote zeros/unobserved values in \code{X}.}
 
 \item{dl}{Numeric vector or matrix of detection limits/thresholds. These must be given on the same scale as \code{X}.}
 
@@ -40,6 +41,10 @@ lrSVD(X, label = NULL, dl = NULL, frac = 0.65, ncp = 2, imp.missing=FALSE,
 \item{nb.init}{Number of random initialisations (default = 1).}
 
 \item{max.iter}{Maximum number of iterations for the algorithm (default = 1000).}
+
+\item{z.warning}{
+Print a warning message if the proportion of zeros/unobserved values in any column exceeds a given threshold (default \code{z.warning=0.8}, set to 1 for no warning).
+}
 
 \item{...}{Further arguments.}
 }

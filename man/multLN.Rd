@@ -8,13 +8,13 @@ Multiplicative lognormal replacement
 This function implements model-based multiplicative lognormal imputation of left-censored values (e.g. values below detection limit, rounded zeros) in compositional data sets.
 }
 \usage{
-multLN(X, label = NULL, dl = NULL, rob = FALSE, random = FALSE)
+multLN(X, label = NULL, dl = NULL, rob = FALSE, random = FALSE, z.warning = 0.8)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{X}{Compositional data set (\code{\link{matrix}} or \code{\link{data.frame}} class).
 }
-  \item{label}{Unique label (\code{\link{numeric}} or \code{\link{character}}) used to denote unobserved left-censored values in \code{X}.}
+  \item{label}{Unique label (\code{\link{numeric}} or \code{\link{character}}) used to denote zeros/unobserved left-censored values in \code{X}.}
   \item{dl}{
 Numeric vector or matrix of detection limits/thresholds. These must be given on the same scale as \code{X}.
 }
@@ -23,6 +23,9 @@ Logical value. \code{FALSE} provides maximum-likelihood estimates of model param
 }
   \item{random}{
 Logical value. Values imputed using either estimated geometric mean (\code{FALSE}, default) or random values (\code{TRUE}) below the limit of detection.
+}
+  \item{z.warning}{
+Print a warning message if the proportion of zeros/unobserved values in any column exceeds a given threshold (default \code{z.warning=0.8}, set to 1 for no warning).
 }
 }
 \details{

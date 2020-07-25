@@ -1,5 +1,5 @@
 cmultRepl <- function(X,label=0,method=c("GBM","SQ","BL","CZM","user"),output=c("prop", "p-counts"),
-                      frac=0.65,threshold=0.5,correct=TRUE,t=NULL,s=NULL,
+                      frac=0.65,threshold=0.5,correct=TRUE,t=NULL,s=NULL,z.warning=0.8,
                       suppress.print=FALSE,delta=NULL)
 {
   
@@ -14,7 +14,7 @@ cmultRepl <- function(X,label=0,method=c("GBM","SQ","BL","CZM","user"),output=c(
     if (any(X==0,na.rm=T)) stop("Zero values not labelled as count zeros were found in the data set")
     if (!any(is.na(X),na.rm=T)) stop(paste("Label",label,"was not found in the data set"))
   }
-  
+
   if (!missing("delta")){
     warning("The delta argument is deprecated, use frac instead: frac has been set equal to delta.")
     frac <- delta
@@ -22,6 +22,12 @@ cmultRepl <- function(X,label=0,method=c("GBM","SQ","BL","CZM","user"),output=c(
   
   X <- as.data.frame(X,stringsAsFactors=TRUE)
   X[X==label] <- NA
+  
+  checkNumZerosCol <- apply(X,2,function(x) sum(is.na(x)))
+  if (any(checkNumZerosCol/nrow(X) > z.warning)) {
+    warning(paste("Some column(s) containing more than ",z.warning*100,"% zeros/unobserved values (check it out using zPatterns).
+                  (Modify the threshold to be warned using the z.warning argument).",sep=""))
+  }
   
   N <- nrow(X); D <- ncol(X)
   n <- apply(X,1,sum,na.rm=TRUE)
@@ -36,8 +42,11 @@ cmultRepl <- function(X,label=0,method=c("GBM","SQ","BL","CZM","user"),output=c(
     else {
       alpha <- matrix(0,nrow=N,ncol=D)
       for (i in 1:N){
-        alpha[i,] <- apply(X,2,function(x) sum(x[-i],na.rm=T))}
+        alpha[i,] <- apply(X,2,function(x) sum(x[-i],na.rm=T))
+        }
       t <- alpha/rowSums(alpha)
+      if ((method=="GBM") && (any(t==0))) {stop("GBM method: not enough information to compute t hyper-parameter,
+                                                probably there are columns with < 2 positive values.")}
     }
     s <- switch(method,
                 GBM = 1/apply(t,1,function(x) exp(mean(log(x)))),
@@ -84,7 +93,7 @@ cmultRepl <- function(X,label=0,method=c("GBM","SQ","BL","CZM","user"),output=c(
     }
   }
   
-  ifelse(output=="prop",res<-X2,res<-X)
+  ifelse(output=="prop",res <- X2,res <- X)
   if (suppress.print == FALSE){
     if ((correct==TRUE) & (corrected > 0)) {cat(paste("No. corrected values: ",corrected,"\n"))}
   }

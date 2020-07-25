@@ -1,5 +1,5 @@
 lrSVDplus <- function(X, dl = NULL, frac = 0.65, ncp = 2, beta = 0.5, method = c("ridge", "EM"), row.w = NULL,
-           coeff.ridge = 1, threshold = 1e-4, seed = NULL, nb.init = 1, max.iter = 1000, ...) {
+           coeff.ridge = 1, threshold = 1e-4, seed = NULL, nb.init = 1, max.iter = 1000, z.warning=0.8, ...) {
     
     if (any(X < 0, na.rm = T)) stop("X contains negative values")
     if (is.character(dl) || is.null(dl)) stop("dl must be a numeric vector or matrix")
@@ -327,6 +327,13 @@ lrSVDplus <- function(X, dl = NULL, frac = 0.65, ncp = 2, beta = 0.5, method = c
     missingRaw <- which(is.na(X)) # missing
     zeroRaw <- which(X == 0) # zeros
     observedRaw <- which((!is.na(X)) & (!(X == 0))) # observed
+    
+    # Number of zeros or missing per column for warning
+    checkNumZerosCol <- apply(X,2,function(x) sum(is.na(x) | (x==0)))
+    if (any(checkNumZerosCol/nrow(X) > z.warning)) {
+      warning(paste("Some column(s) containing more than ",z.warning*100,"% zeros/unobserved values (check it out using zPatterns).
+                  (Modify the threshold to be warned using the z.warning argument).",sep=""))
+    }
     
     # Balance matrix for olr
     Smat <- diag(rep(1, D))
