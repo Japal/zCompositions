@@ -4,6 +4,6 @@ zCompositions
 Imputation of Zeros, Nondetects and Missing Data in Compositional Data Sets
 
 <!-- badges: start -->
-[![Travis build status](https://travis-ci.com/Japal/zCompositions.svg?branch=master)](https://travis-ci.com/Japal/zCompositions)
+[![R build status](https://github.com/Japal/zCompositions/workflows/R-CMD-check/badge.svg)](https://github.com/Japal/zCompositions/actions)
 <!-- badges: end -->
 
