@@ -8,10 +8,10 @@ rounded zeros) based on the singular value decomposition (SVD) of a compositiona
 This function can be also used to impute missing data instead by setting \code{imp.missing = TRUE} (see \code{\link{lrSVDplus}} to treat censored and missing data simultaneously).
 }
 \usage{
-lrSVD(X, label = NULL, dl = NULL, frac = 0.65, ncp = 2, imp.missing=FALSE,
-         beta = 0.5, method = c("ridge", "EM"), row.w = NULL, coeff.ridge = 1,
-         threshold = 1e-04, seed = NULL, nb.init = 1, max.iter = 1000, 
-         z.warning = 0.8, ...)
+lrSVD(X, label = NULL, dl = NULL, frac = 0.65, ncp = 2, ncp.min=0, ncp.max=5,
+         imp.missing=FALSE, beta = 0.5, method = c("ridge", "EM"),
+         row.w = NULL, coeff.ridge = 1, threshold = 1e-04, seed = NULL,
+         nb.init = 1, max.iter = 1000, z.warning = 0.8, ...)
 }
 \arguments{
 \item{X}{Compositional data set (\code{\link{matrix}} or \code{\link{data.frame}} class).}
@@ -23,6 +23,10 @@ lrSVD(X, label = NULL, dl = NULL, frac = 0.65, ncp = 2, imp.missing=FALSE,
 \item{frac}{Parameter for initial multiplicative simple replacement of left-censored data (see \code{\link{multRepl}}) (default = 0.65).}
 
 \item{ncp}{Number of components in low-rank matrix approximation (default = 2).}
+
+\item{ncp.min}{Minimum number of components for cross-validation selection.}
+
+\item{ncp.max}{Maximum number of components for cross-validation selection.}
 
 \item{imp.missing}{If \code{TRUE} then unobserved data identified by \code{label} are treated as missing data (default = \code{FALSE}).}
 

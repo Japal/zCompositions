@@ -1,5 +1,6 @@
-lrSVD <- function(X, label = NULL, dl = NULL, frac = 0.65, ncp = 2, imp.missing = FALSE, beta = 0.5, method = c("ridge", "EM"),
-                  row.w = NULL, coeff.ridge = 1, ncp.min=0, ncp.max=5, threshold = 1e-4, seed = NULL, nb.init = 1,
+lrSVD <- function(X, label = NULL, dl = NULL, frac = 0.65, ncp = 2, ncp.min=0, ncp.max=5,
+                  imp.missing = FALSE, beta = 0.5, method = c("ridge", "EM"),
+                  row.w = NULL, coeff.ridge = 1, threshold = 1e-4, seed = NULL, nb.init = 1,
                   max.iter = 1000, z.warning=0.8, ...) {
   
   if (any(X < 0, na.rm = T)) stop("X contains negative values")
