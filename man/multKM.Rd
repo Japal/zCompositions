@@ -24,7 +24,7 @@ Number of random draws from the inverse KM ECDF generated to produce an averaged
   \item{n.knots}{Integer or function giving the number of knots used for fitting a cubic smoothing spline to the KM ECDF (see \code{\link{smooth.spline}} for default value). It allows for a vector or list of settings per column of \code{X}.
 }
   \item{z.warning}{
-Print a warning message if the proportion of zeros/unobserved values in any column exceeds a given threshold (default \code{z.warning=0.8}, set to 1 for no warning).
+Print a warning message if the proportion of zeros/unobserved values in any column or row exceeds a given threshold (default \code{z.warning=0.8}).
 }
 }
 \details{

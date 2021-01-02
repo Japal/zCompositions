@@ -1,5 +1,5 @@
 lrSVD <- function(X, label = NULL, dl = NULL, frac = 0.65, ncp = 2, imp.missing = FALSE, beta = 0.5, method = c("ridge", "EM"),
-                  row.w = NULL, coeff.ridge = 1, threshold = 1e-4, seed = NULL, nb.init = 1,
+                  row.w = NULL, coeff.ridge = 1, ncp.min=0, ncp.max=5, threshold = 1e-4, seed = NULL, nb.init = 1,
                   max.iter = 1000, z.warning=0.8, ...) {
   
   if (any(X < 0, na.rm = T)) stop("X contains negative values")
@@ -31,7 +31,9 @@ lrSVD <- function(X, label = NULL, dl = NULL, frac = 0.65, ncp = 2, imp.missing 
     if (ncol(dl) != ncol(X)) stop("The number of columns in X and dl do not agree")
     if ((nrow(dl) > 1) & (nrow(dl) != nrow(X))) stop("The number of rows in X and dl do not agree")
   }
-  if (ncp > min(nrow(X) - 2, ncol(X) - 1)) stop("ncp is too large for the size of the data matrix")
+  if (is.numeric(ncp)){
+    if (ncp > min(nrow(X) - 2, ncol(X) - 1)) stop("ncp is too large for the size of the data matrix")
+  }
   if (is.null(row.w)) row.w = rep(1, nrow(X)) / nrow(X) # Equal weight for all rows
   
   svd.triplet <- function(X, row.w = NULL, col.w = NULL, ncp = Inf) # From FactoMineR package
@@ -264,7 +266,7 @@ lrSVD <- function(X, label = NULL, dl = NULL, frac = 0.65, ncp = 2, imp.missing 
     }
     # END LOOP WHILE
     
-    # Preparing the resuls
+    # Preparing the results
     Xhat <- t(t(Xhat) + mean.p)
     
     # Update X
@@ -303,9 +305,25 @@ lrSVD <- function(X, label = NULL, dl = NULL, frac = 0.65, ncp = 2, imp.missing 
   c <- apply(X, 1, sum, na.rm = TRUE)
   
   checkNumZerosCol <- apply(X,2,function(x) sum(is.na(x)))
-  if (any(checkNumZerosCol/nrow(X) > z.warning)) {
-    warning(paste("Some column(s) containing more than ",z.warning*100,"% zeros/unobserved values (check it out using zPatterns).
-                  (Modify the threshold to be warned using the z.warning argument).",sep=""))
+  if (any(checkNumZerosCol/nrow(X) == 1)) {
+    stop(paste("Column(s) containing all zeros/unobserved values were found (check it out using zPatterns).",sep=""))
+  }
+  else{
+    if (any(checkNumZerosCol/nrow(X) > z.warning)) {
+      warning(paste("Column(s) containing more than ",z.warning*100,"% zeros/unobserved values were found (check it out using zPatterns).
+                    (You can use the z.warning argument to modify the warning threshold).",sep=""))
+    }
+  }
+  
+  checkNumZerosRow <- apply(X,1,function(x) sum(is.na(x)))
+  if (any(checkNumZerosRow/ncol(X) == 1)) {
+    stop(paste("Row(s) containing all zeros/unobserved values were found (check it out using zPatterns).",sep=""))
+  }
+  else{
+    if (any(checkNumZerosRow/ncol(X) > z.warning)) {
+      warning(paste("Row(s) containing more than ",z.warning*100,"% zeros/unobserved values were found (check it out using zPatterns).
+                  (You can use the z.warning argument to modify the warning threshold).",sep=""))
+    }
   }
   
   # Check for closure
@@ -361,6 +379,31 @@ lrSVD <- function(X, label = NULL, dl = NULL, frac = 0.65, ncp = 2, imp.missing 
   }
   colnames(dl) <- colnames(X)
 
+  ## CV selection no. low-rank comps ---
+  
+  if (ncp=="cv"){ # reduced/modified version of estim_ncpPCA (missMDA package)
+    X <- as.matrix(X)
+    if (is.null(ncp.max)) ncp.max <- D-1
+    ncp.max <- min(nn-2,D-1,ncp.max)
+    crit <- NULL
+    if (ncp.min == 0) 
+      crit <- mean((X - rep(colMeans(X, na.rm = TRUE), each = nrow(X)))^2, na.rm = TRUE)
+    for (q in max(ncp.min, 1):ncp.max) {
+      rec <- impute(X,dl=dl,bal=bal,frac=frac,ncp=q,beta=beta,method=method,row.w=row.w,
+                    coeff.ridge=coeff.ridge,threshold=threshold,seed=if(!is.null(seed)){(seed*(i-1))}else{NULL},
+                    max.iter=max.iter)$fittedX
+      
+      crit <- c(crit,mean(((nn*D-sum(is.na(X)))*(X-rec)/((nn-1)*D-sum(is.na(X))-q*(nn+D-q-1)))^2, na.rm = T))
+    }
+    if (any(diff(crit) > 0)) {
+      ncp <- which(diff(crit) > 0)[1]
+    }
+    else ncp <- which.min(crit)
+    
+    ncp <- as.integer(ncp + ncp.min - 1)
+    
+  }
+  
   ## Imputation ---
   
   for (i in 1:nb.init) {

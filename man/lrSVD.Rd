@@ -42,8 +42,8 @@ lrSVD(X, label = NULL, dl = NULL, frac = 0.65, ncp = 2, imp.missing=FALSE,
 
 \item{max.iter}{Maximum number of iterations for the algorithm (default = 1000).}
 
-\item{z.warning}{
-Print a warning message if the proportion of zeros/unobserved values in any column exceeds a given threshold (default \code{z.warning=0.8}, set to 1 for no warning).
+  \item{z.warning}{
+Print a warning message if the proportion of zeros/unobserved values in any column or row exceeds a given threshold (default \code{z.warning=0.8}).
 }
 
 \item{...}{Further arguments.}

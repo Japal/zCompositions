@@ -32,9 +32,25 @@ multReplus <- function(X, dl = NULL, frac = 0.65, closure = NULL, z.warning = 0.
 
   # Number of zeros or missing per column for warning
   checkNumZerosCol <- apply(X,2,function(x) sum(is.na(x) | (x==0)))
-  if (any(checkNumZerosCol/nrow(X) > z.warning)) {
-    warning(paste("Some column(s) containing more than ",z.warning*100,"% zeros/unobserved values (check it out using zPatterns).
-                  (Modify the threshold to be warned using the z.warning argument).",sep=""))
+  if (any(checkNumZerosCol/nrow(X) == 1)) {
+    stop(paste("Column(s) containing all zeros/unobserved values were found (check it out using zPatterns).",sep=""))
+  }
+  else{
+    if (any(checkNumZerosCol/nrow(X) > z.warning)) {
+      warning(paste("Column(s) containing more than ",z.warning*100,"% zeros/unobserved values were found (check it out using zPatterns).
+                    (You can use the z.warning argument to modify the warning threshold).",sep=""))
+    }
+  }
+  
+  checkNumZerosRow <- apply(X,1,function(x) sum(is.na(x) | (x==0)))
+  if (any(checkNumZerosRow/ncol(X) == 1)) {
+    stop(paste("Row(s) containing all zeros/unobserved values were found (check it out using zPatterns).",sep=""))
+  }
+  else{
+    if (any(checkNumZerosRow/ncol(X) > z.warning)) {
+      warning(paste("Row(s) containing more than ",z.warning*100,"% zeros/unobserved values were found (check it out using zPatterns).
+                  (You can use the z.warning argument to modify the warning threshold).",sep=""))
+    }
   }
   
   if (nrow(dl)==1) dl <- matrix(rep(1,nn),ncol=1)%*%dl

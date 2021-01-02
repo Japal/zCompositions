@@ -24,9 +24,25 @@ cmultRepl <- function(X,label=0,method=c("GBM","SQ","BL","CZM","user"),output=c(
   X[X==label] <- NA
   
   checkNumZerosCol <- apply(X,2,function(x) sum(is.na(x)))
-  if (any(checkNumZerosCol/nrow(X) > z.warning)) {
-    warning(paste("Some column(s) containing more than ",z.warning*100,"% zeros/unobserved values (check it out using zPatterns).
-                  (Modify the threshold to be warned using the z.warning argument).",sep=""))
+  if (any(checkNumZerosCol/nrow(X) == 1)) {
+    stop(paste("Column(s) containing all zeros/unobserved values were found (check it out using zPatterns).",sep=""))
+  }
+  else{
+    if (any(checkNumZerosCol/nrow(X) > z.warning)) {
+      warning(paste("Column(s) containing more than ",z.warning*100,"% zeros/unobserved values were found (check it out using zPatterns).
+                    (You can use the z.warning argument to modify the warning threshold).",sep=""))
+    }
+  }
+
+  checkNumZerosRow <- apply(X,1,function(x) sum(is.na(x)))
+  if (any(checkNumZerosRow/ncol(X) == 1)) {
+    stop(paste("Row(s) containing all zeros/unobserved values were found (check it out using zPatterns).",sep=""))
+  }
+  else{
+    if (any(checkNumZerosRow/ncol(X) > z.warning)) {
+      warning(paste("Row(s) containing more than ",z.warning*100,"% zeros/unobserved values were found (check it out using zPatterns).
+                  (You can use the z.warning argument to modify the warning threshold).",sep=""))
+    }
   }
   
   N <- nrow(X); D <- ncol(X)
@@ -85,6 +101,7 @@ cmultRepl <- function(X,label=0,method=c("GBM","SQ","BL","CZM","user"),output=c(
   
   if (output=="p-counts"){
     for (i in 1:N){
+      
       if (any(is.na(X[i,]))){
         zero <- which(is.na(X[i,]))
         pos <- setdiff(1:D,zero)[1]
@@ -93,7 +110,7 @@ cmultRepl <- function(X,label=0,method=c("GBM","SQ","BL","CZM","user"),output=c(
     }
   }
   
-  ifelse(output=="prop",res <- X2,res <- X)
+  res <- ifelse(output=="prop", X2, X)
   if (suppress.print == FALSE){
     if ((correct==TRUE) & (corrected > 0)) {cat(paste("No. corrected values: ",corrected,"\n"))}
   }

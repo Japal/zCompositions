@@ -1,7 +1,7 @@
 RELEASE HISTORY OF THE "zCompositions" PACKAGE
 ==============================================
 
-CHANGES IN zCompositions VERSION 1.4.0 [2020-??]:
+CHANGES IN zCompositions VERSION 1.4.0 [2021-??]:
 ----------------------------------------------------
 
 NEW FEATURES
@@ -12,7 +12,7 @@ MODIFICATIONS
 
 * Error control: dl argument checked for unique vector or matrix internally and converted if possible.
 * Error control: error thrown when GBM method not applicable due to only one positive value in variable.
-* New argument added throughout to warn about excess of zeros/ubserved values per variable.
+* New argument added throughout to warn about excess of zeros/unobserved values per column/row.
 * multRepl & others: previous parameter 'delta' is deprecated and replaced by 'frac' to avoid confusion with original notation used in multiplicative replacement method's literature.
 * Minor bugs fixed and edits to the documentation.
 

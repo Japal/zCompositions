@@ -25,7 +25,7 @@ Logical value. \code{FALSE} provides maximum-likelihood estimates of model param
 Logical value. Values imputed using either estimated geometric mean (\code{FALSE}, default) or random values (\code{TRUE}) below the limit of detection.
 }
   \item{z.warning}{
-Print a warning message if the proportion of zeros/unobserved values in any column exceeds a given threshold (default \code{z.warning=0.8}, set to 1 for no warning).
+Print a warning message if the proportion of zeros/unobserved values in any column or row exceeds a given threshold (default \code{z.warning=0.8}).
 }
 }
 \details{

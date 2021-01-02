@@ -40,7 +40,7 @@ If \code{method="user"}, user-specified \emph{t} hyper-parameter of the Dirichle
   \item{s}{If \code{method="user"}, user-specified \emph{s} hyper-parameter of the Dirichlet prior distribution for each count vector (row) in \code{X}. It must be a vector of length equal to the number of rows of \code{X}.
 }
   \item{z.warning}{
-Print a warning message if the proportion of zeros/unobserved values in any column exceeds a given threshold (default \code{z.warning=0.8}, set to 1 for no warning).
+Print a warning message if the proportion of zeros/unobserved values in any column or row exceeds a given threshold (default \code{z.warning=0.8}).
 }
   \item{suppress.print}{
 Suppress printed feedback (\code{suppress.print=FALSE}, default).
