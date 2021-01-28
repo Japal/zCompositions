@@ -97,7 +97,7 @@ cmultRepl <- function(X,label=0,method=c("GBM","SQ","BL","CZM","user"),output=c(
     }
   }        
   
-  # Rescale to p-counts
+  # Rescale to p-counts if required
   
   if (output=="p-counts"){
     for (i in 1:N){
@@ -108,9 +108,10 @@ cmultRepl <- function(X,label=0,method=c("GBM","SQ","BL","CZM","user"),output=c(
         X[i,zero] <- (X[i,pos]/X2[i,pos])*X2[i,zero]
       }
     }
+    res <- X
   }
-  
-  res <- ifelse(output=="prop", X2, X)
+  else {res <- X2}
+
   if (suppress.print == FALSE){
     if ((correct==TRUE) & (corrected > 0)) {cat(paste("No. corrected values: ",corrected,"\n"))}
   }
