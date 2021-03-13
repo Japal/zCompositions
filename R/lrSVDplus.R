@@ -10,7 +10,7 @@ lrSVDplus <- function(X, dl = NULL, frac = 0.65, ncp = 2, beta = 0.5, method = c
     if (any(X == 0, na.rm = T) == FALSE) stop("No zeros were found in the data set")
     if (ncol(dl) != ncol(X)) stop("The number of columns in X and dl do not agree")
     if ((nrow(dl) > 1) & (nrow(dl) != nrow(X))) stop("The number of rows in X and dl do not agree")
-    if (ncp > min(nrow(X) - 2, ncol(X) - 1)) stop("ncp is too large for the size of the data matrix")
+    if (ncp > min(nrow(X) - 2, ncol(X) - 2)) stop("ncp is too large for the size of the data matrix")
     if (is.null(row.w)) row.w = rep(1, nrow(X)) / nrow(X) # Equal weight for all rows
     
     svd.triplet <- function(X, row.w = NULL, col.w = NULL, ncp = Inf) # From FactoMineR package

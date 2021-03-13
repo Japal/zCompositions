@@ -1,4 +1,4 @@
-lrSVD <- function(X, label = NULL, dl = NULL, frac = 0.65, ncp = 2, ncp.min=0, ncp.max=5,
+lrSVD <- function(X, label = NULL, dl = NULL, frac = 0.65, ncp = 2, ncp.min=0, ncp.max=ncol(X)-2,
                   imp.missing = FALSE, beta = 0.5, method = c("ridge", "EM"),
                   row.w = NULL, coeff.ridge = 1, threshold = 1e-4, seed = NULL, nb.init = 1,
                   max.iter = 1000, z.warning=0.8, ...) {
@@ -33,7 +33,7 @@ lrSVD <- function(X, label = NULL, dl = NULL, frac = 0.65, ncp = 2, ncp.min=0, n
     if ((nrow(dl) > 1) & (nrow(dl) != nrow(X))) stop("The number of rows in X and dl do not agree")
   }
   if (is.numeric(ncp)){
-    if (ncp > min(nrow(X) - 2, ncol(X) - 1)) stop("ncp is too large for the size of the data matrix")
+    if (ncp > min(nrow(X) - 2, ncol(X) - 2)) stop("ncp is too large for the size of the data matrix")
   }
   if (is.null(row.w)) row.w = rep(1, nrow(X)) / nrow(X) # Equal weight for all rows
   
@@ -329,7 +329,7 @@ lrSVD <- function(X, label = NULL, dl = NULL, frac = 0.65, ncp = 2, ncp.min=0, n
   
   # Check for closure
   closed <- 0
-  if (all(abs(c - mean(c)) < .Machine$double.eps^0.3 )) closed <- 1
+  if (all(abs(c - mean(c)) < .Machine$double.eps^0.3)) closed <- 1
   
   # Sort columns decreasingly according to observed cells
   Xaux <- as.matrix(X)
@@ -360,7 +360,6 @@ lrSVD <- function(X, label = NULL, dl = NULL, frac = 0.65, ncp = 2, ncp.min=0, n
   }
   
   # Build dl matrix for SVD imputation
-  
   if (imp.missing == FALSE) {
     if (nrow(dl) == 1)
       dl <- matrix(rep(1, nn), ncol = 1) %*% dl
