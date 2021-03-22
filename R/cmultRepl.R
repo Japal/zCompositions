@@ -1,5 +1,5 @@
 cmultRepl <- function(X,label=0,method=c("GBM","SQ","BL","CZM","user"),output=c("prop", "p-counts"),
-                      frac=0.65,threshold=0.5,correct=TRUE,t=NULL,s=NULL,z.warning=0.8,
+                      frac=0.65,threshold=0.5,adjust=TRUE,t=NULL,s=NULL,z.warning=0.8,
                       suppress.print=FALSE,delta=NULL)
 {
   
@@ -80,17 +80,17 @@ cmultRepl <- function(X,label=0,method=c("GBM","SQ","BL","CZM","user"),output=c(
   
   X2 <- t(apply(X,1,function(x) x/sum(x,na.rm=T)))
   colmins <- apply(X2,2,function(x) min(x,na.rm=T))
-  corrected <- 0
+  adjusted <- 0
   
   for (i in 1:N){
     if (any(is.na(X2[i,]))){
       z <- which(is.na(X2[i,]))
       X2[i,z] <- repl[i,z]
-      if (correct==TRUE){
+      if (adjust==TRUE){
         if (any(X2[i,z] > colmins[z])){
           f <- which(X2[i,z] > colmins[z])
           X2[i,z][f] <- frac*colmins[z][f]
-          corrected <- corrected + length(f)
+          adjusted <- adjusted + length(f)
         }
       }
       X2[i,-z] <- (1-(sum(X2[i,z])))*X2[i,-z]
@@ -113,7 +113,7 @@ cmultRepl <- function(X,label=0,method=c("GBM","SQ","BL","CZM","user"),output=c(
   else {res <- X2}
 
   if (suppress.print == FALSE){
-    if ((correct==TRUE) & (corrected > 0)) {cat(paste("No. corrected values: ",corrected,"\n"))}
+    if ((adjust==TRUE) & (adjusted > 0)) {cat(paste("No. adjusted imputations: ",adjusted,"\n"))}
   }
   return(as.data.frame(res,stringsAsFactors=TRUE))
 }

@@ -1,7 +1,7 @@
 lrSVD <- function(X, label = NULL, dl = NULL, frac = 0.65, ncp = 2, ncp.min=0, ncp.max=ncol(X)-2,
                   imp.missing = FALSE, beta = 0.5, method = c("ridge", "EM"),
                   row.w = NULL, coeff.ridge = 1, threshold = 1e-4, seed = NULL, nb.init = 1,
-                  max.iter = 1000, z.warning=0.8, ...) {
+                  max.iter = 1000, z.warning = 0.8, ...) {
   
   if (any(X < 0, na.rm = T)) stop("X contains negative values")
   
@@ -125,10 +125,10 @@ lrSVD <- function(X, label = NULL, dl = NULL, frac = 0.65, ncp = 2, ncp.min=0, n
   }
   
   impute <- function(X = NULL, dl = NULL, bal = NULL, frac = 0.65, ncp = 2, beta = 0.5, method=c("ridge","EM"),
-              row.w = NULL, coeff.ridge = 1, threshold = 1e-4, seed = NULL, max.iter = 1000, init = 1, ...) {
+                     row.w = NULL, coeff.ridge = 1, threshold = 1e-4, seed = NULL, max.iter = 1000, init = 1, ...) {
     
     # (scale argument removed: no scaling of olr columns by (weighted) variance allowed)
-      
+    
     # Weighted AVERAGE = moyenne poids
     moy.p <- function(V, poids) {
       res <- sum(V * poids,na.rm = TRUE)/sum(poids[!is.na(V)])
@@ -165,14 +165,14 @@ lrSVD <- function(X, label = NULL, dl = NULL, frac = 0.65, ncp = 2, ncp.min=0, n
       gmeans <- matrix(rep(1, nn), ncol = 1) %*% gmeans
       X[missRaw] <- gmeans[missRaw]
     }
-
+    
     # Xhat: OLR-coordinates
     Xhat <- t(bal %*% t(log(X)))
     
     # Number of components
     ncp <- min(ncp, ncol(Xhat), nrow(Xhat) - 1)
     # Weighted column mean  
-    mean.p <- apply(Xhat, 2, moy.p,row.w)
+    mean.p.or=mean.p <- apply(Xhat, 2, moy.p,row.w)
     # Matrix centring
     Xhat <- t(t(Xhat) - mean.p)
     # Update X: olr.inv(Xhat)
@@ -190,6 +190,15 @@ lrSVD <- function(X, label = NULL, dl = NULL, frac = 0.65, ncp = 2, ncp.min=0, n
       Xhat <- t(bal %*% t(log(X)))
       # Recover the centre
       Xhat <- t(t(Xhat) + mean.p)
+      mean.p <- apply(Xhat, 2, moy.p, row.w)
+      # violations check
+      X <- exp(t(t(bal) %*% t(Xhat)))
+      X <- X/apply(X, 1, sum)
+      Xaux2 <- X * caux
+      viol <- which(Xaux2 > dl)
+      Xaux2[viol] <- dl[viol]
+      Xhat <- t(bal %*% t(log(Xaux2)))
+      mean.p <- apply(Xhat, 2, moy.p, row.w)
       # Update X: olr.inv(Xhat)
       X <- exp(t(t(bal) %*% t(Xhat)))
       X <- X / apply(X, 1, sum)
@@ -268,7 +277,7 @@ lrSVD <- function(X, label = NULL, dl = NULL, frac = 0.65, ncp = 2, ncp.min=0, n
     # END LOOP WHILE
     
     # Preparing the results
-    Xhat <- t(t(Xhat) + mean.p)
+    Xhat <- t(t(Xhat) + mean.p.or)
     
     # Update X
     # INV-OLR
@@ -279,7 +288,13 @@ lrSVD <- function(X, label = NULL, dl = NULL, frac = 0.65, ncp = 2, ncp.min=0, n
     completeObs <- Xaux / apply(Xaux, 1, sum, na.rm = TRUE)
     completeObs[missRaw] <- X[missRaw]
     completeObs <- completeObs / apply(completeObs, 1, sum)
-    
+    # violation dl check
+    completeObs <- completeObs * caux
+    viol <- which(completeObs > dl)
+    completeObs[viol] <- dl[viol]
+    completeObs[obsRaw] <- Xaux[obsRaw]
+    completeObs <- completeObs/apply(completeObs, 1, sum)
+    #
     fittedX <- t(t(fittedX) + mean.p)
     
     # INV-OLR
@@ -345,7 +360,7 @@ lrSVD <- function(X, label = NULL, dl = NULL, frac = 0.65, ncp = 2, ncp.min=0, n
     if (nrow(dl) == 1) {dl <- matrix(dl[, order(-pz)], nrow = 1)}
     else{dl <- dl[, order(-pz)]}
   }
-
+  
   # Balance matrix for olr
   Smat <- diag(rep(1,D))
   Smat[upper.tri(Smat)] <- -1
@@ -378,30 +393,31 @@ lrSVD <- function(X, label = NULL, dl = NULL, frac = 0.65, ncp = 2, ncp.min=0, n
     dl[missingRaw] <- Xmax[missingRaw]
   }
   colnames(dl) <- colnames(X)
-
-  ## CV selection no. low-rank comps ---
   
-  if (ncp=="cv"){ # reduced/modified version of estim_ncpPCA (missMDA package)
+  ## CV selection no. comps ---
+  
+  if (ncp=="cv"){ # Modified version of estim_ncpPCA (missMDA package)
     X <- as.matrix(X)
-    if (is.null(ncp.max)) ncp.max <- D-1
-    ncp.max <- min(nn-2,D-1,ncp.max)
+    if (is.null(ncp.max)) ncp.max <- D-2
+    ncp.max <- min(nn-2, ncp.max)
     crit <- NULL
-    if (ncp.min == 0) 
-      crit <- mean((X - rep(colMeans(X, na.rm = TRUE), each = nrow(X)))^2, na.rm = TRUE)
-    for (q in max(ncp.min, 1):ncp.max) {
-      rec <- impute(X,dl=dl,bal=bal,frac=frac,ncp=q,beta=beta,method=method,row.w=row.w,
-                    coeff.ridge=coeff.ridge,threshold=threshold,seed=if(!is.null(seed)){(seed*(i-1))}else{NULL},
-                    max.iter=max.iter)$fittedX
+    if (ncp.min == 0)
+      gc <- exp(apply(log(X), 2, mean, na.rm = TRUE))
+      crit <- mean(unlist(log(X / matrix(rep(1, nrow(X)), ncol = 1) %*% gc)^2), na.rm = TRUE)
+      X2Closed <- X / apply(X, 1, sum, na.rm = TRUE)
+      for (q in max(ncp.min, 1):ncp.max) {
+        rec <- impute(X,dl=dl,bal=bal,frac=frac,ncp=q,beta=beta,method=method,row.w=row.w,
+                      coeff.ridge=coeff.ridge,threshold=threshold,seed=if(!is.null(seed)){(seed*(i-1))}else{NULL},
+                      max.iter=max.iter)$fittedX
+        
+        crit <- c(crit,mean(unlist(((nn*D-sum(is.na(X)))*(log(X2Closed/rec))/((nn-1)*D-sum(is.na(X))-q*(nn+D-q-1)))^2), na.rm = T))
+      }
+      if (any(diff(crit) > 0)) {
+        ncp <- which(diff(crit) > 0)[1]
+      }
+      else ncp <- which.min(crit)
       
-      crit <- c(crit,mean(((nn*D-sum(is.na(X)))*(X-rec)/((nn-1)*D-sum(is.na(X))-q*(nn+D-q-1)))^2, na.rm = T))
-    }
-    if (any(diff(crit) > 0)) {
-      ncp <- which(diff(crit) > 0)[1]
-    }
-    else ncp <- which.min(crit)
-    
-    ncp <- as.integer(ncp + ncp.min - 1)
-    
+      ncp <- as.integer(ncp + ncp.min - 1)
   }
   
   ## Imputation ---
@@ -412,7 +428,7 @@ lrSVD <- function(X, label = NULL, dl = NULL, frac = 0.65, ncp = 2, ncp.min=0, n
     
     res.impute <- impute(X = X, dl = dl, bal = bal, frac = frac, ncp = ncp, beta = beta, method = method,
                          row.w = row.w, coeff.ridge = coeff.ridge, threshold = threshold, seed = if (!is.null(seed)) {
-                         (seed * (i - 1))} else {NULL},max.iter = max.iter,init = i)
+                           (seed * (i - 1))} else {NULL},max.iter = max.iter,init = i)
   }
   
   ## Final section ---
@@ -422,13 +438,13 @@ lrSVD <- function(X, label = NULL, dl = NULL, frac = 0.65, ncp = 2, ncp.min=0, n
   XauxClosed <- XauxClosed[, order(-pz)]
   XauxClosed[missingRaw] <- Y[missingRaw]
   X <- XauxClosed * c
-   
+  
   if (closed == 1) {
     X <- (X / apply(X, 1, sum)) * c[1]
   }
   
   # Original order
-   X <- X[, colnames(Xna)]
+  X <- X[, colnames(Xna)]
   
   return(as.data.frame(X, stringsAsFactors = TRUE))
 }
