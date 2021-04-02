@@ -401,16 +401,18 @@ lrSVD <- function(X, label = NULL, dl = NULL, frac = 0.65, ncp = 2, ncp.min=0, n
     if (is.null(ncp.max)) ncp.max <- D-2
     ncp.max <- min(nn-2, ncp.max)
     crit <- NULL
-    if (ncp.min == 0)
+    if (ncp.min == 0){
       gc <- exp(apply(log(X), 2, mean, na.rm = TRUE))
-      crit <- mean(unlist(log(X / matrix(rep(1, nrow(X)), ncol = 1) %*% gc)^2), na.rm = TRUE)
-      X2Closed <- X / apply(X, 1, sum, na.rm = TRUE)
-      for (q in max(ncp.min, 1):ncp.max) {
-        rec <- impute(X,dl=dl,bal=bal,frac=frac,ncp=q,beta=beta,method=method,row.w=row.w,
+      crit <- mean(log(X / (matrix(rep(1, nrow(X)), ncol = 1) %*% gc))^2, na.rm = TRUE)
+    }
+    X2Closed <- X / apply(X, 1, sum, na.rm = TRUE)
+    for (r in max(ncp.min, 1):ncp.max) {
+        rec <- impute(X,dl=dl,bal=bal,frac=frac,ncp=r,beta=beta,method=method,row.w=row.w,
                       coeff.ridge=coeff.ridge,threshold=threshold,seed=if(!is.null(seed)){(seed*(i-1))}else{NULL},
                       max.iter=max.iter)$fittedX
         
-        crit <- c(crit,mean(unlist(((nn*D-sum(is.na(X)))*(log(X2Closed/rec))/((nn-1)*D-sum(is.na(X))-q*(nn+D-q-1)))^2), na.rm = T))
+        crit <- c(crit,mean(((nn*D-sum(is.na(X)))*log(X2Closed/rec)/
+                                      ((nn-1)*D-sum(is.na(X))-r*(nn+D-r-1)))^2, na.rm = T))
       }
       if (any(diff(crit) > 0)) {
         ncp <- which(diff(crit) > 0)[1]
