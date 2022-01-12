@@ -2,19 +2,19 @@ Package: zCompositions
 Type: Package
 Title: Treatment of Zeros, Left-Censored and Missing Values in Compositional Data Sets
 Version: 1.4.0
-Date: 2020-04-06
+Date: 2022-01-12
 Authors@R: 
     c(person(given = "Javier",
              family = "Palarea-Albaladejo",
              role = c("cre","aut"),
-             email = "javier.palarea@bioss.ac.uk",
+             email = "javier.palarea@udg.edu",
              comment = c(ORCID = "0000-0003-0162-669X")),
       person(given = "Josep Antoni",
              family = "Martin-Fernandez",
              role = c("aut"),
              email = "josepantoni.martin@udg.edu",
              comment = c(ORCID = "0000-0003-2366-1592")))
-Maintainer: Javier Palarea-Albaladejo <javier.palarea@bioss.ac.uk>
+Maintainer: Javier Palarea-Albaladejo <javier.palarea@udg.edu>
 Depends:
     R (>= 2.14.0),
     methods,

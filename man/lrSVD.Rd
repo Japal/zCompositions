@@ -8,8 +8,7 @@ rounded zeros) based on the singular value decomposition (SVD) of a compositiona
 This function can be also used to impute missing data instead by setting \code{imp.missing = TRUE} (see \code{\link{lrSVDplus}} to treat censored and missing data simultaneously).
 }
 \usage{
-lrSVD(X, label = NULL, dl = NULL, frac = 0.65,
-         ncp = 2, ncp.min = 0, ncp.max = ncol(X) - 2,
+lrSVD(X, label = NULL, dl = NULL, frac = 0.65, ncp = 2, 
          imp.missing=FALSE, beta = 0.5, method = c("ridge", "EM"),
          row.w = NULL, coeff.ridge = 1, threshold = 1e-04, seed = NULL,
          nb.init = 1, max.iter = 1000, z.warning = 0.8, ...)
@@ -23,11 +22,7 @@ lrSVD(X, label = NULL, dl = NULL, frac = 0.65,
 
 \item{frac}{Parameter for initial multiplicative simple replacement of left-censored data (see \code{\link{multRepl}}) (default = 0.65).}
 
-\item{ncp}{Number of components in low-rank matrix approximation (default = 2).}
-
-\item{ncp.min}{Minimum number of components to consider in cross-validated selection.}
-
-\item{ncp.max}{Maximum number of components to consider in cross-validated selection.}
+\item{ncp}{Number of components for low-rank matrix approximation (default = 2).}
 
 \item{imp.missing}{If \code{TRUE} then unobserved data identified by \code{label} are treated as missing data (default = \code{FALSE}).}
 
@@ -56,7 +51,7 @@ lrSVD(X, label = NULL, dl = NULL, frac = 0.65,
 A \code{\link{data.frame}} object containing the imputed compositional data set in the same scale as the original.
 }
 \details{
-This function implements an efficient imputation algorithm particularly suitable for the case of continuous high-dimensional and wide compositional data sets (more columns than rows), although it is equally applicable to regular data sets. It is based on a low-rank representation of the data set by a principal components (PC) model as derived by singular value decomposition (SVD) of the data matrix, extending recent work on principal component imputation and matrix completion methods to the case of censored compositional data (the code builds on the function \code{imputePCA}; see \code{missMDA} package for more details). A preliminary imputation by multiplicative replacement (see \code{\link{multRepl}}) is conducted to initiate the iterative algorithm in log-ratio coordinates. Two steps, estimation of latent PC model loadings and imputation of empty data matrix cells using the model, are iteratively repeated until convergence. Parameter fitting in this context is performed by a regularisation method (ridge regression in this case) or by the expectation-maximisation (EM) algorithm. Regularization has been shown generally preferable and it is set as default method (note the regularisation parameter \code{coeff.ridge} set to 1 by default. If it is < 1 the result is closer to EM estimation, whereas for values > 1 it is closer to mean estimation). When \code{ncp = "cv"} the number of components used is selected following a compositional adaption of the generalised cross-validation method implemented in the function \code{estim_ncpPCA} of \code{missMDA}.
+This function implements an efficient imputation algorithm particularly suitable for the case of continuous high-dimensional and wide compositional data sets (more columns than rows), although it is equally applicable to regular data sets. It is based on a low-rank representation of the data set by a principal components (PC) model as derived by singular value decomposition (SVD) of the data matrix, extending recent work on principal component imputation and matrix completion methods to the case of censored compositional data (the code builds on the function \code{imputePCA}; see \code{missMDA} package for more details). A preliminary imputation by multiplicative replacement (see \code{\link{multRepl}}) is conducted to initiate the iterative algorithm in log-ratio coordinates. Two steps, estimation of latent PC model loadings and imputation of empty data matrix cells using the model, are iteratively repeated until convergence. Parameter fitting in this context is performed by a regularisation method (ridge regression in this case) or by the expectation-maximisation (EM) algorithm. Regularization has been shown generally preferable and it is set as default method (note the regularisation parameter \code{coeff.ridge} set to 1 by default. If it is < 1 the result is closer to EM estimation, whereas for values > 1 it is closer to mean estimation).
 
 An imputed data set is produced on the same scale as the input data set. If \code{X} is not closed to a constant sum, then the results are adjusted to provide a compositionally equivalent data set, expressed in the original scale, which leaves the absolute values of the observed components unaltered.
 

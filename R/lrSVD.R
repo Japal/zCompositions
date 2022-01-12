@@ -1,4 +1,4 @@
-lrSVD <- function(X, label = NULL, dl = NULL, frac = 0.65, ncp = 2, ncp.min=0, ncp.max=ncol(X)-2,
+lrSVD <- function(X, label = NULL, dl = NULL, frac = 0.65, ncp = 2,
                   imp.missing = FALSE, beta = 0.5, method = c("ridge", "EM"),
                   row.w = NULL, coeff.ridge = 1, threshold = 1e-4, seed = NULL, nb.init = 1,
                   max.iter = 1000, z.warning = 0.8, ...) {
@@ -393,34 +393,6 @@ lrSVD <- function(X, label = NULL, dl = NULL, frac = 0.65, ncp = 2, ncp.min=0, n
     dl[missingRaw] <- Xmax[missingRaw]
   }
   colnames(dl) <- colnames(X)
-  
-  ## CV selection no. comps ---
-  
-  if (ncp=="cv"){ # Modified version of estim_ncpPCA (missMDA package)
-    X <- as.matrix(X)
-    if (is.null(ncp.max)) ncp.max <- D-2
-    ncp.max <- min(nn-2, ncp.max)
-    crit <- NULL
-    if (ncp.min == 0){
-      gc <- exp(apply(log(X), 2, mean, na.rm = TRUE))
-      crit <- mean(log(X / (matrix(rep(1, nrow(X)), ncol = 1) %*% gc))^2, na.rm = TRUE)
-    }
-    X2Closed <- X / apply(X, 1, sum, na.rm = TRUE)
-    for (r in max(ncp.min, 1):ncp.max) {
-        rec <- impute(X,dl=dl,bal=bal,frac=frac,ncp=r,beta=beta,method=method,row.w=row.w,
-                      coeff.ridge=coeff.ridge,threshold=threshold,seed=if(!is.null(seed)){(seed*(i-1))}else{NULL},
-                      max.iter=max.iter)$fittedX
-        
-        crit <- c(crit,mean(((nn*D-sum(is.na(X)))*log(X2Closed/rec)/
-                                      ((nn-1)*D-sum(is.na(X))-r*(nn+D-r-1)))^2, na.rm = T))
-      }
-      if (any(diff(crit) > 0)) {
-        ncp <- which(diff(crit) > 0)[1]
-      }
-      else ncp <- which.min(crit)
-      
-      ncp <- as.integer(ncp + ncp.min - 1)
-  }
   
   ## Imputation ---
   

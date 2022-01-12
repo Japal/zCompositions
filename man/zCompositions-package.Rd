@@ -13,14 +13,14 @@ Following compositional data analysis principles, this package provides simple a
 Package: \tab zCompositions\cr
 Type: \tab Package\cr
 Version: \tab 1.4.0\cr
-Date: \tab 2020-04-06??\cr
+Date: \tab 2022-01-12\cr
 License: \tab GPL (>= 2)\cr
 }
 }
 \author{
 Javier Palarea-Albaladejo and Josep Antoni Martin-Fernandez
 
-Maintainer: Javier Palarea-Albaladejo <javier.palarea@bioss.ac.uk>
+Maintainer: Javier Palarea-Albaladejo <javier.palarea@udg.edu>
 }
 \references{
 Martin-Fernandez, J.A., Barcelo-Vidal, C., Pawlowsky-Glahn, V., 2003. Dealing with zeros and missing values in compositional data sets using nonparametric imputation. Mathematical Geology 35 (3): 253-27.
