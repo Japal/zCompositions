@@ -41,7 +41,7 @@ A \code{\link{data.frame}} object containing the imputed compositional data set 
 \references{
 Mateu-Figueras G, Pawlowsky-Glahn V, Egozcue JJ. The normal distribution in some constrained sample spaces. SORT 2013; 37(1): 29-56.
 
-Palarea-Albaladejo J, Martin-Fernandez JA. Values below detection limit in compositional chemical data. Analytica Chimica Acta 2013; 764: 32-43. DOI: \url{https://doi.org/10.1016/j.aca.2012.12.029}.
+Palarea-Albaladejo J, Martin-Fernandez JA. Values below detection limit in compositional chemical data. Analytica Chimica Acta 2013; 764: 32-43. \doi{https://doi.org/10.1016/j.aca.2012.12.029}.
 
 Palarea-Albaladejo J. and Martin-Fernandez JA. zCompositions -- R package for multivariate imputation of
 left-censored data under a compositional approach. Chemometrics and Intelligence Laboratory Systems 2015; 143: 85-96.
