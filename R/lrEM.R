@@ -140,7 +140,7 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
   
   checkNumZerosCol <- apply(X,2,function(x) sum(is.na(x)))
   if (any(checkNumZerosCol/nrow(X) == 1)) {
-    stop(paste("Column(s) containing all zeros/unobserved values were found (check it out using zPatterns).",sep=""))
+    stop(paste("Column(s) containing all zeros/unobserved values were found for some zero/missing pattern (check it out using zPatterns).",sep=""))
   }
   else{
     if (any(checkNumZerosCol/nrow(X) > z.warning)) {
