@@ -23,9 +23,7 @@ Number of random draws from the inverse KM ECDF generated to produce an averaged
 }
   \item{n.knots}{Integer or function giving the number of knots used for fitting a cubic smoothing spline to the KM ECDF (see \code{\link{smooth.spline}} for default value). It allows for a vector or list of settings per column of \code{X}.
 }
-  \item{z.warning}{
-Print a warning message if the proportion of zeros/unobserved values in any column or row exceeds a given threshold (default \code{z.warning=0.8}).
-}
+ \item{z.warning}{Threshold used to delete individual rows or columns including an excess of zeros/unobserved values (to be specify in proportions, default \code{z.warning=0.8}).}
 }
 \details{
 This function imputes left-censored compositional values by averaging (geometric mean) n random draws (\code{n.draws} argument) from a cubic smoothing spline curve fitting the inverse KM ECDF below the corresponding limit of detection or censoring threshold. It then applies a multiplicative adjustment to preserve the multivariate compositional properties of the samples. It allows for either single (\code{vector} form) or multiple (\code{matrix} form, same size as \code{X}) limits of detection by component. Although note that it is equivalent to simple substitution by the limit of detection for singly censored components. Any threshold value can be set for non-censored elements (e.g. use 0 if no threshold for a particular column or element of the data matrix).
@@ -35,9 +33,8 @@ It produces an imputed data set on the same scale as the input data set. If \cod
 The level of smoothing of the estimated spline can be controlled by the \code{n.knots} argument. The function \code{\link{splineKM}} can assist in choosing a finer value, although the default setting works generally well.
 }
 \value{
-A \code{\link{data.frame}} object containing the imputed compositional data set in the same scale as the original.
+A \code{\link{data.frame}} object containing the imputed compositional data set expressed in the original scale.
 }
-
 \references{
 Palarea-Albaladejo J. and Martin-Fernandez JA. zCompositions -- R package
 for multivariate imputation of left-censored data under a compositional approach.

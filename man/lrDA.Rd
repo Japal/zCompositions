@@ -37,9 +37,7 @@ Number of multiple imputations (default = 1).
 Logical value. If \code{m>1} creates a list with \code{m} imputed data matrices. (\code{store.mi=FALSE}, default).
 }
   \item{closure}{Closure value used to add a residual part if needed when multiplicative simple replacement is used to initiate the DA algorithm, either directly (\code{ini.cov="multRepl"}) or as part of lrEM estimation (\code{ini.cov="lrEM"}) (see \code{?multRepl}).}
-  \item{z.warning}{
-Print a warning message if the proportion of zeros/unobserved values in any column or row exceeds a given threshold (default \code{z.warning=0.8}).
-}
+ \item{z.warning}{Threshold used to delete individual rows or columns including an excess of zeros/unobserved values (to be specify in proportions, default \code{z.warning=0.8}).}
   \item{delta}{This argument has been deprecated and replaced by \code{frac} (see package's NEWS for details).}
 }
 
@@ -62,13 +60,12 @@ In the case of censoring patterns involving samples containing only one observed
 This function can be employed to impute missing data by setting \code{imp.missing = TRUE}. For this case, the argument \code{label} indicates the unique label for missing values. The argument \code{dl} is ignored as it is meaningless here.
 }
 \value{
-A \code{\link{data.frame}} object containing the imputed compositional data set in the same scale as the original, or a \code{\link{list}} of imputed data sets if multiple imputation is carried out (\code{m>1}) and \code{store.mi=TRUE}.
+A \code{\link{data.frame}} object containing the imputed compositional data set expressed in the original scale, or a \code{\link{list}} of imputed data sets if multiple imputation is carried out (\code{m>1}) and \code{store.mi=TRUE}.
 }
 \references{
 Palarea-Albaladejo J, Martin-Fernandez JA, Olea, RA. A bootstrap estimation scheme for chemical compositional data with nondetects. Journal of Chemometrics 2014; 28: 585-599.
 
-Palarea-Albaladejo J. and Martin-Fernandez JA. zCompositions -- R package for multivariate imputation of
-left-censored data under a compositional approach. Chemometrics and Intelligence Laboratory Systems 2015; 143: 85-96.
+Palarea-Albaladejo J. and Martin-Fernandez JA. zCompositions -- R package for multivariate imputation of left-censored data under a compositional approach. Chemometrics and Intelligence Laboratory Systems 2015; 143: 85-96.
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~

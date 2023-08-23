@@ -41,9 +41,7 @@ lrSVDplus(X, dl = NULL, frac = 0.65,
 
 \item{max.iter}{Maximum number of iterations for the algorithm (default = 1000).}
 
-  \item{z.warning}{
-Print a warning message if the proportion of zeros/unobserved values in any column or row exceeds a given threshold (default \code{z.warning=0.8}).
-}
+ \item{z.warning}{Threshold used to delete individual rows or columns including an excess of zeros/unobserved values (to be specify in proportions, default \code{z.warning=0.8}).}
 
 \item{...}{Further arguments.}
 }
@@ -52,13 +50,15 @@ Print a warning message if the proportion of zeros/unobserved values in any colu
 The procedure starts with an initial imputation of zeros (using simple replacement with \code{frac*dl}) and missing values (using geometric mean imputation from observed data). Subsequently, the iterative algorithm is run until convergence (see \code{?lrSVD} for more details).
 }
 \value{
-A \code{\link{data.frame}} object containing the imputed compositional data set in the same scale as the original.
+A \code{\link{data.frame}} object containing the imputed compositional data set expressed in the original scale.
 }
-
+\references{
+Palarea-Albaladejo, J, Antoni Martín-Fernández, J, Ruiz-Gazen, A, Thomas-Agnan, C. lrSVD: An efficient imputation algorithm for incomplete high-throughput compositional data. Journal of Chemometrics 2022; 36: e3459.
+}
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-\code{\link{lrSVD}}
+\code{\link{zPatterns}}, \code{\link{lrSVD}}, \code{\link{lrDA}}, \code{\link{multRepl}}, \code{\link{multLN}}, \code{\link{multKM}}, \code{\link{cmultRepl}}, \code{\link{lrSVD}}
 }
 \examples{
 # Data set closed to 100 (percentages, common dl = 1%)

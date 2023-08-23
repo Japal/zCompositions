@@ -25,9 +25,7 @@ Numeric vector or matrix of detection limits/thresholds. These must be given on 
 Fraction of the detection limit/threshold used for imputation (default = 0.65, expressed as a proportion).
 }
   \item{closure}{Closure value used to add a residual part for imputation (see below).}
-  \item{z.warning}{
-Print a warning message if the proportion of zeros/unobserved values in any column or row exceeds a given threshold (default \code{z.warning=0.8}).
-}
+  \item{z.warning}{Threshold used to delete individual rows or columns including an excess of zeros/unobserved values (to be specify in proportions, default \code{z.warning=0.8}).}
   \item{delta}{This argument has been deprecated and replaced by \code{frac} (see package's NEWS for details).}
 }
 
@@ -40,12 +38,12 @@ See \code{?multRepl} for more details.
 
 }
 \value{
-A \code{\link{data.frame}} object containing the imputed compositional data set in the same scale as the original.
+A \code{\link{data.frame}} object containing the imputed compositional data set expressed in the original scale.
 }
 \references{
 Martin-Fernandez JA, Barcelo-Vidal C, Pawlowsky-Glahn V. Dealing with zeros and missing values in compositional data sets using nonparametric imputation. Mathematical Geology 2003; 35: 253-78.
 
-Palarea-Albaladejo J, Martin-Fernandez JA. Values below detection limit in compositional chemical data. Analytica Chimica Acta 2013; 764: 32-43. DOI: http://dx.doi.org/10.1016/j.aca.2012.12.029.
+Palarea-Albaladejo J, Martin-Fernandez JA. Values below detection limit in compositional chemical data. Analytica Chimica Acta 2013; 764: 32-43.
 
 Palarea-Albaladejo J. and Martin-Fernandez JA. zCompositions -- R package for multivariate imputation of
 left-censored data under a compositional approach. Chemometrics and Intelligence Laboratory Systems 2015; 143: 85-96.
@@ -54,7 +52,7 @@ left-censored data under a compositional approach. Chemometrics and Intelligence
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-\code{\link{multRepl}}, \code{\link{lrEMplus}}
+\code{\link{multRepl}}, \code{\link{lrEMplus}}, \code{\link{lrSVDplus}}
 }
 \examples{
 # Data set closed to 100 (percentages, common dl = 1%)

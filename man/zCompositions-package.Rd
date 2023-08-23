@@ -1,6 +1,5 @@
 \name{zCompositions}
-\alias{zCompositions}
-\alias{zCompositions}
+\alias{zCompositions-package}
 \docType{package}
 \title{
 Treatment of zeros and nondetects in compositional data sets
@@ -12,8 +11,8 @@ Following compositional data analysis principles, this package provides simple a
 \tabular{ll}{
 Package: \tab zCompositions\cr
 Type: \tab Package\cr
-Version: \tab 1.4.0-1\cr
-Date: \tab 2022-03-26\cr
+Version: \tab 1.4.1\cr
+Date: \tab 2023-08-23\cr
 License: \tab GPL (>= 2)\cr
 }
 }
@@ -40,12 +39,16 @@ Palarea-Albaladejo, J., Martin-Fernandez J.A., Olea, R.A., 2014. A bootstrap est
 Palarea-Albaladejo J. and Martin-Fernandez J.A., 2015. zCompositions -- R package
 for multivariate imputation of left-censored data under a compositional approach.
 Chemometrics and Intelligent Laboratory Systems 143: 85-96.
+
+Palarea-Albaladejo, J, Antoni Martín-Fernández, J, Ruiz-Gazen, A, Thomas-Agnan, C., 2022. lrSVD: An efficient imputation algorithm for incomplete high-throughput compositional data. Journal of Chemometrics 36: e3459.
 }
 \keyword{compositional data}
 \seealso{
 Aitchison, J., 1986. The Statistical Analysis of Compositional Data. Monographs on Statistics and Applied Probability. Chapman and Hall Ltd., London, UK (re-edited in 2003 with additional material).
 
 Filzmoser, P.,  Hron, K.,  Templ, M., 2018. Applied Compositional Data Analysis. With Worked Examples in R. Springer, Switzerland.
+
+Filzmoser P., Hron K., Martín-Fernández J.A., Palarea-Albaladejo J. (eds.), 2021. Advances in Compositional Data Analysis. Springer, Cham.
 
 Pawlowsky-Glahn, V., Buccianti, A. (Eds.), 2011. Compositional Data Analysis: Theory and Applications. John Wiley & Sons, Ltd., Chichester,UK.
 

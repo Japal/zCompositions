@@ -42,13 +42,10 @@ lrSVD(X, label = NULL, dl = NULL, frac = 0.65, ncp = 2,
 
 \item{max.iter}{Maximum number of iterations for the algorithm (default = 1000).}
 
-\item{z.warning}{Print a warning message if the proportion of zeros/unobserved values in any column or row exceeds a given threshold (default \code{z.warning=0.8}).}
+\item{z.warning}{Threshold used to delete individual rows or columns including an excess of zeros/unobserved values (to be specify in proportions, default \code{z.warning=0.8}).}
 
 \item{...}{Further arguments.}
 
-}
-\value{
-A \code{\link{data.frame}} object containing the imputed compositional data set in the same scale as the original.
 }
 \details{
 This function implements an efficient imputation algorithm particularly suitable for the case of continuous high-dimensional and wide compositional data sets (more columns than rows), although it is equally applicable to regular data sets. It is based on a low-rank representation of the data set by a principal components (PC) model as derived by singular value decomposition (SVD) of the data matrix, extending recent work on principal component imputation and matrix completion methods to the case of censored compositional data (the code builds on the function \code{imputePCA}; see \code{missMDA} package for more details). A preliminary imputation by multiplicative replacement (see \code{\link{multRepl}}) is conducted to initiate the iterative algorithm in log-ratio coordinates. Two steps, estimation of latent PC model loadings and imputation of empty data matrix cells using the model, are iteratively repeated until convergence. Parameter fitting in this context is performed by a regularisation method (ridge regression in this case) or by the expectation-maximisation (EM) algorithm. Regularization has been shown generally preferable and it is set as default method (note the regularisation parameter \code{coeff.ridge} set to 1 by default. If it is < 1 the result is closer to EM estimation, whereas for values > 1 it is closer to mean estimation).
@@ -58,6 +55,15 @@ An imputed data set is produced on the same scale as the input data set. If \cod
 \emph{Missing data imputation}
 
 When \code{imp.missing = TRUE}, unobserved values are treated as general missing data. For this case, the argument \code{label} indicates the unique label for missing values and the argument \code{dl} is ignored.
+}
+\value{
+A \code{\link{data.frame}} object containing the imputed compositional data set expressed in the original scale.
+}
+\references{
+Palarea-Albaladejo, J, Antoni Martín-Fernández, J, Ruiz-Gazen, A, Thomas-Agnan, C. lrSVD: An efficient imputation algorithm for incomplete high-throughput compositional data. Journal of Chemometrics 2022; 36: e3459.
+}
+\seealso{
+\code{\link{zPatterns}}, \code{\link{lrSVD}}, \code{\link{lrDA}}, \code{\link{multRepl}}, \code{\link{multLN}}, \code{\link{multKM}}, \code{\link{cmultRepl}}, \code{\link{lrSVDplus}}
 }
 \examples{
  # Data set closed to 100 (percentages, common dl = 1\%)
@@ -95,5 +101,3 @@ When \code{imp.missing = TRUE}, unobserved values are treated as general missing
  # Treating zeros as general missing data for illustration purposes only
  LPdata2_miss <- lrSVD(LPdata2,label=0,imp.missing=TRUE)
 }
-\seealso{
-\code{\link{zPatterns}}, \code{\link{lrEM}}, \code{\link{lrDA}}, \code{\link{multRepl}}, \code{\link{multLN}}, \code{\link{multKM}}}

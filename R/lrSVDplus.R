@@ -344,27 +344,19 @@ lrSVDplus <- function(X, dl = NULL, frac = 0.65, ncp = 2, beta = 0.5, method = c
   zeroRaw <- which(X == 0) # zeros
   observedRaw <- which((!is.na(X)) & (!(X == 0))) # observed
   
-  # Number of zeros or missing per column/row for warning
+  # Number of zeros or missing per column for warning
   checkNumZerosCol <- apply(X,2,function(x) sum(is.na(x) | (x==0)))
-  if (any(checkNumZerosCol/nrow(X) == 1)) {
-    stop(paste("Column(s) containing all zeros/unobserved values were found (check it out using zPatterns).",sep=""))
-  }
-  else{
-    if (any(checkNumZerosCol/nrow(X) > z.warning)) {
-      warning(paste("Column(s) containing more than ",z.warning*100,"% zeros/unobserved values were found (check it out using zPatterns).
-                    (You can use the z.warning argument to modify the warning threshold).",sep=""))
-    }
+  if (any(checkNumZerosCol/nrow(X) >= z.warning)) {
+    cases <- which(checkNumZerosCol/nrow(X) >= z.warning)
+    X <- X[,-cases]
+    warning(paste("Column ",cases," containing more than ",z.warning*100,"% zeros/unobserved values was deleted (pre-check out using function zPatterns/modify threshold using argument z.warning).\n",sep=""))
   }
   
   checkNumZerosRow <- apply(X,1,function(x) sum(is.na(x) | (x==0)))
-  if (any(checkNumZerosRow/ncol(X) == 1)) {
-    stop(paste("Row(s) containing all zeros/unobserved values were found (check it out using zPatterns).",sep=""))
-  }
-  else{
-    if (any(checkNumZerosRow/ncol(X) > z.warning)) {
-      warning(paste("Row(s) containing more than ",z.warning*100,"% zeros/unobserved values were found (check it out using zPatterns).
-                  (You can use the z.warning argument to modify the warning threshold).",sep=""))
-    }
+  if (any(checkNumZerosRow/ncol(X) >= z.warning)) {
+    cases <- which(checkNumZerosRow/ncol(X) >= z.warning)
+    X <- X[-cases,]
+    warning(paste("Row ",cases," containing more than ",z.warning*100,"% zeros/unobserved values was deleted (pre-check out using function zPatterns/modify threshold using argument z.warning).\n",sep=""))
   }
   
   

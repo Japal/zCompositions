@@ -39,9 +39,7 @@ If \code{method="user"}, user-specified \emph{t} hyper-parameter of the Dirichle
 }
   \item{s}{If \code{method="user"}, user-specified \emph{s} hyper-parameter of the Dirichlet prior distribution for each count vector (row) in \code{X}. It must be a vector of length equal to the number of rows of \code{X}.
 }
-  \item{z.warning}{
-Print a warning message if the proportion of zeros/unobserved values in any column or row exceeds a given threshold (default \code{z.warning=0.8}).
-}
+ \item{z.warning}{Threshold used to delete individual rows or columns including an excess of zeros/unobserved values (to be specify in proportions, default \code{z.warning=0.8}).}
   \item{suppress.print}{
 Suppress printed feedback (\code{suppress.print=FALSE}, default).
 }
@@ -59,7 +57,7 @@ By default (\code{output="prop"}) the function returns an imputed data set (\cod
 When \code{adjust=TRUE} and \code{verbose=TRUE}, the number of times, if any, an imputed proportion was adjusted to fall below the minimum estimated multinomial probability is printed.
 }
 \references{
-Martin-Fernandez, J.A., Hron, K., Templ, M., Filzmoser, P., Palarea-Albaladejo, J. Bayesian-multiplicative treatment of count zeros in compositional data sets. Statistical Modelling 2015; 15 (2): 134-158.
+Martin-Fernandez, J.A., Hron, K., Templ, M., Filzmoser, P., Palarea-Albaladejo, J. Bayesian-multiplicative treatment of count zeros in compositional data sets. Statistical Modelling 2015; 15: 134-158.
 
 Palarea-Albaladejo J. and Martin-Fernandez JA. zCompositions -- R package for multivariate imputation of
 left-censored data under a compositional approach. Chemometrics and Intelligence Laboratory Systems 2015; 143: 85-96.

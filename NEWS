@@ -1,6 +1,14 @@
 RELEASE HISTORY OF THE "zCompositions" PACKAGE
 ==============================================
 
+CHANGES IN zCompositions VERSION 1.4.1 [2023-08]:
+----------------------------------------------------
+
+MODIFICATIONS
+
+* Handling excess of zeros: columns/rows individually exceeding the given zero/unobserved values proportion threshold are now automatically deleted. A warning message details the particular columns/rows involved.
+* Minor bugs fixed and edits to the documentation.
+
 CHANGES IN zCompositions VERSION 1.4.0-1 [2022-03]:
 ----------------------------------------------------
 
