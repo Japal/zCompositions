@@ -8,7 +8,7 @@ This function implements non-parametric multiplicative simple imputation of left
 }
 \usage{
 multRepl(X, label = NULL, dl = NULL, frac = 0.65, imp.missing = FALSE, closure = NULL,
-            z.warning=0.8, delta = NULL)
+            z.warning=0.8, z.delete = TRUE, delta = NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -17,14 +17,15 @@ Compositional vector (\code{numeric} class) or data set (\code{\link{matrix}} or
 }
   \item{label}{Unique label (\code{\link{numeric}} or \code{\link{character}}) used to denote zeros/unobserved values in \code{X}.}
   \item{dl}{
-Numeric vector or matrix of detection limits/thresholds. These must be given on the same scale as \code{X}.
+Numeric vector or matrix of detection limits/thresholds. These must be given on the same scale as \code{X}. If \code{NULL} the column minima are used as thresholds.
 }
   \item{frac}{
 Fraction of the detection limit/threshold used for imputation (default = 0.65, expressed as a proportion).
 }
  \item{imp.missing}{If \code{TRUE} then unobserved values identified by \code{label} are treated as missing data (default = \code{FALSE}).}
   \item{closure}{Closure value used to add a residual part for imputation (see below).}
- \item{z.warning}{Threshold used to delete individual rows or columns including an excess of zeros/unobserved values (to be specify in proportions, default \code{z.warning=0.8}).}
+ \item{z.warning}{Threshold used to identify individual rows or columns including an excess of zeros/unobserved values (to be specify in proportions, default \code{z.warning=0.8}).}
+  \item{z.delete}{Logical value. If set to \code{TRUE}, rows/columns identified by \code{z.warning} are omitted in the imputed data set. Otherwise, the function stops in error when rows/columns are identified by \code{z.warning} (default \code{z.delete=TRUE}).}
   \item{delta}{This argument has been deprecated and replaced by \code{frac} (see package's NEWS for details).}
 }
 \details{

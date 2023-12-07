@@ -14,7 +14,7 @@ lrEMplus(X, dl = NULL, rob = FALSE,
             ini.cov = c("complete.obs", "multRepl"), frac = 0.65,
             tolerance = 0.0001, max.iter = 50, rlm.maxit = 150,
             suppress.print = FALSE, closure = NULL,
-            z.warning=0.8, delta = NULL)
+            z.warning = 0.8, z.delete = TRUE, delta = NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -22,7 +22,7 @@ lrEMplus(X, dl = NULL, rob = FALSE,
 Compositional data set (\code{\link{matrix}} or \code{\link{data.frame}} class).
 }
   \item{dl}{
-Numeric vector or matrix of detection limits/thresholds. These must be given on the same scale as \code{X}.
+Numeric vector or matrix of detection limits/thresholds. These must be given on the same scale as \code{X}. If \code{NULL} the column minima are used as thresholds.
 }
   \item{rob}{
 Logical value. \code{FALSE} provides maximum-likelihood estimates of model parameters (default), \code{TRUE} provides robust parameter estimates.
@@ -42,7 +42,8 @@ If \code{rob=TRUE}, maximum number of iterations for the embedded robust regress
 Suppress printed feedback (\code{suppress.print = FALSE}, default).
 }
   \item{closure}{Closure value used to add a residual part if needed when \code{ini.cov="multRepl"} is used (see \code{?multRepl}).}
- \item{z.warning}{Threshold used to delete individual rows or columns including an excess of zeros/unobserved values (to be specify in proportions, default \code{z.warning=0.8}).}
+ \item{z.warning}{Threshold used to identify individual rows or columns including an excess of zeros/unobserved values (to be specify in proportions, default \code{z.warning=0.8}).}
+  \item{z.delete}{Logical value. If set to \code{TRUE}, rows/columns identified by \code{z.warning} are omitted in the imputed data set. Otherwise, the function stops in error when rows/columns are identified by \code{z.warning} (default \code{z.delete=TRUE}).}
   \item{delta}{This argument has been deprecated and replaced by \code{frac} (see package's NEWS for details).}
 }
 

@@ -8,7 +8,8 @@ Multiplicative Kaplan-Meier smoothing spline (KMSS) replacement
 This function implements non-parametric multiplicative KMSS imputation of left-censored values (e.g. values below detection limit, rounded zeros) in compositional data sets. It is based on simulation from a smoothing spline fitted to the Kaplan-Meier (KM) estimate of the empirical cumulative distribution function (ECDF) of the data.
 }
 \usage{
-multKM(X, label = NULL, dl = NULL, n.draws = 1000, n.knots = NULL, z.warning = 0.8)
+multKM(X, label = NULL, dl = NULL, n.draws = 1000, n.knots = NULL,
+          z.warning = 0.8, z.delete = TRUE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -16,14 +17,15 @@ multKM(X, label = NULL, dl = NULL, n.draws = 1000, n.knots = NULL, z.warning = 0
 }
   \item{label}{Unique label (\code{\link{numeric}} or \code{\link{character}}) used to denote zeros/unobserved left-censored values in \code{X}.}
   \item{dl}{
-Numeric vector or matrix of detection limits/thresholds. These must be given on the same scale as \code{X}.
+Numeric vector or matrix of detection limits/thresholds. These must be given on the same scale as \code{X}. If \code{NULL} the column minima are used as thresholds.
 }
   \item{n.draws}{
 Number of random draws from the inverse KM ECDF generated to produce an averaged imputed value (\code{n.draws=1000}, default).
 }
   \item{n.knots}{Integer or function giving the number of knots used for fitting a cubic smoothing spline to the KM ECDF (see \code{\link{smooth.spline}} for default value). It allows for a vector or list of settings per column of \code{X}.
 }
- \item{z.warning}{Threshold used to delete individual rows or columns including an excess of zeros/unobserved values (to be specify in proportions, default \code{z.warning=0.8}).}
+ \item{z.warning}{Threshold used to identify individual rows or columns including an excess of zeros/unobserved values (to be specify in proportions, default \code{z.warning=0.8}).}
+  \item{z.delete}{Logical value. If set to \code{TRUE}, rows/columns identified by \code{z.warning} are omitted in the imputed data set. Otherwise, the function stops in error when rows/columns are identified by \code{z.warning} (default \code{z.delete=TRUE}).}
 }
 \details{
 This function imputes left-censored compositional values by averaging (geometric mean) n random draws (\code{n.draws} argument) from a cubic smoothing spline curve fitting the inverse KM ECDF below the corresponding limit of detection or censoring threshold. It then applies a multiplicative adjustment to preserve the multivariate compositional properties of the samples. It allows for either single (\code{vector} form) or multiple (\code{matrix} form, same size as \code{X}) limits of detection by component. Although note that it is equivalent to simple substitution by the limit of detection for singly censored components. Any threshold value can be set for non-censored elements (e.g. use 0 if no threshold for a particular column or element of the data matrix).

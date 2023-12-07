@@ -3,7 +3,7 @@
 \title{Log-ratio SVD algorithm}
 \description{
 This function implements an iterative algorithm to impute left-censored data (e.g. values below detection limit,
-rounded zeros) based on the singular value decomposition (SVD) of a compositional data set.
+rounded zeros) based on the singular value decomposition (SVD) of a compositional data set. It is particularly indicated for the case in which the data contain more variables than observations.
 
 This function can be also used to impute missing data instead by setting \code{imp.missing = TRUE} (see \code{\link{lrSVDplus}} to treat censored and missing data simultaneously).
 }
@@ -11,14 +11,15 @@ This function can be also used to impute missing data instead by setting \code{i
 lrSVD(X, label = NULL, dl = NULL, frac = 0.65, ncp = 2, 
          imp.missing=FALSE, beta = 0.5, method = c("ridge", "EM"),
          row.w = NULL, coeff.ridge = 1, threshold = 1e-04, seed = NULL,
-         nb.init = 1, max.iter = 1000, z.warning = 0.8, ...)
+         nb.init = 1, max.iter = 1000, z.warning = 0.8, z.delete = TRUE,
+         ...)
 }
 \arguments{
 \item{X}{Compositional data set (\code{\link{matrix}} or \code{\link{data.frame}} class).}
 
 \item{label}{Unique label (\code{\link{numeric}} or \code{\link{character}}) used to denote zeros/unobserved values in \code{X}.}
 
-\item{dl}{Numeric vector or matrix of detection limits/thresholds. These must be given on the same scale as \code{X}.}
+\item{dl}{Numeric vector or matrix of detection limits/thresholds. These must be given on the same scale as \code{X}. If \code{NULL} the column minima are used as thresholds.}
 
 \item{frac}{Parameter for initial multiplicative simple replacement of left-censored data (see \code{\link{multRepl}}) (default = 0.65).}
 
@@ -42,13 +43,14 @@ lrSVD(X, label = NULL, dl = NULL, frac = 0.65, ncp = 2,
 
 \item{max.iter}{Maximum number of iterations for the algorithm (default = 1000).}
 
-\item{z.warning}{Threshold used to delete individual rows or columns including an excess of zeros/unobserved values (to be specify in proportions, default \code{z.warning=0.8}).}
+ \item{z.warning}{Threshold used to identify individual rows or columns including an excess of zeros/unobserved values (to be specify in proportions, default \code{z.warning=0.8}).}
+  \item{z.delete}{Logical value. If set to \code{TRUE}, rows/columns identified by \code{z.warning} are omitted in the imputed data set. Otherwise, the function stops in error when rows/columns are identified by \code{z.warning} (default \code{z.delete=TRUE}).}
 
 \item{...}{Further arguments.}
 
 }
 \details{
-This function implements an efficient imputation algorithm particularly suitable for the case of continuous high-dimensional and wide compositional data sets (more columns than rows), although it is equally applicable to regular data sets. It is based on a low-rank representation of the data set by a principal components (PC) model as derived by singular value decomposition (SVD) of the data matrix, extending recent work on principal component imputation and matrix completion methods to the case of censored compositional data (the code builds on the function \code{imputePCA}; see \code{missMDA} package for more details). A preliminary imputation by multiplicative replacement (see \code{\link{multRepl}}) is conducted to initiate the iterative algorithm in log-ratio coordinates. Two steps, estimation of latent PC model loadings and imputation of empty data matrix cells using the model, are iteratively repeated until convergence. Parameter fitting in this context is performed by a regularisation method (ridge regression in this case) or by the expectation-maximisation (EM) algorithm. Regularization has been shown generally preferable and it is set as default method (note the regularisation parameter \code{coeff.ridge} set to 1 by default. If it is < 1 the result is closer to EM estimation, whereas for values > 1 it is closer to mean estimation).
+This function implements an efficient imputation algorithm particularly suitable for the case of continuous high-dimensional (wide) compositional data sets (more columns than rows), although it is equally applicable to regular data sets. It is based on a low-rank representation of the data set by a principal components (PC) model as derived by singular value decomposition (SVD) of the data matrix, extending recent work on principal component imputation and matrix completion methods to the case of censored compositional data (the code builds on the function \code{imputePCA}; see \code{missMDA} package for more details). A preliminary imputation by multiplicative replacement (see \code{\link{multRepl}}) is conducted to initiate the iterative algorithm in log-ratio coordinates. Two steps, estimation of latent PC model loadings and imputation of empty data matrix cells using the model, are iteratively repeated until convergence. Parameter fitting in this context is performed by a regularisation method (ridge regression in this case) or by the expectation-maximisation (EM) algorithm. Regularization has been shown generally preferable and it is set as default method (note the regularisation parameter \code{coeff.ridge} set to 1 by default. If it is < 1 the result is closer to EM estimation, whereas for values > 1 it is closer to mean estimation).
 
 An imputed data set is produced on the same scale as the input data set. If \code{X} is not closed to a constant sum, then the results are adjusted to provide a compositionally equivalent data set, expressed in the original scale, which leaves the absolute values of the observed components unaltered.
 

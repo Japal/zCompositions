@@ -11,7 +11,7 @@ This function implements methods for imputing zeros in compositional count data 
 cmultRepl(X, label = 0,
              method = c("GBM","SQ","BL","CZM","user"), output = c("prop","p-counts"),
              frac = 0.65, threshold = 0.5, adjust = TRUE, t = NULL, s = NULL,
-             z.warning = 0.8, suppress.print = FALSE,
+             z.warning = 0.8, z.delete = TRUE, suppress.print = FALSE,
              delta = NULL)
 }
 %- maybe also 'usage' for other objects documented here.
@@ -39,7 +39,8 @@ If \code{method="user"}, user-specified \emph{t} hyper-parameter of the Dirichle
 }
   \item{s}{If \code{method="user"}, user-specified \emph{s} hyper-parameter of the Dirichlet prior distribution for each count vector (row) in \code{X}. It must be a vector of length equal to the number of rows of \code{X}.
 }
- \item{z.warning}{Threshold used to delete individual rows or columns including an excess of zeros/unobserved values (to be specify in proportions, default \code{z.warning=0.8}).}
+ \item{z.warning}{Threshold used to identify individual rows or columns including an excess of zeros/unobserved values (to be specify in proportions, default \code{z.warning=0.8}).}
+  \item{z.delete}{Logical value. If set to \code{TRUE}, rows/columns identified by \code{z.warning} are omitted in the imputed data set. Otherwise, the function stops in error when rows/columns are identified by \code{z.warning} (default \code{z.delete=TRUE}).}
   \item{suppress.print}{
 Suppress printed feedback (\code{suppress.print=FALSE}, default).
 }

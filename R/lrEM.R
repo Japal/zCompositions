@@ -1,14 +1,9 @@
 lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRepl"),frac=0.65,tolerance=0.0001,
          max.iter=50,rlm.maxit=150,imp.missing=FALSE,suppress.print=FALSE,
-         closure=NULL,z.warning=0.8,delta=NULL){
+         closure=NULL,z.warning=0.8,z.delete=TRUE,delta=NULL){
   
   if (any(X<0, na.rm=T)) stop("X contains negative values")
-  if (imp.missing==FALSE){
-    if (is.character(dl) || is.null(dl)) stop("dl must be a numeric vector or matrix")
-    if (is.vector(dl)) dl <- matrix(dl,nrow=1)
-    dl <- as.matrix(dl) # Avoids problems when dl might be multiple classes
-  }
-  
+
   if ((is.vector(X)) | (nrow(X)==1)) stop("X must be a data matrix")
   if (is.null(label)) stop("A value for label must be given")
   if (!is.na(label)){
@@ -20,6 +15,17 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
     if (any(X==0,na.rm=T)) stop("Zero values not labelled as censored or missing values were found in the data set")
     if (!any(is.na(X),na.rm=T)) stop(paste("Label",label,"was not found in the data set"))
   }
+  
+  if (imp.missing==FALSE){
+    if (is.character(dl)) stop("dl must be a numeric vector or matrix")
+    if (is.null(dl)){ # If dl not given use min per column
+      dl <- apply(X,2, function(x) min(x[x!=label]))
+      warning("No dl vector or matrix provided. The minimum observed values for each column used as detection limits.")
+    }
+    if (is.vector(dl)) dl <- matrix(dl,nrow=1)
+    dl <- as.matrix(dl) # Avoids problems when dl might be multiple classes
+  }
+  
   if (imp.missing==FALSE){
     if (ncol(dl)!=ncol(X)) stop("The number of columns in X and dl do not agree")
     if ((nrow(dl)>1) & (nrow(dl)!=nrow(X))) stop("The number of rows in X and dl do not agree")
@@ -133,6 +139,7 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
   
   X <- as.data.frame(X,stringsAsFactors=TRUE)
   nn <- nrow(X); D <- ncol(X)
+  if (nn <= D) stop("The lrEM algorithm works on regular data sets (no. rows > no. columns). You can consider lrSVD for wide dat sets.")
   
   X[X==label] <- NA
   X <- as.data.frame(apply(X,2,as.numeric),stringsAsFactors=TRUE)
@@ -141,15 +148,29 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
   checkNumZerosCol <- apply(X,2,function(x) sum(is.na(x)))
   if (any(checkNumZerosCol/nrow(X) >= z.warning)) {
     cases <- which(checkNumZerosCol/nrow(X) >= z.warning)
-    X <- X[,-cases]
-    warning(paste("Column ",cases," containing more than ",z.warning*100,"% zeros/unobserved values was deleted (pre-check out using function zPatterns/modify threshold using argument z.warning).\n",sep=""))
+    if (z.delete == TRUE){
+      X <- X[,-cases]
+      action <- "deleted"
+      warning(paste("Column no. ",cases," containing >",z.warning*100,"% zeros/unobserved values ",action," (can modify threshold using argument z.warning).\n",sep=""))
+    }
+    else{
+      action <- "found"
+      stop(paste("Column no. ",cases," containing >",z.warning*100,"% zeros/unobserved values ",action," (can modify threshold using argument z.warning. Check out with zPatterns()).\n",sep=""))
+    }
   }
   
   checkNumZerosRow <- apply(X,1,function(x) sum(is.na(x)))
   if (any(checkNumZerosRow/ncol(X) >= z.warning)) {
     cases <- which(checkNumZerosRow/ncol(X) >= z.warning)
-    X <- X[-cases,]
-    warning(paste("Row ",cases," containing more than ",z.warning*100,"% zeros/unobserved values was deleted (pre-check out using function zPatterns/modify threshold using argument z.warning).\n",sep=""))
+    if (z.delete == TRUE){
+      X <- X[,-cases]
+      action <- "deleted"
+      warning(paste("Column no. ",cases," containing >",z.warning*100,"% zeros/unobserved values ",action," (can modify threshold using argument z.warning).\n",sep=""))
+    }
+    else{
+      action <- "found"
+      stop(paste("Column no. ",cases," containing >",z.warning*100,"% zeros/unobserved values ",action," (can modify threshold using argument z.warning. Check out with zPatterns()).\n",sep=""))
+    }
   }
   
   if (imp.missing==FALSE) {if (nrow(dl)==1) dl <- matrix(rep(1,nn),ncol=1)%*%dl}

@@ -13,13 +13,14 @@ Note: zeros and missing data must be labelled using 0 and \code{NA} respectively
 lrSVDplus(X, dl = NULL, frac = 0.65,
              ncp = 2, beta = 0.5, method = c("ridge", "EM"), row.w = NULL,
              coeff.ridge = 1, threshold = 1e-04, seed = NULL, nb.init = 1,
-             max.iter = 1000, z.warning = 0.8, ...)
+             max.iter = 1000, z.warning = 0.8, z.delete = TRUE,
+             ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
 \item{X}{Compositional data set (\code{\link{matrix}} or \code{\link{data.frame}} class).}
 
-\item{dl}{Numeric vector or matrix of detection limits/thresholds. These must be given on the same scale as \code{X}.}
+\item{dl}{Numeric vector or matrix of detection limits/thresholds. These must be given on the same scale as \code{X}. If \code{NULL} the column minima are used as thresholds.}
 
 \item{frac}{Parameter for initial multiplicative simple replacement of left-censored data (see \code{\link{multRepl}}) (default = 0.65).}
 
@@ -41,7 +42,8 @@ lrSVDplus(X, dl = NULL, frac = 0.65,
 
 \item{max.iter}{Maximum number of iterations for the algorithm (default = 1000).}
 
- \item{z.warning}{Threshold used to delete individual rows or columns including an excess of zeros/unobserved values (to be specify in proportions, default \code{z.warning=0.8}).}
+ \item{z.warning}{Threshold used to identify individual rows or columns including an excess of zeros/unobserved values (to be specify in proportions, default \code{z.warning=0.8}).}
+  \item{z.delete}{Logical value. If set to \code{TRUE}, rows/columns identified by \code{z.warning} are omitted in the imputed data set. Otherwise, the function stops in error when rows/columns are identified by \code{z.warning} (default \code{z.delete=TRUE}).}
 
 \item{...}{Further arguments.}
 }

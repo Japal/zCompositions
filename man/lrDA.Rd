@@ -11,7 +11,7 @@ This function implements a simulation-based Data Augmentation (DA) algorithm to 
 lrDA(X, label = NULL, dl = NULL,
         ini.cov=c("lrEM","complete.obs","multRepl"), frac = 0.65,
         imp.missing = FALSE, n.iters = 1000, m = 1, store.mi = FALSE, closure = NULL,
-        z.warning = 0.8, delta = NULL)
+        z.warning = 0.8, z.delete = TRUE, delta = NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -20,7 +20,7 @@ Compositional data set (\code{\link{matrix}} or \code{\link{data.frame}} class).
 }
   \item{label}{Unique label (\code{\link{numeric}} or \code{\link{character}}) used to denote zeros/unobserved values in \code{X}.}
   \item{dl}{
-Numeric vector or matrix of detection limits/thresholds. These must be given on the same scale as \code{X}.
+Numeric vector or matrix of detection limits/thresholds. These must be given on the same scale as \code{X}. If \code{NULL} the column minima are used as thresholds.
 }
   \item{ini.cov}{Initial estimation of the log-ratio covariance matrix. It can be based on lrEM estimation (\code{"lrEM"}, default), complete observations (\code{"complete.obs"})  or multiplicative simple replacement (\code{"multRepl"}).}
   \item{frac}{
@@ -37,7 +37,8 @@ Number of multiple imputations (default = 1).
 Logical value. If \code{m>1} creates a list with \code{m} imputed data matrices. (\code{store.mi=FALSE}, default).
 }
   \item{closure}{Closure value used to add a residual part if needed when multiplicative simple replacement is used to initiate the DA algorithm, either directly (\code{ini.cov="multRepl"}) or as part of lrEM estimation (\code{ini.cov="lrEM"}) (see \code{?multRepl}).}
- \item{z.warning}{Threshold used to delete individual rows or columns including an excess of zeros/unobserved values (to be specify in proportions, default \code{z.warning=0.8}).}
+ \item{z.warning}{Threshold used to identify individual rows or columns including an excess of zeros/unobserved values (to be specify in proportions, default \code{z.warning=0.8}).}
+  \item{z.delete}{Logical value. If set to \code{TRUE}, rows/columns identified by \code{z.warning} are omitted in the imputed data set. Otherwise, the function stops in error when rows/columns are identified by \code{z.warning} (default \code{z.delete=TRUE}).}
   \item{delta}{This argument has been deprecated and replaced by \code{frac} (see package's NEWS for details).}
 }
 
@@ -47,7 +48,7 @@ After convergence of the Markov chain Monte Carlo (MCMC) iterative process to it
 
 It produces imputed data sets on the same scale as the input data set. If \code{X} is not closed to a constant sum, then the results are adjusted to provide a compositionally equivalent data set, expressed in the original scale, which leaves the absolute values of the observed components unaltered.
 
-The common conjugate normal inverted-Wishart distribution with non-informative Jeffreys prior has been assumed for the model parameters in the coordinates space. Under this setting, convergence is expected to be fast (\code{n.iters} set to 1000 by default). Besides, considering EM parameter estimates as initial point for the DA algorithm (\code{ini.cov="lrEM"}) assures faster convergence by starting near the centre of the posterior distribution.
+The common conjugate normal inverted-Wishart distribution with non-informative Jeffreys prior has been assumed for the model parameters in the coordinates space. Under this setting, convergence is expected to be fast (\code{n.iters} set to 1000 by default). Besides, considering EM parameter estimates as initial point for the DA algorithm (\code{ini.cov="lrEM"}) assures faster convergence by starting near the centre of the posterior distribution. Note that the estimation of the covariance matrix requires a regular data set, i.e. having more observations than variables in the data.
 
 By setting \code{m} greater than 1, the procedure also allows for multiple imputations of the censored values drawn at regular intervals after convergence. In this case, in addition to the burn-in period for convergence, \code{n.iters} determines the gap, large enough to prevent from correlated values, between successive imputations. The total number of iterations is then \code{n.iters*m}. By default, a single imputed data set results from averaging the \code{m} imputations in the space of coordinates. If \code{store.mi=TRUE}, a list with \code{m} imputed data sets is generated instead.
 

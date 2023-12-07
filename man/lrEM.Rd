@@ -14,7 +14,7 @@ lrEM(X, label = NULL, dl = NULL, rob = FALSE,
         ini.cov = c("complete.obs", "multRepl"), frac = 0.65,
         tolerance = 0.0001, max.iter = 50, rlm.maxit = 150,
         imp.missing = FALSE, suppress.print = FALSE, closure = NULL,
-        z.warning = 0.8, delta = NULL)
+        z.warning = 0.8, z.delete = TRUE, delta = NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -23,7 +23,7 @@ Compositional data set (\code{\link{matrix}} or \code{\link{data.frame}} class).
 }
   \item{label}{Unique label (\code{\link{numeric}} or \code{\link{character}}) used to denote zeros/unobserved values in \code{X}.}
   \item{dl}{
-Numeric vector or matrix of detection limits/thresholds. These must be given on the same scale as \code{X}.
+Numeric vector or matrix of detection limits/thresholds. These must be given on the same scale as \code{X}. If \code{NULL} the column minima are used as thresholds. 
 }
   \item{rob}{
 Logical value. \code{FALSE} provides maximum-likelihood estimates of model parameters (default), \code{TRUE} provides robust parameter estimates.
@@ -44,7 +44,8 @@ If \code{rob=TRUE}, maximum number of iterations for the embedded robust regress
 Suppress printed feedback (\code{suppress.print = FALSE}, default).
 }
   \item{closure}{Closure value used to add a residual part if needed when \code{ini.cov="multRepl"} is used (see \code{?multRepl}).}
-\item{z.warning}{Threshold used to delete individual rows or columns including an excess of zeros/unobserved values (to be specify in proportions, default \code{z.warning=0.8}).}
+ \item{z.warning}{Threshold used to identify individual rows or columns including an excess of zeros/unobserved values (to be specify in proportions, default \code{z.warning=0.8}).}
+  \item{z.delete}{Logical value. If set to \code{TRUE}, rows/columns identified by \code{z.warning} are omitted in the imputed data set. Otherwise, the function stops in error when rows/columns are identified by \code{z.warning} (default \code{z.delete=TRUE}).}
   \item{delta}{This argument has been deprecated and replaced by \code{frac} (see package's NEWS for details).}
 }
 
@@ -54,7 +55,7 @@ After convergence, this function imputes unobserved compositional data by their 
 
 It produces an imputed data set on the same scale as the input data set. If \code{X} is not closed to a constant sum, then the results are adjusted to provide a compositionally equivalent data set, expressed in the original scale, which leaves the absolute values of the observed components unaltered.
 
-Under maximum likelihood (ML) estimation (default, \code{rob=FALSE}), a correction factor based on the residual covariance obtained by censored regression is applied for the correct estimation of the conditional covariance matrix in the maximisation step of the EM algorithm. This is required in order to obtain the conditional expectation of the sum of cross-products between two components in the case that both involve imputed values. Note that the procedure is based on the oblique additive log-ratio (alr) transformation to simplify calculations and alleviates computational burden. Nonetheless, the same results would be obtained using an isometric log-ratio transformation (ilr). Note also that alr requires at least one complete column. Otherwise, a preliminary imputation, e.g. by \code{\link{multRepl}} or \code{\link{multLN}}, of the most simplest censoring pattern may be enough. The argument \code{ini.cov} determines how the initial estimation of the log-ratio covariance matrix required to start the EM process is worked out.
+Under maximum likelihood (ML) estimation (default, \code{rob=FALSE}), a correction factor based on the residual covariance obtained by censored regression is applied for the correct estimation of the conditional covariance matrix in the maximisation step of the EM algorithm. This is required in order to obtain the conditional expectation of the sum of cross-products between two components in the case that both involve imputed values. Note that the procedure is based on the oblique additive log-ratio (alr) transformation to simplify calculations and alleviates computational burden. Nonetheless, the same results would be obtained using an isometric log-ratio transformation (ilr). Note also that alr requires at least one complete column. Otherwise, a preliminary imputation, e.g. by \code{\link{multRepl}} or \code{\link{multLN}}, of the most simplest censoring pattern may be enough. The argument \code{ini.cov} determines how the initial estimation of the log-ratio covariance matrix required to start the EM process is worked out. Note that the estimation of the covariance matrix, and hence the lrEM routine, requires a regular data set, i.e. having more observations than variables in the data.
 
 Under robust estimation (\code{rob=TRUE}), the algorithm requires ilr transformations in order to satisfy requirements for robust estimation methods (MM-estimation by default, see \code{rlm} function for more details). An initial estimation of nondetects is required to get the algorithm started. This can be based on either the subset of fully observed cases (\code{ini.cov="complete.obs"}) or a multiplicative simple replacement of all nondetects in the data set (\code{ini.cov="multRepl"}). Note that the robust regression method involved includes random elements which can, occasionally, give rise to \code{\link{NaN}} values getting the routine execution halted. If this happened, we suggest to simply re-run the function once again.
 

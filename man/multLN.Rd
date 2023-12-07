@@ -8,7 +8,8 @@ Multiplicative lognormal replacement
 This function implements model-based multiplicative lognormal imputation of left-censored values (e.g. values below detection limit, rounded zeros) in compositional data sets.
 }
 \usage{
-multLN(X, label = NULL, dl = NULL, rob = FALSE, random = FALSE, z.warning = 0.8)
+multLN(X, label = NULL, dl = NULL, rob = FALSE, random = FALSE,
+          z.warning = 0.8, z.delete = TRUE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -16,7 +17,7 @@ multLN(X, label = NULL, dl = NULL, rob = FALSE, random = FALSE, z.warning = 0.8)
 }
   \item{label}{Unique label (\code{\link{numeric}} or \code{\link{character}}) used to denote zeros/unobserved left-censored values in \code{X}.}
   \item{dl}{
-Numeric vector or matrix of detection limits/thresholds. These must be given on the same scale as \code{X}.
+Numeric vector or matrix of detection limits/thresholds. These must be given on the same scale as \code{X}. If \code{NULL} the column minima are used as thresholds.
 }
   \item{rob}{
 Logical value. \code{FALSE} provides maximum-likelihood estimates of model parameters (default), \code{TRUE} provides robust estimates (see \code{NADA} package for details).
@@ -24,7 +25,8 @@ Logical value. \code{FALSE} provides maximum-likelihood estimates of model param
   \item{random}{
 Logical value. Values imputed using either estimated geometric mean (\code{FALSE}, default) or random values (\code{TRUE}) below the limit of detection.
 }
- \item{z.warning}{Threshold used to delete individual rows or columns including an excess of zeros/unobserved values (to be specify in proportions, default \code{z.warning=0.8}).}
+ \item{z.warning}{Threshold used to identify individual rows or columns including an excess of zeros/unobserved values (to be specify in proportions, default \code{z.warning=0.8}).}
+  \item{z.delete}{Logical value. If set to \code{TRUE}, rows/columns identified by \code{z.warning} are omitted in the imputed data set. Otherwise, the function stops in error when rows/columns are identified by \code{z.warning} (default \code{z.delete=TRUE}).}
 }
 \details{
 By default, this function imputes left-censored compositional values by the estimated geometric mean of the values below the corresponding limit of detection or censoring threshold and applies a multiplicative adjustment to preserve the multivariate compositional properties of the samples. Alternatively, imputation can be carried out by random values below the limit of detection (\code{random = TRUE}) based on a normal distribution on the positive real line (see below).

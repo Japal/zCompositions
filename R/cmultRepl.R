@@ -1,6 +1,6 @@
 cmultRepl <- function(X,label=0,method=c("GBM","SQ","BL","CZM","user"),output=c("prop", "p-counts"),
                       frac=0.65,threshold=0.5,adjust=TRUE,t=NULL,s=NULL,z.warning=0.8,
-                      suppress.print=FALSE,delta=NULL)
+                      z.delete=TRUE,suppress.print=FALSE,delta=NULL)
 {
   
   if (any(X<0, na.rm=T)) stop("X contains negative values")
@@ -26,15 +26,29 @@ cmultRepl <- function(X,label=0,method=c("GBM","SQ","BL","CZM","user"),output=c(
   checkNumZerosCol <- apply(X,2,function(x) sum(is.na(x)))
   if (any(checkNumZerosCol/nrow(X) >= z.warning)) {
     cases <- which(checkNumZerosCol/nrow(X) >= z.warning)
-    X <- X[,-cases]
-    warning(paste("Column ",cases," containing more than ",z.warning*100,"% zeros/unobserved values was deleted (pre-check out using function zPatterns/modify threshold using argument z.warning).\n",sep=""))
+    if (z.delete == TRUE){
+      X <- X[,-cases]
+      action <- "deleted"
+      warning(paste("Column no. ",cases," containing >",z.warning*100,"% zeros/unobserved values ",action," (can modify threshold using argument z.warning).\n",sep=""))
+    }
+    else{
+      action <- "found"
+      stop(paste("Column no. ",cases," containing >",z.warning*100,"% zeros/unobserved values ",action," (can modify threshold using argument z.warning. Check out with zPatterns()).\n",sep=""))
+    }
   }
   
   checkNumZerosRow <- apply(X,1,function(x) sum(is.na(x)))
   if (any(checkNumZerosRow/ncol(X) >= z.warning)) {
     cases <- which(checkNumZerosRow/ncol(X) >= z.warning)
-    X <- X[-cases,]
-    warning(paste("Row ",cases," containing more than ",z.warning*100,"% zeros/unobserved values was deleted (pre-check out using function zPatterns/modify threshold using argument z.warning).\n",sep=""))
+    if (z.delete == TRUE){
+      X <- X[,-cases]
+      action <- "deleted"
+      warning(paste("Column no. ",cases," containing >",z.warning*100,"% zeros/unobserved values ",action," (can modify threshold using argument z.warning).\n",sep=""))
+    }
+    else{
+      action <- "found"
+      stop(paste("Column no. ",cases," containing >",z.warning*100,"% zeros/unobserved values ",action," (can modify threshold using argument z.warning. Check out with zPatterns()).\n",sep=""))
+    }
   }
   
   N <- nrow(X); D <- ncol(X)

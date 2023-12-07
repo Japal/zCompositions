@@ -1,12 +1,21 @@
 RELEASE HISTORY OF THE "zCompositions" PACKAGE
 ==============================================
 
+CHANGES IN zCompositions VERSION 1.5 [2023-12]:
+----------------------------------------------------
+
+MODIFICATIONS
+
+* Parametric methods requiring regular data sets (no. obs > no. vars) now warn the user about this and stop.
+* When no dl vector/matrix provided then column minima used automatically as thresholds and a warning message is shown.
+* Handling excess of zeros/unobs modified: new logical argument z.delete allows the user to decide what to do with columns/rows containing zero/unobs values over the threshold set by z.warning.
+
 CHANGES IN zCompositions VERSION 1.4.1 [2023-08]:
 ----------------------------------------------------
 
 MODIFICATIONS
 
-* Handling excess of zeros: columns/rows individually exceeding the given zero/unobserved values proportion threshold are now automatically deleted. A warning message details the particular columns/rows involved.
+* Handling excess of zeros/unobs (z.warning argument): columns/rows individually exceeding the given zero/unobserved values proportion threshold are now automatically deleted. A warning message details the particular columns/rows involved.
 * Minor bugs fixed and edits to the documentation.
 
 CHANGES IN zCompositions VERSION 1.4.0-1 [2022-03]:
@@ -14,7 +23,7 @@ CHANGES IN zCompositions VERSION 1.4.0-1 [2022-03]:
 
 NEW FEATURES
 
-* lrSVD and lrSVDplus: imputation algorithm based on singular value decomposition for censored, missing data, or both simultaneously. Particularly thought for wide data sets (more columns than rows).
+* lrSVD and lrSVDplus: imputation algorithm based on singular value decomposition for censored, missing data, or both simultaneously. Particularly thought for wide data sets (no. obs < no. vars).
 
 MODIFICATIONS
 

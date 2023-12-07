@@ -2,7 +2,7 @@
 \alias{zCompositions-package}
 \docType{package}
 \title{
-Treatment of zeros and nondetects in compositional data sets
+Treatment of Zeros, Left-Censored and Missing Values in Compositional Data Sets
 }
 \description{
 Following compositional data analysis principles, this package provides simple and friendly tools to explore and impute zeros, left-censored (such as rounded zeros or values below single or multiple limits of detection; a.k.a nondetects) and missing data; including zero pattern/group-wise data analysis and testing procedures.
@@ -11,8 +11,8 @@ Following compositional data analysis principles, this package provides simple a
 \tabular{ll}{
 Package: \tab zCompositions\cr
 Type: \tab Package\cr
-Version: \tab 1.4.1\cr
-Date: \tab 2023-08-23\cr
+Version: \tab 1.5\cr
+Date: \tab 2023-12-07\cr
 License: \tab GPL (>= 2)\cr
 }
 }
