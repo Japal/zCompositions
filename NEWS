@@ -1,7 +1,14 @@
 RELEASE HISTORY OF THE "zCompositions" PACKAGE
 ==============================================
 
-CHANGES IN zCompositions VERSION 1.5 [2023-12]:
+CHANGES IN zCompositions VERSION 1.5.0-1 [2023-12]:
+----------------------------------------------------
+
+MODIFICATIONS
+
+* Error when all columns contain more zeros/unobs values than threshold set by z.warning controlled.
+
+CHANGES IN zCompositions VERSION 1.5.0 [2023-12]:
 ----------------------------------------------------
 
 MODIFICATIONS

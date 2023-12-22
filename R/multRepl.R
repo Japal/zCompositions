@@ -56,13 +56,14 @@ multRepl <-
       if (any(checkNumZerosCol/nrow(X) >= z.warning)) {
         cases <- which(checkNumZerosCol/nrow(X) >= z.warning)
         if (z.delete == TRUE){
+          if (length(cases) > (ncol(X)-2)) {stop(paste("More than 2 columns contain >",z.warning*100,"% zeros/unobserved values (see arguments z.warning and z.delete).",sep=""))}
           X <- X[,-cases]
           action <- "deleted"
-          warning(paste("Column no. ",cases," containing >",z.warning*100,"% zeros/unobserved values ",action," (can modify threshold using argument z.warning).\n",sep=""))
+          warning(paste("Column no. ",cases," containing >",z.warning*100,"% zeros/unobserved values ",action," (see arguments z.warning and z.delete).\n",sep=""))
         }
         else{
           action <- "found"
-          stop(paste("Column no. ",cases," containing >",z.warning*100,"% zeros/unobserved values ",action," (can modify threshold using argument z.warning. Check out with zPatterns()).\n",sep=""))
+          stop(paste("Column no. ",cases," containing >",z.warning*100,"% zeros/unobserved values ",action," (see arguments z.warning and z.delete. Check out with zPatterns()).\n",sep=""))
         }
       }
       
@@ -70,13 +71,14 @@ multRepl <-
       if (any(checkNumZerosRow/ncol(X) >= z.warning)) {
         cases <- which(checkNumZerosRow/ncol(X) >= z.warning)
         if (z.delete == TRUE){
+          if (length(cases) > (nrow(X)-2)) {stop(paste("More than 2 rows contain >",z.warning*100,"% zeros/unobserved values (see arguments z.warning and z.delete).",sep=""))}
           X <- X[,-cases]
           action <- "deleted"
-          warning(paste("Column no. ",cases," containing >",z.warning*100,"% zeros/unobserved values ",action," (can modify threshold using argument z.warning).\n",sep=""))
+          warning(paste("Column no. ",cases," containing >",z.warning*100,"% zeros/unobserved values ",action," (see arguments z.warning and z.delete).\n",sep=""))
         }
         else{
           action <- "found"
-          stop(paste("Column no. ",cases," containing >",z.warning*100,"% zeros/unobserved values ",action," (can modify threshold using argument z.warning. Check out with zPatterns()).\n",sep=""))
+          stop(paste("Column no. ",cases," containing >",z.warning*100,"% zeros/unobserved values ",action," (see arguments z.warning and z.delete. Check out with zPatterns()).\n",sep=""))
         }
       }
     }
