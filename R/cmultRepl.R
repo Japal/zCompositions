@@ -1,7 +1,7 @@
 cmultRepl <- function(X, label= 0, method= c("GBM","SQ","BL","CZM","user"),
                       output= c("prop","p-counts"),
                       frac= 0.65, threshold= 0.5, adjust= TRUE, 
-                      t= NULL, s= NULL, z.warning= 0.9, z.delete= TRUE,
+                      t= NULL, s= NULL, z.warning= 0.8, z.delete= TRUE,
                       suppress.print= FALSE, delta= NULL) {
   
   if (any(X<0, na.rm=T)) stop("X contains negative values")
