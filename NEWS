@@ -1,6 +1,13 @@
 RELEASE HISTORY OF THE "zCompositions" PACKAGE
 ==============================================
 
+CHANGES IN zCompositions VERSION 1.5.0-2 [2024-03]:
+----------------------------------------------------
+
+MODIFICATIONS
+
+* Fix z.warning behaviour and messages.
+
 CHANGES IN zCompositions VERSION 1.5.0-1 [2023-12]:
 ----------------------------------------------------
 

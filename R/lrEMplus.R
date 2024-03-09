@@ -36,33 +36,51 @@ lrEMplus <- function(X, dl = NULL, rob = FALSE, ini.cov = c("complete.obs", "mul
   X <- as.data.frame(apply(X,2,as.numeric),stringsAsFactors=TRUE)
   c <- apply(X,1,sum,na.rm=TRUE)
   
-  checkNumZerosCol <- apply(X,2,function(x) sum(is.na(x)))
-  if (any(checkNumZerosCol/nrow(X) >= z.warning)) {
-    cases <- which(checkNumZerosCol/nrow(X) >= z.warning)
-    if (z.delete == TRUE){
-      if (length(cases) > (ncol(X)-2)) {stop(paste("More than 2 columns contain >",z.warning*100,"% zeros/unobserved values (see arguments z.warning and z.delete).",sep=""))}
-      X <- X[,-cases]
+  checkNumZerosCol <- apply(X, 2, function(x) sum(is.na(x)))
+  
+  if (any(checkNumZerosCol/nrow(X) > z.warning)) {    
+    cases <- which(checkNumZerosCol/nrow(X) > z.warning)    
+    if (z.delete == TRUE) {
+      if (length(cases) > (ncol(X)-2)) {
+        stop(paste("Almost all columns contain >", z.warning*100,
+                   "% zeros/unobserved values (see arguments z.warning and z.delete).",
+                   sep=""))
+      }      
+      X <- X[,-cases]      
       action <- "deleted"
-      warning(paste("Column no. ",cases," containing >",z.warning*100,"% zeros/unobserved values ",action," (see arguments z.warning and z.delete).\n",sep=""))
-    }
-    else{
-      action <- "found"
-      stop(paste("Column no. ",cases," containing >",z.warning*100,"% zeros/unobserved values ",action," (see arguments z.warning and z.delete. Check out with zPatterns()).\n",sep=""))
+      
+      warning(paste("Column no. ",cases," containing >", z.warning*100,
+                    "% zeros/unobserved values ", action, " (see arguments z.warning and z.delete).\n",
+                    sep=""))
+    } else {      
+      action <- "found"      
+      warning(paste("Column no. ",cases," containing >", z.warning*100,
+                    "% zeros/unobserved values ", action, " (see arguments z.warning and z.delete. Check out with zPatterns()).\n",
+                    sep=""))      
     }
   }
   
-  checkNumZerosRow <- apply(X,1,function(x) sum(is.na(x)))
-  if (any(checkNumZerosRow/ncol(X) >= z.warning)) {
-    cases <- which(checkNumZerosRow/ncol(X) >= z.warning)
-    if (z.delete == TRUE){
-      if (length(cases) > (nrow(X)-2)) {stop(paste("More than 2 rows contain >",z.warning*100,"% zeros/unobserved values (see arguments z.warning and z.delete).",sep=""))}
-      X <- X[,-cases]
+  checkNumZerosRow <- apply(X, 1, function(x) sum(is.na(x)))  
+  if (any(checkNumZerosRow/ncol(X) > z.warning)) {    
+    cases <- which(checkNumZerosRow/ncol(X) > z.warning)    
+    if (z.delete == TRUE) {
+      if (length(cases) > (nrow(X)-2)) {
+        stop(paste("Almost all rows contain >", z.warning*100,
+                   "% zeros/unobserved values (see arguments z.warning and z.delete).",
+                   sep=""))
+      }
+      X <- X[-cases,]      
       action <- "deleted"
-      warning(paste("Column no. ",cases," containing >",z.warning*100,"% zeros/unobserved values ",action," (see arguments z.warning and z.delete).\n",sep=""))
-    }
-    else{
-      action <- "found"
-      stop(paste("Column no. ",cases," containing >",z.warning*100,"% zeros/unobserved values ",action," (see arguments z.warning and z.delete. Check out with zPatterns()).\n",sep=""))
+      
+      warning(paste("Row no. ",cases," containing >", z.warning*100,
+                    "% zeros/unobserved values ", action, " (see arguments z.warning and z.delete).\n",
+                    sep=""))
+    } else {      
+      action <- "found"      
+      warning(paste("Row no. ", cases," containing >", z.warning*100,
+                    "% zeros/unobserved values ", action,
+                    " (see arguments z.warning and z.delete. Check out with zPatterns()).\n",
+                    sep=""))      
     }
   }
 
