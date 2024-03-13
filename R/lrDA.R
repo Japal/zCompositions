@@ -225,12 +225,13 @@ lrDA <-
       M <- matrix(colMeans(X_alr,na.rm=T),ncol=1)
       C <- cov(X_alr,use=ini.cov)}
     if (ini.cov == "multRepl"){
-      X.mr <- multRepl(X,label=NA,dl=dl,frac=frac,imp.missing=imp.missing,closure=closure)
+      X.mr <- multRepl(X,label=NA,dl=dl,frac=frac,imp.missing=imp.missing,closure=closure,z.warning=z.warning,z.delete=z.delete)
       X.mr_alr <- t(apply(X.mr,1,function(x) log(x)-log(x[pos])))[,-pos]
       M <- matrix(colMeans(X.mr_alr,na.rm=T),ncol=1)
       C <- cov(X.mr_alr)}
     if (ini.cov == "lrEM"){
-      X.em <- lrEM(X,label=NA,dl=dl,ini.cov="multRepl",frac=frac,imp.missing=imp.missing,closure=closure,suppress.print=TRUE)
+      X.em <- lrEM(X,label=NA,dl=dl,ini.cov="multRepl",frac=frac,imp.missing=imp.missing,closure=closure,suppress.print=TRUE,
+                   z.warning=z.warning,z.delete=z.delete)
       X.em_alr <- t(apply(X.em,1,function(x) log(x)-log(x[pos])))[,-pos]
       M <- matrix(colMeans(X.em_alr,na.rm=T),ncol=1)
       C <- cov(X.em_alr)}
@@ -265,7 +266,7 @@ lrDA <-
         varobs <- which(!is.na(X_alr[i[1],]))
         if (length(varobs) == 0){
           alt.in <- TRUE
-          temp <- multRepl(X[i,,drop=FALSE],label=NA,dl=dl[i,,drop=FALSE],frac=frac,imp.missing=imp.missing,closure=closure)
+          temp <- multRepl(X[i,,drop=FALSE],label=NA,dl=dl[i,,drop=FALSE],frac=frac,imp.missing=imp.missing,closure=closure,z.warning=z.warning,z.delete=z.delete)
           Y[i,] <- t(apply(temp,1,function(x) log(x)-log(x[pos])))[,-pos]
           if (runs == 1){
             alt.pat <- c(alt.pat,npat)

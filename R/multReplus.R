@@ -127,7 +127,7 @@ multReplus <- function(X, dl = NULL, frac = 0.65, closure = NULL, z.warning = 0.
   
   ## Imputation of zeros ----
   
-  X <- multRepl(X,label=0,dl=dl,frac=frac,closure=closure)
+  X <- multRepl(X,label=0,dl=dl,frac=frac,closure=closure,z.warning=z.warning,z.delete=z.delete)
   
   ## Final section ----
   

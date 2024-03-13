@@ -102,7 +102,8 @@ lrEMplus <- function(X, dl = NULL, rob = FALSE, ini.cov = c("complete.obs", "mul
     # Initial lrEM imputation of missing data
     X.old <- lrEM(X.old, label = NA, imp.missing = TRUE, ini.cov = ini.cov, rob = rob,
                   tolerance = tolerance, max.iter = max.iter, rlm.maxit = rlm.maxit,
-                  suppress.print = TRUE, closure = closure)
+                  suppress.print = TRUE, closure = closure, z.warning = z.warning,
+                  z.delete = z.delete)
   }
   
   if (sum(is.na(X)) <= sum(X==0,na.rm=T)){
@@ -118,7 +119,8 @@ lrEMplus <- function(X, dl = NULL, rob = FALSE, ini.cov = c("complete.obs", "mul
     # Initial lrEM imputation of zeros
     X.old <- lrEM(X.old, label = 0, dl = dl, ini.cov = ini.cov, rob = rob,
                   tolerance = tolerance, max.iter = max.iter, rlm.maxit = rlm.maxit,
-                  suppress.print = TRUE, closure = closure)
+                  suppress.print = TRUE, closure = closure, z.warning = z.warning,
+                  z.delete = z.delete)
   }
 
   # Initial parameter estimates
@@ -139,11 +141,11 @@ lrEMplus <- function(X, dl = NULL, rob = FALSE, ini.cov = c("complete.obs", "mul
     X.old[which(X==0)] <- 0
     X.new <- lrEM(X.old, label = 0, dl = dl, ini.cov =  ini.cov, rob = rob,
                   tolerance = tolerance, max.iter = max.iter, rlm.maxit = rlm.maxit, suppress.print = TRUE,
-                  closure = closure)
+                  closure = closure, z.warning = z.warning, z.delete = z.delete)
     X.new[is.na(X)] <- NA
     X.new <- lrEM(X.new, label = NA, imp.missing = TRUE, ini.cov =  ini.cov, rob = rob,
                   tolerance = tolerance, max.iter = max.iter, rlm.maxit = rlm.maxit, suppress.print = TRUE,
-                  closure = closure)
+                  closure = closure, z.warning = z.warning, z.delete = z.delete)
 
     X.new_alr <- log(X.new)-log(X.new[,D])
     X.new_alr <- as.matrix(X.new_alr[,-D])
