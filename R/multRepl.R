@@ -47,8 +47,10 @@ multRepl <-
     if (!is.null(names(X))) nam <- names(X)
     if (is.vector(X)) X <- as.data.frame(matrix(X,ncol=length(X)),stringsAsFactors=TRUE)
     
+    rnames <- rownames(X)
     X[X==label] <- NA
     X <- apply(X,2,as.numeric)
+    if (!is.null(rownames(X))) {rownames(X) <- rnames} # Needed for the vector case
     if (is.vector(X)) X <- as.data.frame(matrix(X,ncol=length(X)),stringsAsFactors=TRUE)
     
     if (nrow(X) > 1){

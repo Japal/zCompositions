@@ -24,8 +24,10 @@ multLN <-
     if (ncol(dl)!=ncol(X)) stop("The number of columns in X and dl do not agree")
     if ((nrow(dl)>1) & (nrow(dl)!=nrow(X))) stop("The number of rows in X and dl do not agree")
     
+    rnames <- rownames(X)
     X[X==label] <- NA
     X <- apply(X,2,as.numeric)
+    rownames(X) <- rnames
     
     checkNumZerosCol <- apply(X, 2, function(x) sum(is.na(x)))
     

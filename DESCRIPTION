@@ -1,8 +1,8 @@
 Package: zCompositions
 Type: Package
 Title: Treatment of Zeros, Left-Censored and Missing Values in Compositional Data Sets
-Version: 1.5.0-3
-Date: 2024-03-13
+Version: 1.5.0-4
+Date: 2024-06-18
 Authors@R: 
     c(person(given = "Javier",
              family = "Palarea-Albaladejo",

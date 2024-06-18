@@ -51,8 +51,10 @@ multKM <-
       return(as.numeric(x))
     }
     
+    rnames <- rownames(X)
     X[X==label] <- NA
     X <- apply(X,2,as.numeric)
+    rownames(X) <- rnames
     
     checkNumZerosCol <- apply(X, 2, function(x) sum(is.na(x)))
     

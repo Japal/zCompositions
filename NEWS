@@ -1,6 +1,13 @@
 RELEASE HISTORY OF THE "zCompositions" PACKAGE
 ==============================================
 
+CHANGES IN zCompositions VERSION 1.5.0-4 [2024-06]:
+----------------------------------------------------
+
+MODIFICATIONS
+
+* Fix small bug in mult- functions when using labelled rows.
+
 CHANGES IN zCompositions VERSION 1.5.0-3 [2024-03]:
 ----------------------------------------------------
 

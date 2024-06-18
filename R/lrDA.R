@@ -150,8 +150,10 @@ lrDA <-
     nn <- nrow(X); p <- ncol(X)
     if (nn <= p) stop("The lrDA algorithm works on regular data sets (no. rows > no. columns). You can consider lrSVD for wide dat sets.")
     
+    rnames <- rownames(X)
     X[X==label] <- NA
     X <- apply(X,2,as.numeric)
+    rownames(X) <- rnames
     c <- apply(X,1,sum,na.rm=TRUE)
     
     checkNumZerosCol <- apply(X, 2, function(x) sum(is.na(x)))
