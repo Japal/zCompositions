@@ -36,7 +36,7 @@ If \code{ini.cov="multRepl"}, parameter for initial multiplicative simple replac
 Maximum number of iterations (default = 50).
 }
   \item{rlm.maxit}{
-If \code{rob=TRUE}, maximum number of iterations for the embedded robust regression estimation (default = 150; see \code{\link{rlm}} in \code{MASS} package for details).
+If \code{rob=TRUE}, maximum number of iterations for the embedded robust regression estimation (default = 150; see \code{\link[MASS]{rlm}} for details).
 }
   \item{suppress.print}{
 Suppress printed feedback (\code{suppress.print = FALSE}, default).
