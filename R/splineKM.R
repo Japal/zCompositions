@@ -26,7 +26,7 @@ splineKM <- function(x,label=NULL,dl=NULL,n.knots=NULL,
   # for left-censored data using the Kaplan-Meier method, by "flipping" the
   # data to be compatible with the survival::survfit function.
   
-  cenfit_standalone <- function(obs, censored,...) {
+  cenfit_standalone2 <- function(obs, censored,...) {
     
     flip_factor <- max(obs, na.rm = TRUE) + (diff(range(obs, na.rm = TRUE)) / 2)
     flipped_obs <- flip_factor - obs
@@ -48,7 +48,7 @@ splineKM <- function(x,label=NULL,dl=NULL,n.knots=NULL,
   x[who] <- dl[who]
   
   dat <- data.frame(x,xcen,stringsAsFactors=TRUE)
-  km.ecdf <- cenfit_standalone(dat$x,dat$xcen)
+  km.ecdf <- cenfit_standalone2(dat$x,dat$xcen)
 
   x <- rev(km.ecdf$time) 
   y <- rev(km.ecdf$surv)
