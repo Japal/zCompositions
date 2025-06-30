@@ -1,6 +1,14 @@
 RELEASE HISTORY OF THE "zCompositions" PACKAGE
 ==============================================
 
+CHANGES IN zCompositions VERSION 1.5.0-5 [2025-06]:
+----------------------------------------------------
+
+MODIFICATIONS
+
+* multLN, multKM, splineKM: revised versions to remove dependence on the NADA package.
+* lcTest and related functions removed: to be replaced by updated procedure soon.
+
 CHANGES IN zCompositions VERSION 1.5.0-4 [2024-06]:
 ----------------------------------------------------
 

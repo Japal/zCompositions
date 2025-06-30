@@ -49,6 +49,7 @@ Chemometrics and Intelligent Laboratory Systems 2015; 143: 85-96.
 \code{\link{zPatterns}}, \code{\link{splineKM}}, \code{\link{lrEM}}, \code{\link{lrSVD}}, \code{\link{lrDA}}, \code{\link{multRepl}}, \code{\link{multLN}}, \code{\link{cmultRepl}}
 }
 \examples{
+
 data(Water)
 data(mdl) # matrix of limits of detection for Water
 
@@ -62,7 +63,6 @@ Water.mi <- vector("list",length=10)
 for (m in 1:10){
   Water.mi[[m]] <- multKM(Water,label=0,dl=mdl,n.draws=1)
 }
-
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

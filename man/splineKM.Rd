@@ -63,6 +63,7 @@ Graphical output.
 }
 
 \examples{
+
 data(Water)
 data(mdl)
 
@@ -72,6 +73,7 @@ splineKM(Water[,4],label=0,mdl[,4],xlim=c(28,41))
 
 # Reduce to 5 knots for Potassium
 splineKM(Water[,1],label=0,mdl[,1],n.knots=5)
+
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

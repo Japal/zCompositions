@@ -20,6 +20,26 @@ splineKM <- function(x,label=NULL,dl=NULL,n.knots=NULL,
   
   if ((!is.null(n.knots)) & (length(n.knots)!=1)) stop("n.knots must contain a single value")
   
+  # Standalone Replication of NADA::cenfit
+  #
+  # Computes an estimate of an empirical cumulative distribution function (ECDF)
+  # for left-censored data using the Kaplan-Meier method, by "flipping" the
+  # data to be compatible with the survival::survfit function.
+  
+  cenfit_standalone <- function(obs, censored,...) {
+    
+    flip_factor <- max(obs, na.rm = TRUE) + (diff(range(obs, na.rm = TRUE)) / 2)
+    flipped_obs <- flip_factor - obs
+    event_status <-!censored
+    surv_obj <- survival::Surv(time = flipped_obs, event = event_status, type = "right")
+    fit <- survival::survfit(surv_obj ~ 1,...)
+    fit$time <- flip_factor - fit$time
+    ord <- order(fit$time)
+    fit$time <- fit$time[ord]; fit$surv <- fit$surv[ord]; fit$n.risk <- fit$n.risk[ord]
+    return(fit)
+    
+  }
+  
   x[x==label] <- NA
   
   who <- is.na(x); w <- which(who)
@@ -28,16 +48,16 @@ splineKM <- function(x,label=NULL,dl=NULL,n.knots=NULL,
   x[who] <- dl[who]
   
   dat <- data.frame(x,xcen,stringsAsFactors=TRUE)
-  km.ecdf <- cenfit(dat$x,dat$xcen)
+  km.ecdf <- cenfit_standalone(dat$x,dat$xcen)
 
-  x <- rev(km.ecdf@survfit$time) 
-  y <- rev(km.ecdf@survfit$surv)
+  x <- rev(km.ecdf$time) 
+  y <- rev(km.ecdf$surv)
   
   if (is.null(n.knots)) {scdf <- smooth.spline(x,y)}
   if (!is.null(n.knots)) {scdf <- smooth.spline(x,y,nknots=n.knots)}
   scdf <- approxfun(scdf$x,scdf$y)
   
-  plot(km.ecdf@survfit,conf.int=FALSE,ylab=ylab,xlab=xlab,
+  plot(km.ecdf,conf.int=FALSE,ylab=ylab,xlab=xlab,
        col=col.km,lty=lty.km,lwd=lwd.km, ...)
   lines(x,scdf(x),type="l",
        col=col.sm,lty=lty.sm,lwd=lwd.sm)

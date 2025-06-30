@@ -1,8 +1,8 @@
 Package: zCompositions
 Type: Package
 Title: Treatment of Zeros, Left-Censored and Missing Values in Compositional Data Sets
-Version: 1.5.0-4
-Date: 2024-06-18
+Version: 1.5.0-5
+Date: 2025-06-29
 Authors@R: 
     c(person(given = "Javier",
              family = "Palarea-Albaladejo",
@@ -19,8 +19,10 @@ Depends:
     R (>= 2.14.0),
     methods,
     MASS,
-    NADA,
-    truncnorm
+    truncnorm,
+    survival
+Suggests: 
+    NADA
 ByteCompile: yes
 Description: Principled methods for the imputation of zeros, left-censored and missing data in
     compositional data sets (Palarea-Albaladejo and Martin-Fernandez (2015) <doi:10.1016/j.chemolab.2015.02.019>).

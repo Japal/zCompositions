@@ -53,6 +53,7 @@ left-censored data under a compositional approach. Chemometrics and Intelligence
 \code{\link{zPatterns}}, \code{\link{lrEM}}, \code{\link{lrSVD}}, \code{\link{lrDA}}, \code{\link{multRepl}}, \code{\link{multKM}}, \code{\link{cmultRepl}}
 }
 \examples{
+
 # Data set closed to 100 (percentages, common dl = 1%)
 X <- matrix(c(26.91,8.08,12.59,31.58,6.45,14.39,
               39.73,26.20,0.00,15.22,6.80,12.05,
@@ -66,6 +67,9 @@ X <- matrix(c(26.91,8.08,12.59,31.58,6.45,14.39,
               19.04,42.59,0.00,38.37,0.00,0.00),byrow=TRUE,ncol=6)
               
 X_multLN <- multLN(X,label=0,dl=rep(1,6))
+
+# Using ROS for parameter estimation
+X_multLNrob <- multLN(X,label=0,dl=rep(1,6),rob=TRUE)
 
 # Multiple limits of detection by component
 mdl <- matrix(0,ncol=6,nrow=10)
@@ -86,10 +90,6 @@ LPdata_multLN <- multLN(LPdata,label=0,dl=dl)
 # For comparison
 LPdata[30:35,1:10]
 round(LPdata_multLN[30:35,1:10],1)
-
-# Using ROS for parameter estimation
-LPdata_multLNrob <- multLN(LPdata,label=0,dl=dl,rob=TRUE)
-round(LPdata_multLNrob[30:35,1:10],1)
 
 # Using random values < dl
 LPdata_multRLN <- multLN(LPdata,label=0,dl=dl,random=TRUE)
