@@ -21,8 +21,6 @@ Depends:
     MASS,
     truncnorm,
     survival
-Suggests: 
-    NADA
 ByteCompile: yes
 Description: Principled methods for the imputation of zeros, left-censored and missing data in
     compositional data sets (Palarea-Albaladejo and Martin-Fernandez (2015) <doi:10.1016/j.chemolab.2015.02.019>).

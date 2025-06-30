@@ -20,7 +20,7 @@ splineKM <- function(x,label=NULL,dl=NULL,n.knots=NULL,
   
   if ((!is.null(n.knots)) & (length(n.knots)!=1)) stop("n.knots must contain a single value")
   
-  # Standalone Replication of NADA::cenfit
+  # Standalone Replication of NADA::cenfit (same as cenfit_standalone in multKM but issue if same name)
   #
   # Computes an estimate of an empirical cumulative distribution function (ECDF)
   # for left-censored data using the Kaplan-Meier method, by "flipping" the
