@@ -1,6 +1,13 @@
 RELEASE HISTORY OF THE "zCompositions" PACKAGE
 ==============================================
 
+CHANGES IN zCompositions VERSION 1.6.0 [2025-07]:
+----------------------------------------------------
+
+NEW FEATURES
+
+* perLog: new implementation of test of differences in mean/location for compositional data based on pairwise logratios.
+
 CHANGES IN zCompositions VERSION 1.5.0-5 [2025-06]:
 ----------------------------------------------------
 
