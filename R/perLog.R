@@ -1,18 +1,31 @@
 #' Test of differences in group means for compositional data
 #'
-#' @description A nonparametric permutation test based on pairwise logratios to assess the null hypothesis of equality of means/locations between subsets of compositions according to an externally or internally defined factor. If any, zero patterns are considered as default internal grouping factor.
+#' @description A nonparametric permutation test based on pairwise logratios to assess the hypothesis of equality of means/locations between subsets of observations according to an externally or internally defined factor. If any, zero patterns are considered as default internal grouping factor.
 #'
 #' @param X Compositional data set (\code{\link{matrix}} or \code{\link{data.frame}} class).
 #' @param groups Factor variable indicating the grouping structure. If NULL (default), any zero patterns in the data will be used as internal grouping factor.
 #' 
 #' Note that if a grouping factor is set by the user, then any zeros in the data must be previously dealt with, e.g. by imputation.
 #' @param p Power parameter used in overall dissimilarity test statistic. (default = 10).
-#' @param alpha Statistical significance level (default = 0.05).
+#' @param alpha Significance level parameter (default = 0.05).
 #' @param R Number of permutation resamples (default = 1000).
+#' @param posthoc.g Logical. If TRUE, performs post-hoc analysis for pairs of groups (default = FALSE).
+#' @param posthoc.lr Logical. If TRUE, performs post-hoc analysis for logratios (default = FALSE).
+#' @param mAdj Adjustment of p-values for multiple post-hoc testing (see \code{\link{p.adjust}}). Default is Benjamini and Hochberg's FDR method (default = "BH").
 #'
-#' @return A list object of class "printres" containing:
-#' \item{disOv}{Overall dissimilarity measure (E).}
+#' @return A list object of class "printres" containing summaries of results:
+#' \item{disOv}{Overall dissimilarity test statistic.}
 #' \item{pvalOv}{Overall permutation p-value.}
+#' \item{posthoc.groups}{If `posthoc.g = TRUE` and the main test is significant, results of the post-hoc analysis for pairs of groups.}
+#' \item{posthoc.logratios}{If `posthoc.lr = TRUE` and the main test is significant, results of the post-hoc analysis for pairwise logratios.}
+#' \item{wts}{Welch's t-statistic.}
+#' \item{disEl}{Pairwise logratio elemental dissimilarity.}
+#' \item{rcElBg}{Relative contribution of elemental dissimilarity to between-group dissimilarity.}
+#' \item{rcElOv}{Relative contribution of elemental dissimilarity to overall dissimilarity.}
+#' \item{pvalElAdj}{Adjusted p-value in post-hoc comparison.}
+#' \item{parts0}{If `groups = NULL`, list containing original names of zero parts in the respective zero patterns.}
+#' @details The test relies on the unique pairwise logratios between parts of the given composition. It assesses whether the observed overall dissimilarity is significantly different from that expected under the null hypothesis of equal group means. If so, it can perform post-hoc analyses by pairs of groups and pairwise logratios, evaluating their relative contributions to dissimilarity at group and overall levels. The p-values in post-hoc testing are adjusted for multiple comparisons using the specified method.
+#' In the case of internal grouping defined by zero patterns, strings of binary codes are used to label each pattern in the output, with 0 indicating no zero part and 1 indicating zero part.
 #' @export
 #' @seealso \code{\link{zPatterns}}
 #' @examples
@@ -21,10 +34,12 @@
 #' # Visualise zero patterns and select the first three for illustration
 #' tmp <- zPatterns(Water, label = 0)
 #' Water2 <- Water[tmp %in% c(1,2,3),]
-#' # Perform the perLog test on the selected data set
+#' # Test overall differences by zero pattern on the selected data set
+#' zPatterns(Water2, label = 0)
 #' perLog(Water2)
 
-perLog <- function(X, groups = NULL, p = 10, alpha = 0.05, R = 1000){
+perLog <- function(X, groups = NULL, p = 10, alpha = 0.05, R = 1000, 
+                      posthoc.g = FALSE, posthoc.lr = FALSE, mAdj = "BH") {
   
   ## Auxiliary functions
   
@@ -171,7 +186,7 @@ perLog <- function(X, groups = NULL, p = 10, alpha = 0.05, R = 1000){
   
   # Selection of results to print, only overall dissimilarity and p-value by default
   print.printres <- function(x, ...) {
-    cat(paste("Overall dissimilarity test statistic E = ", round(x$disOv,4), 
+    cat(paste("\n","Overall dissimilarity:","\n\n","Test statistic E = ", round(x$disOv,4), 
               ", p-value = ", round(x$pvalOv,4),sep=""))
     #         wts ... a matrix (of size G*(G-1)/2 x D*(D-1)/2, where rows correspond to pairs of groups and columns to LR) 
     #                 containing the Welch's t-statistics (t_{ij}^{(k, l)}) in the original data set
@@ -182,6 +197,185 @@ perLog <- function(X, groups = NULL, p = 10, alpha = 0.05, R = 1000){
     #                       containing the elemental dissimilarities in the respective permuted data set
     #         parts0 ... if groups = NULL, a list (of length G, where each item corresponds to different zero pattern)
     #                    containing names of zero parts in the respective zero patterns
+  cat("\n")
+    if (!is.null(x$posthoc.groups)) {
+      cat("\n")
+      cat("Post-hoc analysis by pairs of groups:\n")
+      cat("\n")
+      print(x$posthoc.groups$summary)
+      if (!is.null(x$posthoc.groups$parts0)) {
+        cat(paste("\n","Zero patterns and zero parts therein:","\n\n",sep=""))
+        print(x$posthoc.groups$parts0)
+      }
+    }
+    if (!is.null(x$posthoc.logratios)) {
+      cat("\n")
+      cat("Post-hoc analysis for pairwise logratios:\n")
+      for (i in seq_along(x$posthoc.logratios$summary)) {
+        cat(paste("\n","Pair:", names(x$posthoc.logratios$summary)[i], "\n"))
+        print(round(x$posthoc.logratios$summary[[i]], 4))
+      }
+    }
+    
+  }
+  
+  # Post-hoc analysis by pairs of groups
+  perlogPHg <- function(perlogR, p = 10, alpha = 0.05, mAdj = "BH"){
+    
+    # INPUT: perlogR ... output of the perlog function
+    #        p ... a power p for computing  between-groups dissimilarities from elemental dissimilarities; default is 10
+    #        alpha ... significance level; default is 0.05
+    #        mAdj ... a method for adjusting p-values - options as in p.adjust function; default is "BH" (Benjamini & Hochberg)
+    # OUTPUT: summary ... a matrix (of size G*(G-1)/2 x 3) with columns corresponding to different results:
+    #                     disBg ... the between-groups dissimilarities (E^{(kl)}) in the original data set 
+    #                     rcBgOv ... the relative contributions (in %) of the between-groups dissimilarities to the overall dissimilarity (100*E^{(kl)}/E)
+    #                     pvalBgAdj ... the adjusted between-groups p-values 
+    #         parts0 ... if zero parts ar considered for grouping, 
+    #                    a list (of length G, where each item corresponds to different zero pattern)
+    #                    containing names of zero parts in the respective zero patterns
+    
+    if (perlogR$pvalOv>=alpha) stop("No significant difference.")
+    disEl = perlogR$disEl
+    Gg = nrow(disEl)
+    if (Gg == 1) { # case with 2 groups
+      summary = c("Bet-Grp diss" = perlogR$disOv, 
+                  "%Ctb overall diss" = 100, 
+                  "Adj p-value" =  perlogR$pvalOv)
+      if (is.null(perlogR$parts0)) {
+        res = list(summary = summary)
+      } else {
+        res = list(summary = summary,
+                   parts0 = perlogR$parts0)
+      }
+    } else { # case with more than 2 groups
+      disEl_Prm = perlogR$disEl_Prm
+      disBg = rowSums(disEl^p, na.rm = T)
+      rcBgOv = 100*disBg/sum(disBg, na.rm = T)
+      disBg_Prm = t(sapply(disEl_Prm , function(x) rowSums(x^p, na.rm = T)))
+      disBg_All = rbind(disBg, disBg_Prm)
+      pvalBg = apply(disBg_All, 2, function(x) mean(x[-1] >= x[1]))
+      pvalBgAdj = p.adjust(pvalBg, method = mAdj)
+      summary = cbind("Bet-Grp diss" = round(disBg, 4),
+                      "%Ctb overall diss" = round(rcBgOv, 4),
+                      "Adj p-value" = round(pvalBgAdj, 4))
+      if (is.null(perlogR$parts0)) {
+        res = list(summary = summary)
+      } else {
+        res = list(summary = summary,
+                   parts0 = perlogR$parts0)
+      }
+    }
+    return(res)
+  }
+  
+  # Post-hoc analysis for the pairwise logratios for significantly different pairs of groups
+  perlogPHlr <- function(perlogR, p = 10, alpha = 0.05, mAdj = "BH"){
+    
+    # INPUT: perlogR ... output of the perlog function
+    #        p ... a power p for computing  between-groups and overall dissimilarities from elemental dissimilarities; default is 10
+    #        alpha ... significance level; default is 0.05
+    #        mAdj ... a method for adjusting p-values - options as in p.adjust function; default is "BH" (Benjamini & Hochberg)
+    # OUTPUT: summary ... a list (of size equal to the number of the significantly different pairs of groups) 
+    #                     with matrices (of size D*(D-1)/2 x 5) with columns corresponding to different results:
+    #                     wts ... the Welch's t-statistics (t_{ij}^{(k, l)}) in the original data set
+    #                     disEl ... the elemental dissimilarities (e_{ij}^{(k, l)}) in the original data set
+    #                     rcElBg ... the relative contributions (in %) of the elemental dissimilarities to the between-group dissimilarities (100*e_{ij}^{(kl)}/E^{(kl)})
+    #                     rcElOv ... the relative contributions (in %) of the elemental dissimilarities to the overall dissimilarity (100*e_{ij}^{(kl)}/E)
+    #                     pvalElAdj ... the adjusted elemental p-values
+    #         significance ... a list (of size equal to the number of the significantly different pairs of groups)
+    #                          with matrices (of size D x D, with rows corresponding to numerator and columns to denominator of logratio) 
+    #                          indicating (non)significance of the logratios together with the direction of the significance:
+    #                          0 ... nonsignificant logratio
+    #                          1 ... significant logratio in positive direction 
+    #                          -1 ... significant logratio in negative direction 
+    #         parts0 ... if zero parts ar considered for grouping, 
+    #                    a list (of length G, where each item corresponds to different zero pattern)
+    #                    containing names of zero parts in the respective zero patterns
+    
+    if (perlogR$pvalOv>=alpha) stop("No significant difference.")
+    disEl = perlogR$disEl
+    pr = rownames(disEl)
+    npr = nrow(disEl)
+    if (npr==1) { # case with 2 groups
+      if (perlogR$pvalOv>=alpha) stop("No significantly different pair.")
+      wts = perlogR$wts[1,]
+      disEl = disEl[1,]
+      disEl.p = disEl^p
+      rcElBg = rcElOv = c(100*disEl.p/perlogR$disOv)
+      disEl_Prm = perlogR$disEl_Prm
+      disEl.p_Prm = t(sapply(disEl_Prm, function(x) x^p))
+      disEl.p_All = rbind(disEl.p, disEl.p_Prm)
+      pvalEl = apply(disEl.p_All, 2, function(x) mean(x[-1] >= x[1]))
+      pvalElAdj = p.adjust(pvalEl, method = mAdj)
+      summary = list(cbind("wts" = wts,
+                           "Elem diss" = disEl,
+                           "%Ctb bet-grp diss" = rcElBg,
+                           "%Ctb overall diss" = rcElOv,
+                           "Adj p-value" = pvalElAdj))
+      names(summary) = pr
+    } else { # case with more than 2 groups
+      perlogPHgR = perlogPHg(perlogR)
+      iS = which(perlogPHgR$summary[, 3]<alpha)
+      npr = length(iS)
+      if (npr==0) stop("No significantly different pair.")
+      pr = pr[iS]
+      wts = perlogR$wts[iS, ]
+      disEl = disEl[iS, ]
+      disEl.p = disEl^p
+      rcElBg = 100*disEl.p/perlogPHgR$summary[iS, 1]
+      rcElOv = 100*disEl.p/perlogR$disOv
+      disEl_Prm = lapply(perlogR$disEl_Prm, function(x) x[iS, ])
+      if (npr==1) { # one significantly different pair
+        disEl.p_Prm = t(sapply(disEl_Prm, function(x) x^p))
+        disEl.p_All = rbind(disEl.p, disEl.p_Prm)
+        pvalEl = apply(disEl.p_All, 2, function(x) mean(x[-1] >= x[1]))
+        pvalElAdj = p.adjust(pvalEl, method = mAdj)
+        summary = list(cbind("wts" = wts,
+                             "Elem diss" = disEl,
+                             "%Ctb bet-grp diss" = rcElBg,
+                             "%Ctb overall diss" = rcElOv,
+                             "Adj p-value" = pvalElAdj))
+        names(summary) = pr
+      } else { # more than one significantly different pairs
+        disEl.p_Prm = lapply(disEl_Prm, function(x) x^p)
+        disEl.p_All = c(list(disEl.p), disEl.p_Prm)
+        disEl.p_All = lapply(1:npr, function(i) t(sapply(disEl.p_All, function(x) x[i, ])))
+        pvalEl = t(sapply(disEl.p_All, function(y) apply(y, 2, function(x) mean(x[-1] >= x[1]))))
+        rownames(pvalEl) = pr
+        pvalElAdj = pvalEl
+        pvalElAdj[] = p.adjust(c(pvalEl), method = mAdj)
+        summary = lapply(1:npr, function(i) cbind("wts" = wts[i, ], 
+                                                  "Elem diss" = disEl[i, ], 
+                                                  "%Ctb bet-grp diss" = rcElBg[i, ], 
+                                                  "%Ctb overall diss" = rcElOv[i, ], 
+                                                  "Adj p-value" = pvalElAdj[i, ]))
+        }
+    } 
+    names(summary) = pr
+    significance = lapply(summary, function(x) {
+      cnlr = rownames(x)
+      Dd = length(cnlr)
+      D = (1+sqrt(1+8*Dd))/2
+      cn = unique(unlist(strsplit(cnlr, "/")))
+      mt = matrix(NA, D, D)
+      sgn = rep(0, Dd)
+      sgn[which(x[,5]<alpha)] = 1
+      sgn = sign(x[,1])*sgn
+      mt[lower.tri(mt)] = -sgn
+      mtt = -t(mt)
+      mt[upper.tri(mt)] = mtt[upper.tri(mtt)]
+      rownames(mt) = colnames(mt) = cn
+      return(mt)
+    })
+    if (is.null(perlogR$parts0)) {
+      res = list(summary = summary,
+                 significance = significance)
+    } else {
+      res = list(summary = summary,
+                 significance = significance,
+                 parts0 = perlogR$parts0)
+    }
+    return(res)
   }
   
   ################################################################################################
@@ -271,6 +465,16 @@ perLog <- function(X, groups = NULL, p = 10, alpha = 0.05, R = 1000){
                disEl_Prm = disEl_Prm)
   }
   class(res) = "printres"
+  
+  # --- Optional Post-Hoc Analyses ---
+  if (res$pvalOv < alpha) {
+    if (posthoc.g) {
+      res$posthoc.groups <- perlogPHg(res, p = p, alpha = alpha, mAdj = mAdj)
+    }
+    if (posthoc.lr) {
+      res$posthoc.logratios <- perlogPHlr(res, p = p, alpha = alpha, mAdj = mAdj)
+    }
+  }
   print(res)
 }
 

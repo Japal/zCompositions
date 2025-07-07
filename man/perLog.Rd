@@ -4,7 +4,16 @@
 \alias{perLog}
 \title{Test of differences in group means for compositional data}
 \usage{
-perLog(X, groups = NULL, p = 10, alpha = 0.05, R = 1000)
+perLog(
+  X,
+  groups = NULL,
+  p = 10,
+  alpha = 0.05,
+  R = 1000,
+  posthoc.g = FALSE,
+  posthoc.lr = FALSE,
+  mAdj = "BH"
+)
 }
 \arguments{
 \item{X}{Compositional data set (\code{\link{matrix}} or \code{\link{data.frame}} class).}
@@ -15,17 +24,35 @@ Note that if a grouping factor is set by the user, then any zeros in the data mu
 
 \item{p}{Power parameter used in overall dissimilarity test statistic. (default = 10).}
 
-\item{alpha}{Statistical significance level (default = 0.05).}
+\item{alpha}{Significance level parameter (default = 0.05).}
 
 \item{R}{Number of permutation resamples (default = 1000).}
+
+\item{posthoc.g}{Logical. If TRUE, performs post-hoc analysis for pairs of groups (default = FALSE).}
+
+\item{posthoc.lr}{Logical. If TRUE, performs post-hoc analysis for logratios (default = FALSE).}
+
+\item{mAdj}{Adjustment of p-values for multiple post-hoc testing (see \code{\link{p.adjust}}). Default is Benjamini and Hochberg's FDR method (default = "BH").}
 }
 \value{
-A list object of class "printres" containing:
-\item{disOv}{Overall dissimilarity measure (E).}
+A list object of class "printres" containing summaries of results:
+\item{disOv}{Overall dissimilarity test statistic.}
 \item{pvalOv}{Overall permutation p-value.}
+\item{posthoc.groups}{If `posthoc.g = TRUE` and the main test is significant, results of the post-hoc analysis for pairs of groups.}
+\item{posthoc.logratios}{If `posthoc.lr = TRUE` and the main test is significant, results of the post-hoc analysis for pairwise logratios.}
+\item{wts}{Welch's t-statistic.}
+\item{disEl}{Pairwise logratio elemental dissimilarity.}
+\item{rcElBg}{Relative contribution of elemental dissimilarity to between-group dissimilarity.}
+\item{rcElOv}{Relative contribution of elemental dissimilarity to overall dissimilarity.}
+\item{pvalElAdj}{Adjusted p-value in post-hoc comparison.}
+\item{parts0}{If `groups = NULL`, list containing original names of zero parts in the respective zero patterns.}
 }
 \description{
-A nonparametric permutation test based on pairwise logratios to assess the null hypothesis of equality of means/locations between subsets of compositions according to an externally or internally defined factor. If any, zero patterns are considered as default internal grouping factor.
+A nonparametric permutation test based on pairwise logratios to assess the hypothesis of equality of means/locations between subsets of observations according to an externally or internally defined factor. If any, zero patterns are considered as default internal grouping factor.
+}
+\details{
+The test relies on the unique pairwise logratios between parts of the given composition. It assesses whether the observed overall dissimilarity is significantly different from that expected under the null hypothesis of equal group means. If so, it can perform post-hoc analyses by pairs of groups and pairwise logratios, evaluating their relative contributions to dissimilarity at group and overall levels. The p-values in post-hoc testing are adjusted for multiple comparisons using the specified method.
+In the case of internal grouping defined by zero patterns, strings of binary codes are used to label each pattern in the output, with 0 indicating no zero part and 1 indicating zero part.
 }
 \examples{
 # Load the Water data set 
@@ -33,11 +60,9 @@ data(Water)
 # Visualise zero patterns and select the first three for illustration
 tmp <- zPatterns(Water, label = 0)
 Water2 <- Water[tmp \%in\% c(1,2,3),]
-# Perform the perLog test on the selected data set
+# Test overall differences by zero pattern on the selected data set
+zPatterns(Water2, label = 0)
 perLog(Water2)
-}
-\references{
-Aitchison, J. (1986). The Statistical Analysis of Compositional Data. Chapman and Hall, London.
 }
 \seealso{
 \code{\link{zPatterns}}

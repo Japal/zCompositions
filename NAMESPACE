@@ -8,4 +8,6 @@ importFrom("stats","sd", "approxfun", "cov", "dnorm", "pnorm", "rWishart",
      "runif", "smooth.spline", "anova", "bartlett.test", "fligner.test",
      "kruskal.test", "lm", "var","rnorm","optim", "predict", "qnorm")
 importFrom("methods", "is")
+importFrom("stats", "p.adjust", "pt")
+importFrom("utils", "combn")
 exportPattern("^[[:alpha:]]+")
