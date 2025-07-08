@@ -234,34 +234,33 @@ perLog <- function(X, groups = NULL, p = 10, alpha = 0.05, R = 1000,
     #                    a list (of length G, where each item corresponds to different zero pattern)
     #                    containing names of zero parts in the respective zero patterns
     
-    if (perlogR$pvalOv>=alpha) stop("No significant difference.")
-    disEl = perlogR$disEl
-    Gg = nrow(disEl)
+    disEl <- perlogR$disEl
+    Gg <- nrow(disEl)
     if (Gg == 1) { # case with 2 groups
-      summary = c("Bet-Grp diss" = perlogR$disOv, 
+      summary <- c("Bet-Grp diss" = perlogR$disOv, 
                   "%Ctb overall diss" = 100, 
                   "Adj p-value" =  perlogR$pvalOv)
       if (is.null(perlogR$parts0)) {
-        res = list(summary = summary)
+        res <- list(summary = summary)
       } else {
-        res = list(summary = summary,
+        res <- list(summary = summary,
                    parts0 = perlogR$parts0)
       }
     } else { # case with more than 2 groups
-      disEl_Prm = perlogR$disEl_Prm
-      disBg = rowSums(disEl^p, na.rm = T)
-      rcBgOv = 100*disBg/sum(disBg, na.rm = T)
-      disBg_Prm = t(sapply(disEl_Prm , function(x) rowSums(x^p, na.rm = T)))
-      disBg_All = rbind(disBg, disBg_Prm)
-      pvalBg = apply(disBg_All, 2, function(x) mean(x[-1] >= x[1]))
-      pvalBgAdj = p.adjust(pvalBg, method = mAdj)
-      summary = cbind("Bet-Grp diss" = round(disBg, 4),
+      disEl_Prm <- perlogR$disEl_Prm
+      disBg <- rowSums(disEl^p, na.rm = T)
+      rcBgOv <- 100*disBg/sum(disBg, na.rm = T)
+      disBg_Prm <- t(sapply(disEl_Prm , function(x) rowSums(x^p, na.rm = T)))
+      disBg_All <- rbind(disBg, disBg_Prm)
+      pvalBg <- apply(disBg_All, 2, function(x) mean(x[-1] >= x[1]))
+      pvalBgAdj <- p.adjust(pvalBg, method = mAdj)
+      summary <- cbind("Bet-Grp diss" = round(disBg, 4),
                       "%Ctb overall diss" = round(rcBgOv, 4),
                       "Adj p-value" = round(pvalBgAdj, 4))
       if (is.null(perlogR$parts0)) {
-        res = list(summary = summary)
+        res <- list(summary = summary)
       } else {
-        res = list(summary = summary,
+        res <- list(summary = summary,
                    parts0 = perlogR$parts0)
       }
     }
@@ -292,86 +291,84 @@ perLog <- function(X, groups = NULL, p = 10, alpha = 0.05, R = 1000,
     #                    a list (of length G, where each item corresponds to different zero pattern)
     #                    containing names of zero parts in the respective zero patterns
     
-    if (perlogR$pvalOv>=alpha) stop("No significant difference.")
-    disEl = perlogR$disEl
-    pr = rownames(disEl)
-    npr = nrow(disEl)
+    disEl <- perlogR$disEl
+    pr <- rownames(disEl)
+    npr <- nrow(disEl)
     if (npr==1) { # case with 2 groups
-      if (perlogR$pvalOv>=alpha) stop("No significantly different pair.")
-      wts = perlogR$wts[1,]
-      disEl = disEl[1,]
-      disEl.p = disEl^p
-      rcElBg = rcElOv = c(100*disEl.p/perlogR$disOv)
-      disEl_Prm = perlogR$disEl_Prm
-      disEl.p_Prm = t(sapply(disEl_Prm, function(x) x^p))
-      disEl.p_All = rbind(disEl.p, disEl.p_Prm)
-      pvalEl = apply(disEl.p_All, 2, function(x) mean(x[-1] >= x[1]))
-      pvalElAdj = p.adjust(pvalEl, method = mAdj)
-      summary = list(cbind("wts" = wts,
+      wts <- perlogR$wts[1,]
+      disEl <- disEl[1,]
+      disEl.p <- disEl^p
+      rcElBg <- rcElOv <- c(100*disEl.p/perlogR$disOv)
+      disEl_Prm <- perlogR$disEl_Prm
+      disEl.p_Prm <- t(sapply(disEl_Prm, function(x) x^p))
+      disEl.p_All <- rbind(disEl.p, disEl.p_Prm)
+      pvalEl <- apply(disEl.p_All, 2, function(x) mean(x[-1] >= x[1]))
+      pvalElAdj <- p.adjust(pvalEl, method = mAdj)
+      summary <- list(cbind("wts" = wts,
                            "Elem diss" = disEl,
                            "%Ctb bet-grp diss" = rcElBg,
                            "%Ctb overall diss" = rcElOv,
                            "Adj p-value" = pvalElAdj))
-      names(summary) = pr
+      names(summary) <- pr
     } else { # case with more than 2 groups
-      perlogPHgR = perlogPHg(perlogR)
-      iS = which(perlogPHgR$summary[, 3]<alpha)
-      npr = length(iS)
+      perlogPHgR <- perlogPHg(perlogR)
+      iS <- which(perlogPHgR$summary[, 3]<alpha)
+      npr <- length(iS)
       if (npr==0) stop("No significantly different pair.")
-      pr = pr[iS]
-      wts = perlogR$wts[iS, ]
-      disEl = disEl[iS, ]
-      disEl.p = disEl^p
-      rcElBg = 100*disEl.p/perlogPHgR$summary[iS, 1]
-      rcElOv = 100*disEl.p/perlogR$disOv
-      disEl_Prm = lapply(perlogR$disEl_Prm, function(x) x[iS, ])
+      pr <- pr[iS]
+      wts <- perlogR$wts[iS, ]
+      disEl <- disEl[iS, ]
+      disEl.p <- disEl^p
+      rcElBg <- 100*disEl.p/perlogPHgR$summary[iS, 1]
+      rcElOv <- 100*disEl.p/perlogR$disOv
+      disEl_Prm <- lapply(perlogR$disEl_Prm, function(x) x[iS, ])
       if (npr==1) { # one significantly different pair
-        disEl.p_Prm = t(sapply(disEl_Prm, function(x) x^p))
-        disEl.p_All = rbind(disEl.p, disEl.p_Prm)
-        pvalEl = apply(disEl.p_All, 2, function(x) mean(x[-1] >= x[1]))
-        pvalElAdj = p.adjust(pvalEl, method = mAdj)
-        summary = list(cbind("wts" = wts,
+        disEl.p_Prm <- t(sapply(disEl_Prm, function(x) x^p))
+        disEl.p_All <- rbind(disEl.p, disEl.p_Prm)
+        pvalEl <- apply(disEl.p_All, 2, function(x) mean(x[-1] >= x[1]))
+        pvalElAdj <- p.adjust(pvalEl, method = mAdj)
+        summary <- list(cbind("wts" = wts,
                              "Elem diss" = disEl,
                              "%Ctb bet-grp diss" = rcElBg,
                              "%Ctb overall diss" = rcElOv,
                              "Adj p-value" = pvalElAdj))
-        names(summary) = pr
+        names(summary) <- pr
       } else { # more than one significantly different pairs
-        disEl.p_Prm = lapply(disEl_Prm, function(x) x^p)
-        disEl.p_All = c(list(disEl.p), disEl.p_Prm)
-        disEl.p_All = lapply(1:npr, function(i) t(sapply(disEl.p_All, function(x) x[i, ])))
-        pvalEl = t(sapply(disEl.p_All, function(y) apply(y, 2, function(x) mean(x[-1] >= x[1]))))
-        rownames(pvalEl) = pr
-        pvalElAdj = pvalEl
-        pvalElAdj[] = p.adjust(c(pvalEl), method = mAdj)
-        summary = lapply(1:npr, function(i) cbind("wts" = wts[i, ], 
+        disEl.p_Prm <- lapply(disEl_Prm, function(x) x^p)
+        disEl.p_All <- c(list(disEl.p), disEl.p_Prm)
+        disEl.p_All <- lapply(1:npr, function(i) t(sapply(disEl.p_All, function(x) x[i, ])))
+        pvalEl <- t(sapply(disEl.p_All, function(y) apply(y, 2, function(x) mean(x[-1] >= x[1]))))
+        rownames(pvalEl) <- pr
+        pvalElAdj <- pvalEl
+        pvalElAdj[] <- p.adjust(c(pvalEl), method = mAdj)
+        summary <- lapply(1:npr, function(i) cbind("wts" = wts[i, ], 
                                                   "Elem diss" = disEl[i, ], 
                                                   "%Ctb bet-grp diss" = rcElBg[i, ], 
                                                   "%Ctb overall diss" = rcElOv[i, ], 
                                                   "Adj p-value" = pvalElAdj[i, ]))
         }
     } 
-    names(summary) = pr
-    significance = lapply(summary, function(x) {
-      cnlr = rownames(x)
-      Dd = length(cnlr)
-      D = (1+sqrt(1+8*Dd))/2
-      cn = unique(unlist(strsplit(cnlr, "/")))
-      mt = matrix(NA, D, D)
-      sgn = rep(0, Dd)
-      sgn[which(x[,5]<alpha)] = 1
-      sgn = sign(x[,1])*sgn
-      mt[lower.tri(mt)] = -sgn
-      mtt = -t(mt)
-      mt[upper.tri(mt)] = mtt[upper.tri(mtt)]
-      rownames(mt) = colnames(mt) = cn
+    names(summary) <- pr
+    significance <- lapply(summary, function(x) {
+      cnlr <- rownames(x)
+      Dd <- length(cnlr)
+      D <- (1+sqrt(1+8*Dd))/2
+      cn <- unique(unlist(strsplit(cnlr, "/")))
+      mt <- matrix(NA, D, D)
+      sgn <- rep(0, Dd)
+      sgn[which(x[,5]<alpha)] <- 1
+      sgn <- sign(x[,1])*sgn
+      mt[lower.tri(mt)] <- -sgn
+      mtt <- -t(mt)
+      mt[upper.tri(mt)] <- mtt[upper.tri(mtt)]
+      rownames(mt) <- colnames(mt) <- cn
       return(mt)
     })
     if (is.null(perlogR$parts0)) {
-      res = list(summary = summary,
+      res <- list(summary = summary,
                  significance = significance)
     } else {
-      res = list(summary = summary,
+      res <- list(summary = summary,
                  significance = significance,
                  parts0 = perlogR$parts0)
     }
@@ -379,6 +376,8 @@ perLog <- function(X, groups = NULL, p = 10, alpha = 0.05, R = 1000,
   }
   
   ################################################################################################
+  
+  # Main function body
   
   if ((is.vector(X)) | (nrow(X)==1)) stop("X must be a matrix or data.frame class object")
   if (any(X==0, na.rm = TRUE) & (!is.null(groups))) stop("User-defined factor set but zero values found in the data set")
@@ -475,6 +474,9 @@ perLog <- function(X, groups = NULL, p = 10, alpha = 0.05, R = 1000,
       res$posthoc.logratios <- perlogPHlr(res, p = p, alpha = alpha, mAdj = mAdj)
     }
   }
+  else {print(res)
+        stop(paste("No overall difference between groups concluded at significance level alpha =", alpha))}
+  
   print(res)
 }
 
