@@ -4,8 +4,16 @@
 \alias{perLog}
 \title{Test of differences in group means for compositional data}
 \usage{
-perLog(X, groups = NULL, p = 10, alpha = 0.05, R = 1000,
-          posthoc.g = FALSE, posthoc.lr = FALSE, mAdj = "BH")
+perLog(
+  X,
+  groups = NULL,
+  p = "auto",
+  alpha = 0.05,
+  R = 1000,
+  posthoc.g = FALSE,
+  posthoc.lr = FALSE,
+  mAdj = "BH"
+)
 }
 \arguments{
 \item{X}{Compositional data set (\code{\link{matrix}} or \code{\link{data.frame}} class).}
@@ -14,22 +22,23 @@ perLog(X, groups = NULL, p = 10, alpha = 0.05, R = 1000,
 
 Note that if a grouping factor is set by the user, then any zeros in the data must be previously dealt with, e.g. by imputation.}
 
-\item{p}{Power parameter used in overall dissimilarity test statistic. (default = 10).}
+\item{p}{Power parameter used in overall dissimilarity test statistic, either automatically (default = "auto") or manually fixed.}
 
 \item{alpha}{Significance level parameter (default = 0.05).}
 
 \item{R}{Number of permutation resamples (default = 1000).}
 
-\item{posthoc.g}{Logical. If TRUE and significant overall test, performs post-hoc comparisons between pairs of groups (default = FALSE).}
+\item{posthoc.g}{Logical. If TRUE, performs post-hoc analysis for pairs of groups (default = FALSE).}
 
-\item{posthoc.lr}{Logical. If TRUE and significant overall test, performs post-hoc comparisons between logratios for each significant comparison between groups (default = FALSE).}
+\item{posthoc.lr}{Logical. If TRUE, performs post-hoc analysis for logratios (default = FALSE).}
 
 \item{mAdj}{Adjustment of p-values for multiple post-hoc testing (see \code{\link{p.adjust}}). Default is Benjamini and Hochberg's FDR method (default = "BH").}
 }
 \value{
-A list object of class "printres" containing summaries of results:
+A list object of class "perLog.output" containing summaries of results:
 \item{disOv}{Overall dissimilarity test statistic.}
 \item{pvalOv}{Overall permutation p-value.}
+\item{p}{Power parameter used in overall dissimilarity test statistic.}
 \item{posthoc.groups}{If `posthoc.g = TRUE` and the main test is significant, results of the post-hoc analysis for pairs of groups.}
 \item{posthoc.logratios}{If `posthoc.lr = TRUE` and the main test is significant, results of the post-hoc analysis for pairwise logratios.}
 \item{wts}{Welch's t-statistic.}
@@ -40,11 +49,13 @@ A list object of class "printres" containing summaries of results:
 \item{parts0}{If `groups = NULL`, list containing original names of zero parts in the respective zero patterns.}
 }
 \description{
-A nonparametric permutation test based on pairwise logratios to assess the hypothesis of equality of means/locations between subsets of observations according to an externally or internally defined factor. If any, zero patterns are considered as default internal grouping factor.
+A nonparametric permutation test to assess the hypothesis of equality of means between subsets of observations according to an externally or internally defined factor variable. If any, zero patterns are considered as default internal grouping factor.
 }
 \details{
-The test relies on the unique pairwise logratios between parts of the given composition. It assesses whether the observed overall dissimilarity is significantly different from that expected under the null hypothesis of equal group means. If so, it can optionally perform post-hoc analyses by pairs of groups and pairwise logratios, evaluating their relative contributions to dissimilarity at group and overall levels. The p-values in post-hoc testing are adjusted for multiple comparisons using the specified method.
+The test relies on the unique pairwise logratios between parts of the given composition. It assesses whether the observed overall dissimilarity is significantly different from that expected under the null hypothesis of equal group means. If so, it can perform post-hoc analyses by pairs of groups and pairwise logratios, evaluating their relative contributions to dissimilarity at group and overall levels. The p-values in post-hoc testing are adjusted for multiple comparisons using the specified method.
 In the case of internal grouping defined by zero patterns, strings of binary codes are used to label each pattern in the output, with 0 indicating no zero part and 1 indicating zero part.
+
+The power parameter p can be either automatically selected or manually fixed. For automatic selection, a simple conservative strategy is implemented starting with p = 10, as a liberal reference (see references), and then successively setting p = \{2, 3, ..., 9\} until less significant differences are no longer obtained at the overall and group comparison levels.
 }
 \examples{
 # Load the Water data set 
@@ -55,8 +66,9 @@ Water2 <- Water[tmp \%in\% c(1,2,3),]
 # Test overall differences by zero pattern on the selected data set
 zPatterns(Water2, label = 0)
 perLog(Water2)
-# Including post-hoc analyses
-perLog(Water2, posthoc.g = TRUE, posthoc.lr = TRUE)
+}
+\references{
+XXXXXXXX
 }
 \seealso{
 \code{\link{zPatterns}}

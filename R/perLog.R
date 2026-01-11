@@ -1,21 +1,22 @@
 #' Test of differences in group means for compositional data
 #'
-#' @description A nonparametric permutation test based on pairwise logratios to assess the hypothesis of equality of means/locations between subsets of observations according to an externally or internally defined factor. If any, zero patterns are considered as default internal grouping factor.
+#' @description A nonparametric permutation test to assess the hypothesis of equality of means between subsets of observations according to an externally or internally defined factor variable. If any, zero patterns are considered as default internal grouping factor.
 #'
 #' @param X Compositional data set (\code{\link{matrix}} or \code{\link{data.frame}} class).
 #' @param groups Factor variable indicating the grouping structure. If NULL (default), any zero patterns in the data will be used as internal grouping factor.
 #' 
 #' Note that if a grouping factor is set by the user, then any zeros in the data must be previously dealt with, e.g. by imputation.
-#' @param p Power parameter used in overall dissimilarity test statistic. (default = 10).
+#' @param p Power parameter used in overall dissimilarity test statistic, either automatically (default = "auto") or manually fixed.
 #' @param alpha Significance level parameter (default = 0.05).
 #' @param R Number of permutation resamples (default = 1000).
 #' @param posthoc.g Logical. If TRUE, performs post-hoc analysis for pairs of groups (default = FALSE).
 #' @param posthoc.lr Logical. If TRUE, performs post-hoc analysis for logratios (default = FALSE).
 #' @param mAdj Adjustment of p-values for multiple post-hoc testing (see \code{\link{p.adjust}}). Default is Benjamini and Hochberg's FDR method (default = "BH").
 #'
-#' @return A list object of class "printres" containing summaries of results:
+#' @return A list object of class "perLog.output" containing summaries of results:
 #' \item{disOv}{Overall dissimilarity test statistic.}
 #' \item{pvalOv}{Overall permutation p-value.}
+#' \item{p}{Power parameter used in overall dissimilarity test statistic.}
 #' \item{posthoc.groups}{If `posthoc.g = TRUE` and the main test is significant, results of the post-hoc analysis for pairs of groups.}
 #' \item{posthoc.logratios}{If `posthoc.lr = TRUE` and the main test is significant, results of the post-hoc analysis for pairwise logratios.}
 #' \item{wts}{Welch's t-statistic.}
@@ -26,6 +27,9 @@
 #' \item{parts0}{If `groups = NULL`, list containing original names of zero parts in the respective zero patterns.}
 #' @details The test relies on the unique pairwise logratios between parts of the given composition. It assesses whether the observed overall dissimilarity is significantly different from that expected under the null hypothesis of equal group means. If so, it can perform post-hoc analyses by pairs of groups and pairwise logratios, evaluating their relative contributions to dissimilarity at group and overall levels. The p-values in post-hoc testing are adjusted for multiple comparisons using the specified method.
 #' In the case of internal grouping defined by zero patterns, strings of binary codes are used to label each pattern in the output, with 0 indicating no zero part and 1 indicating zero part.
+#' 
+#' The power parameter p can be either automatically selected or manually fixed. For automatic selection, a simple conservative strategy is implemented starting with p = 10, as a liberal reference (see references), and then successively setting p = \{2, 3, ..., 9\} until less significant differences are no longer obtained at the overall and group comparison levels.
+#' @references XXXXXXXX
 #' @export
 #' @seealso \code{\link{zPatterns}}
 #' @examples
@@ -38,8 +42,8 @@
 #' zPatterns(Water2, label = 0)
 #' perLog(Water2)
 
-perLog <- function(X, groups = NULL, p = 10, alpha = 0.05, R = 1000, 
-                      posthoc.g = FALSE, posthoc.lr = FALSE, mAdj = "BH") {
+perLog <- function(X, groups = NULL, p = "auto", alpha = 0.05, R = 1000, 
+                   posthoc.g = FALSE, posthoc.lr = FALSE, mAdj = "BH") {
   
   ## Auxiliary functions
   
@@ -185,7 +189,7 @@ perLog <- function(X, groups = NULL, p = 10, alpha = 0.05, R = 1000,
   }
   
   # Selection of results to print, only overall dissimilarity and p-value by default
-  print.printres <- function(x, ...) {
+  print.perLog.output <- function(x, ...) {
     cat(paste("\n","Overall dissimilarity:","\n\n","Test statistic E = ", round(x$disOv,4), 
               ", p-value = ", round(x$pvalOv,4),sep=""))
     #         wts ... a matrix (of size G*(G-1)/2 x D*(D-1)/2, where rows correspond to pairs of groups and columns to LR) 
@@ -220,10 +224,9 @@ perLog <- function(X, groups = NULL, p = 10, alpha = 0.05, R = 1000,
   }
   
   # Post-hoc analysis by pairs of groups
-  perlogPHg <- function(perlogR, p = 10, alpha = 0.05, mAdj = "BH"){
+  perlogPHg <- function(perlogR, alpha = 0.05, mAdj = "BH"){
     
     # INPUT: perlogR ... output of the perlog function
-    #        p ... a power p for computing  between-groups dissimilarities from elemental dissimilarities; default is 10
     #        alpha ... significance level; default is 0.05
     #        mAdj ... a method for adjusting p-values - options as in p.adjust function; default is "BH" (Benjamini & Hochberg)
     # OUTPUT: summary ... a matrix (of size G*(G-1)/2 x 3) with columns corresponding to different results:
@@ -234,6 +237,7 @@ perLog <- function(X, groups = NULL, p = 10, alpha = 0.05, R = 1000,
     #                    a list (of length G, where each item corresponds to different zero pattern)
     #                    containing names of zero parts in the respective zero patterns
     
+    p <- perlogR$p
     disEl <- perlogR$disEl
     Gg <- nrow(disEl)
     if (Gg == 1) { # case with 2 groups
@@ -268,10 +272,9 @@ perLog <- function(X, groups = NULL, p = 10, alpha = 0.05, R = 1000,
   }
   
   # Post-hoc analysis for the pairwise logratios for significantly different pairs of groups
-  perlogPHlr <- function(perlogR, p = 10, alpha = 0.05, mAdj = "BH"){
+  perlogPHlr <- function(perlogR, alpha = 0.05, mAdj = "BH"){
     
     # INPUT: perlogR ... output of the perlog function
-    #        p ... a power p for computing  between-groups and overall dissimilarities from elemental dissimilarities; default is 10
     #        alpha ... significance level; default is 0.05
     #        mAdj ... a method for adjusting p-values - options as in p.adjust function; default is "BH" (Benjamini & Hochberg)
     # OUTPUT: summary ... a list (of size equal to the number of the significantly different pairs of groups) 
@@ -291,6 +294,7 @@ perLog <- function(X, groups = NULL, p = 10, alpha = 0.05, R = 1000,
     #                    a list (of length G, where each item corresponds to different zero pattern)
     #                    containing names of zero parts in the respective zero patterns
     
+    p <- perlogR$p
     disEl <- perlogR$disEl
     pr <- rownames(disEl)
     npr <- nrow(disEl)
@@ -311,7 +315,7 @@ perLog <- function(X, groups = NULL, p = 10, alpha = 0.05, R = 1000,
                            "Adj p-value" = pvalElAdj))
       names(summary) <- pr
     } else { # case with more than 2 groups
-      perlogPHgR <- perlogPHg(perlogR)
+      perlogPHgR <- perlogPHg(perlogR, alpha = alpha, mAdj = mAdj)
       iS <- which(perlogPHgR$summary[, 3]<alpha)
       npr <- length(iS)
       if (npr==0) stop("No significantly different pair.")
@@ -391,6 +395,7 @@ perLog <- function(X, groups = NULL, p = 10, alpha = 0.05, R = 1000,
   }
   groups <- as.factor(groups)
   nk <- table(groups)
+  if ((p != "auto") & (!is.numeric(p) | (p <= 0))) stop("p must be a positive value or left set to 'auto'")
   minnk <- min(nk)
   minAR <- min(minnk, 5) # specifying the minimal number of logratios that must be present for the required combinations (k, l, i, j) in a permuted data set
   if (minnk<5) warning("At least 1 group has less than 5 observations")
@@ -446,12 +451,39 @@ perLog <- function(X, groups = NULL, p = 10, alpha = 0.05, R = 1000,
   }
   disEl <- disElw$disEA
   wts <- disElw$wts
-  disOv <- sum(disEl^p, na.rm = TRUE)
-  disOv_Prm <- sapply(disEl_Prm, function(x) sum(x^p, na.rm = TRUE))
-  pvalOv <- mean(disOv_Prm >= disOv)
+  if (p != "auto"){
+    disOv <- sum(disEl^p, na.rm = TRUE)
+    disOv_Prm <- sapply(disEl_Prm, function(x) sum(x^p, na.rm = TRUE))
+    pvalOv <- mean(disOv_Prm >= disOv)
+  }
+  else { # automatic selection of p
+    pp <- c(10, 2:10)
+    nsig10 <- Inf
+    nsigp <- -Inf
+    ppi <- 1
+    while (nsig10 > nsigp) {
+      p <- pp[ppi]
+      disOv <- sum(disEl^p, na.rm = TRUE)
+      disOv_Prm <- sapply(disEl_Prm, function(x) sum(x^p, na.rm = TRUE))
+      pvalOv <- mean(disOv_Prm >= disOv)
+      if (pvalOv > alpha) {
+        nsig = 0
+      } else {
+        disBg <- rowSums(disEl^p, na.rm = T)
+        disBg_Prm <- t(sapply(disEl_Prm , function(x) rowSums(x^p, na.rm = T)))
+        disBg_All <- rbind(disBg, disBg_Prm)
+        pvalBg <- apply(disBg_All, 2, function(x) mean(x[-1] >= x[1]))
+        pvalBgAdj <- p.adjust(pvalBg, method = mAdj)
+        nsig <- 1 + sum(pvalBgAdj < alpha)
+      }
+      if (ppi == 1) nsig10 <- nsig else nsigp <- nsig
+      ppi <- ppi + 1
+    }
+  }  
   if (is.null(groups0)) {
     res = list(disOv = disOv,
                pvalOv = pvalOv, 
+               p = p,
                wts = wts,
                disEl = disEl, 
                disEl_Prm = disEl_Prm,
@@ -459,24 +491,26 @@ perLog <- function(X, groups = NULL, p = 10, alpha = 0.05, R = 1000,
   } else {
     res = list(disOv = disOv,
                pvalOv = pvalOv, 
+               p = p,
                wts = wts,
                disEl = disEl, 
                disEl_Prm = disEl_Prm)
   }
-  class(res) = "printres"
+  class(res) = "perLog.output"
   
   # --- Optional Post-Hoc Analyses ---
   if (res$pvalOv < alpha) {
     if (posthoc.g) {
-      res$posthoc.groups <- perlogPHg(res, p = p, alpha = alpha, mAdj = mAdj)
+      res$posthoc.groups <- perlogPHg(res, alpha = alpha, mAdj = mAdj)
     }
     if (posthoc.lr) {
-      res$posthoc.logratios <- perlogPHlr(res, p = p, alpha = alpha, mAdj = mAdj)
+      res$posthoc.logratios <- perlogPHlr(res, alpha = alpha, mAdj = mAdj)
     }
   }
   else {print(res)
         stop(paste("No overall difference between groups concluded at significance level alpha =", alpha))}
   
   print(res)
+  return(invisible(res))
 }
 
