@@ -6,7 +6,7 @@
 #' @param groups Factor variable indicating the grouping structure. If NULL (default), any zero patterns in the data will be used as internal grouping factor.
 #' 
 #' Note that if a grouping factor is set by the user, then any zeros in the data must be previously dealt with, e.g. by imputation.
-#' @param p Power parameter used in overall dissimilarity test statistic, either automatically (default = "auto") or manually fixed.
+#' @param p Power parameter selected in overall dissimilarity test statistic, either automatically (default = "auto") or manually fixed.
 #' @param alpha Significance level parameter (default = 0.05).
 #' @param R Number of permutation resamples (default = 1000).
 #' @param posthoc.g Logical. If TRUE, performs post-hoc analysis for pairs of groups (default = FALSE).
@@ -28,8 +28,8 @@
 #' @details The test relies on the unique pairwise logratios between parts of the given composition. It assesses whether the observed overall dissimilarity is significantly different from that expected under the null hypothesis of equal group means. If so, it can perform post-hoc analyses by pairs of groups and pairwise logratios, evaluating their relative contributions to dissimilarity at group and overall levels. The p-values in post-hoc testing are adjusted for multiple comparisons using the specified method.
 #' In the case of internal grouping defined by zero patterns, strings of binary codes are used to label each pattern in the output, with 0 indicating no zero part and 1 indicating zero part.
 #' 
-#' The power parameter p can be either automatically selected or manually fixed. For automatic selection, a simple conservative strategy is implemented starting with p = 10, as a liberal reference (see references), and then successively setting p = \{2, 3, ..., 9\} until less significant differences are no longer obtained at the overall and group comparison levels.
-#' @references XXXXXXXX
+#' The power parameter p can be either automatically selected or manually fixed. For automatic selection, a simple conservative strategy is implemented starting with p = 10, as a liberal reference, and then successively setting p = \{2, 3, ..., 9\} until less significant differences are no longer obtained at the overall and group comparison levels.
+#' @references Štefelová N, Palarea-Albaladejo J, Martín-Fernández JA. A permutation test of differences between externally or internally defined groupings in compositional data sets. Statistical Methods in Medical Research. 2026;0(0). <doi:10.1177/09622802251413737>
 #' @export
 #' @seealso \code{\link{zPatterns}}
 #' @examples

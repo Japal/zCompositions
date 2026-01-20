@@ -62,7 +62,7 @@ When \code{imp.missing = TRUE}, unobserved values are treated as general missing
 A \code{\link{data.frame}} object containing the imputed compositional data set expressed in the original scale.
 }
 \references{
-Palarea-Albaladejo, J, Antoni Martín-Fernández, J, Ruiz-Gazen, A, Thomas-Agnan, C. lrSVD: An efficient imputation algorithm for incomplete high-throughput compositional data. Journal of Chemometrics 2022; 36: e3459.
+Palarea-Albaladejo, J, Antoni Martín-Fernández, JA, Ruiz-Gazen, A, Thomas-Agnan, C. lrSVD: An efficient imputation algorithm for incomplete high-throughput compositional data. Journal of Chemometrics 2022; 36: e3459.
 }
 \seealso{
 \code{\link{zPatterns}}, \code{\link{lrSVD}}, \code{\link{lrDA}}, \code{\link{multRepl}}, \code{\link{multLN}}, \code{\link{multKM}}, \code{\link{cmultRepl}}, \code{\link{lrSVDplus}}

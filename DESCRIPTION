@@ -3,7 +3,7 @@ Type: Package
 Title: Treatment of Zeros, Left-Censored and Missing Values in
         Compositional Data Sets
 Version: 1.6.0
-Date: 2025-07-07
+Date: 2026-20-01
 Authors@R: 
     c(person(given = "Javier",
              family = "Palarea-Albaladejo",

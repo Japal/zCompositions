@@ -69,7 +69,7 @@ When \code{imp.missing = TRUE}, unobserved values are treated as general missing
 A \code{\link{data.frame}} object containing the imputed compositional data set expressed in the original scale. The number of iterations required for convergence is also printed (this can be suppressed by setting \code{suppress.print=TRUE}).
 }
 \references{
-Martin-Fernandez, J.A., Hron, K., Templ, M., Filzmoser, P., Palarea-Albaladejo, J. Model-based replacement of rounded zeros in compositional data: classical and robust approaches. Computational Statistics & Data Analysis 2012; 56: 2688-2704.
+Martin-Fernandez J.A., Hron K., Templ M., Filzmoser P., Palarea-Albaladejo J. Model-based replacement of rounded zeros in compositional data: classical and robust approaches. Computational Statistics & Data Analysis 2012; 56: 2688-2704.
 
 Palarea-Albaladejo J, Martin-Fernandez JA, Gomez-Garcia J. A parametric approach for dealing with compositional rounded zeros. Mathematical Geology 2007; 39: 625-45.
 

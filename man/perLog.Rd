@@ -4,16 +4,8 @@
 \alias{perLog}
 \title{Test of differences in group means for compositional data}
 \usage{
-perLog(
-  X,
-  groups = NULL,
-  p = "auto",
-  alpha = 0.05,
-  R = 1000,
-  posthoc.g = FALSE,
-  posthoc.lr = FALSE,
-  mAdj = "BH"
-)
+perLog(X, groups = NULL, p = "auto", alpha = 0.05, R = 1000,
+          posthoc.g = FALSE, posthoc.lr = FALSE, mAdj = "BH")
 }
 \arguments{
 \item{X}{Compositional data set (\code{\link{matrix}} or \code{\link{data.frame}} class).}
@@ -22,7 +14,7 @@ perLog(
 
 Note that if a grouping factor is set by the user, then any zeros in the data must be previously dealt with, e.g. by imputation.}
 
-\item{p}{Power parameter used in overall dissimilarity test statistic, either automatically (default = "auto") or manually fixed.}
+\item{p}{Power parameter selected in overall dissimilarity test statistic, either automatically (default = "auto") or manually fixed.}
 
 \item{alpha}{Significance level parameter (default = 0.05).}
 
@@ -55,7 +47,7 @@ A nonparametric permutation test to assess the hypothesis of equality of means b
 The test relies on the unique pairwise logratios between parts of the given composition. It assesses whether the observed overall dissimilarity is significantly different from that expected under the null hypothesis of equal group means. If so, it can perform post-hoc analyses by pairs of groups and pairwise logratios, evaluating their relative contributions to dissimilarity at group and overall levels. The p-values in post-hoc testing are adjusted for multiple comparisons using the specified method.
 In the case of internal grouping defined by zero patterns, strings of binary codes are used to label each pattern in the output, with 0 indicating no zero part and 1 indicating zero part.
 
-The power parameter p can be either automatically selected or manually fixed. For automatic selection, a simple conservative strategy is implemented starting with p = 10, as a liberal reference (see references), and then successively setting p = \{2, 3, ..., 9\} until less significant differences are no longer obtained at the overall and group comparison levels.
+The power parameter p can be either automatically selected or manually fixed. For automatic selection, a simple conservative strategy is implemented starting with p = 10, as a liberal reference, and then successively setting p = \{2, 3, ..., 9\} until less significant differences are no longer obtained at the overall and group comparison levels.
 }
 \examples{
 # Load the Water data set 
@@ -68,7 +60,7 @@ zPatterns(Water2, label = 0)
 perLog(Water2)
 }
 \references{
-XXXXXXXX
+Štefelová N, Palarea-Albaladejo J, Martín-Fernández JA. A permutation test of differences between externally or internally defined groupings in compositional data sets. Statistical Methods in Medical Research. 2026;0(0). <doi:10.1177/09622802251413737>
 }
 \seealso{
 \code{\link{zPatterns}}
