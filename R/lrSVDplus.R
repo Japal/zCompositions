@@ -5,9 +5,9 @@ lrSVDplus <- function(X, dl = NULL, frac = 0.65, ncp = 2, beta = 0.5, method = c
   if (any(X < 0, na.rm = T)) stop("X contains negative values")
   if (is.character(dl)) stop("dl must be a numeric vector or matrix")
   if (is.null(dl)){ # If dl not given use min per column
-      dl <- apply(X,2, function(x) min(x[x!=0]))
-      warning("No dl vector or matrix provided. The minimum observed values for each column used as detection limits.")
-    }
+    dl <- apply(X,2, function(x) min(x[x!=0]))
+    warning("No dl vector or matrix provided. The minimum observed values for each column used as detection limits.")
+  }
   if (is.vector(dl)) dl <- matrix(dl,nrow=1)
   dl <- as.matrix(dl) # Avoids problems when dl might be multiple classes
   if ((is.vector(X)) | (nrow(X) == 1)) stop("X must be a data matrix")

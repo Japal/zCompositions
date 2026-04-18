@@ -1,8 +1,8 @@
 cmultRepl <- function(X, label= 0, method= c("GBM","SQ","BL","CZM","user"),
-                      output= c("prop","p-counts"),
-                      frac= 0.65, threshold= 0.5, adjust= TRUE, 
-                      t= NULL, s= NULL, z.warning= 0.8, z.delete= TRUE,
-                      suppress.print= FALSE, delta= NULL) {
+                       output= c("prop","p-counts"),
+                       frac= 0.65, threshold= 0.5, adjust= TRUE, 
+                       t= NULL, s= NULL, z.warning= 0.8, z.delete= TRUE,
+                       suppress.print= FALSE, delta= NULL) {
   
   if (any(X<0, na.rm=T)) stop("X contains negative values")
   if (is.vector(X) | is.character(X) | (nrow(X)==1)) stop("X must be a data matrix")
@@ -16,7 +16,7 @@ cmultRepl <- function(X, label= 0, method= c("GBM","SQ","BL","CZM","user"),
     if (any(X==0,na.rm=T)) stop("Zero values not labelled as count zeros were found in the data set")
     if (!any(is.na(X),na.rm=T)) stop(paste("Label",label,"was not found in the data set"))
   }
-
+  
   if (!missing("delta")) {
     warning("The delta argument is deprecated, use frac instead: frac has been set equal to delta.")
     frac <- delta
@@ -58,7 +58,7 @@ cmultRepl <- function(X, label= 0, method= c("GBM","SQ","BL","CZM","user"),
         stop(paste("Almost all rows contain >", z.warning*100,
                    "% zeros/unobserved values (see arguments z.warning and z.delete).",
                    sep=""))
-        }
+      }
       X <- X[-cases,]      
       action <- "deleted"
       
@@ -88,7 +88,7 @@ cmultRepl <- function(X, label= 0, method= c("GBM","SQ","BL","CZM","user"),
       alpha <- matrix(0,nrow=N,ncol=D)
       for (i in 1:N){
         alpha[i,] <- apply(X,2,function(x) sum(x[-i],na.rm=T))
-        }
+      }
       t <- alpha/rowSums(alpha)
       if ((method=="GBM") && (any(t==0))) {stop("GBM method: not enough information to compute t hyper-parameter,
                                                 probably there are columns with < 2 positive values.")}
@@ -107,24 +107,31 @@ cmultRepl <- function(X, label= 0, method= c("GBM","SQ","BL","CZM","user"),
   
   # Multiplicative replacement on the closed data
   
-  X2 <- t(apply(X,1,function(x) x/sum(x,na.rm=T)))
-  colmins <- apply(X2,2,function(x) min(x,na.rm=T))
+  n_sums <- rowSums(X, na.rm = TRUE)
+  X2 <- X / n_sums
+  
+  colmins <- apply(X2, 2, min, na.rm = TRUE)
   adjusted <- 0
   
   for (i in 1:N){
-    if (any(is.na(X2[i,]))){
-      z <- which(is.na(X2[i,]))
-      X2[i,z] <- repl[i,z]
-      if (adjust==TRUE){
-        if (any(X2[i,z] > colmins[z])){
-          f <- which(X2[i,z] > colmins[z])
-          X2[i,z][f] <- frac*colmins[z][f]
+    row_na <- is.na(X2[i, ])
+    
+    if (any(row_na)){
+      z <- which(row_na)
+      X2[i, z] <- repl[i, z]
+      
+      if (adjust == TRUE){
+        violators <- X2[i, z] > colmins[z]
+        if (any(violators)){
+          f <- which(violators)
+          X2[i, z[f]] <- frac * colmins[z[f]]
           adjusted <- adjusted + length(f)
         }
       }
-      X2[i,-z] <- (1-(sum(X2[i,z])))*X2[i,-z]
+      # Adjust the non-missing values proportionally
+      X2[i, -z] <- (1 - sum(X2[i, z])) * X2[i, -z]
     }
-  }        
+  }      
   
   # Rescale to p-counts if required
   
@@ -140,7 +147,7 @@ cmultRepl <- function(X, label= 0, method= c("GBM","SQ","BL","CZM","user"),
     res <- X
   }
   else {res <- X2}
-
+  
   if (suppress.print == FALSE){
     if ((adjust==TRUE) & (adjusted > 0)) {cat(paste("No. adjusted imputations: ",adjusted,"\n"))}
   }

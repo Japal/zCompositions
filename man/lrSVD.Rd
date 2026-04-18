@@ -80,7 +80,7 @@ Palarea-Albaladejo, J, Antoni Martín-Fernández, JA, Ruiz-Gazen, A, Thomas-Agna
                11.50,30.33,6.85,13.92,30.82,6.58,
                19.04,42.59,0.00,38.37,0.00,0.00),byrow=TRUE,ncol=6)
  
- X_lrSVD<- lrSVD(X,label=0,dl=rep(1,6))
+ X_lrSVD <- lrSVD(X,label=0,dl=rep(1,6))
  
  # Multiple limits of detection by component
  mdl <- matrix(0,ncol=6,nrow=10)

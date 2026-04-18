@@ -4,7 +4,7 @@ lrDA <-
            z.delete=TRUE,delta=NULL){
     
     if (any(X<0, na.rm=T)) stop("X contains negative values")
-
+    
     if ((is.vector(X)) | (nrow(X)==1)) stop("X must be a data matrix")
     if (is.null(label)) stop("A value for label must be given")
     if (!is.na(label)){
@@ -20,7 +20,7 @@ lrDA <-
     if (imp.missing==FALSE){
       if (is.character(dl)) stop("dl must be a numeric vector or matrix")
       if (is.null(dl)){ # If dl not given use min per column
-        dl <- apply(X,2, function(x) min(x[x!=label]))
+        dl <- apply(X,2, function(x) min(x[!(x %in% label)]))
         warning("No dl vector or matrix provided. The minimum observed values for each column used as detection limits.")
       }
       if (is.vector(dl)) dl <- matrix(dl,nrow=1)
@@ -299,17 +299,17 @@ lrDA <-
         k <- k + 1
         imputed[k,] <- Y[which(is.na(X_alr))]
         if (store.mi==TRUE){
-         mi.list[[k]] <- Y
+          mi.list[[k]] <- Y
         }
       }
-
+      
       # P-step
       
       C <- riwish(nn-1,nn*cov(Y))
       M <- mvrnorm(1,colMeans(Y),(1/nn)*C)
       
-    t <- t + 1
-
+      t <- t + 1
+      
     }
     
     if ((m > 1) & (store.mi == FALSE)) Y[which(is.na(X_alr))] <- colMeans(imputed) # MI estimates
@@ -320,7 +320,7 @@ lrDA <-
     
     if (alt.in) {
       if (imp.missing==FALSE){
-      cat("Warning: samples with only one observed component were found \n")
+        cat("Warning: samples with only one observed component were found \n")
         for (i in 2:length(alt.pat)){
           cat(paste("  Pattern no.",alt.pat[i],"was imputed using multiplicative simple replacement \n"))
           cat("   Affected samples id: "); cat(alt.mr[[i]]); cat("\n\n")

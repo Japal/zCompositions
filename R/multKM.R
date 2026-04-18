@@ -15,23 +15,17 @@ multKM <-
       if (!any(is.na(X),na.rm=T)) stop(paste("Label",label,"was not found in the data set"))
     }
     if (is.character(dl)) stop("dl must be a numeric vector or matrix")
-    if (is.null(dl)){ # If dl not given use min per column
-      dl <- apply(X,2, function(x) min(x[x!=label]))
+    if (is.null(dl)){ 
+      dl <- apply(X, 2, function(x) min(x[!(x %in% label)], na.rm = TRUE))
       warning("No dl vector or matrix provided. The minimum observed values for each column used as detection limits.")
     }
     if (is.vector(dl)) dl <- matrix(dl,nrow=1)
-    dl <- as.matrix(dl) # Avoids problems when dl might be multiple classes
+    dl <- as.matrix(dl) 
     if (ncol(dl)!=ncol(X)) stop("The number of columns in X and dl do not agree")
     if ((nrow(dl)>1) & (nrow(dl)!=nrow(X))) stop("The number of rows in X and dl do not agree")
     
     if ((!is.null(n.knots)) & (length(n.knots)!=1) & (length(n.knots)!=ncol(X))) stop("The dimensions of n.knots and X do not agree")
     if ((!is.null(n.knots)) & (length(n.knots)==1)) {n.knots <- rep(list(n.knots),ncol(X))}
-    
-    # Standalone Replication of NADA::cenfit
-    #
-    # Computes an estimate of an empirical cumulative distribution function (ECDF)
-    # for left-censored data using the Kaplan-Meier method, by "flipping" the
-    # data to be compatible with the survival::survfit function.
     
     cenfit_standalone <- function(obs, censored,...) {
       
@@ -76,7 +70,7 @@ multKM <-
     X <- apply(X,2,as.numeric)
     rownames(X) <- rnames
     
-    checkNumZerosCol <- apply(X, 2, function(x) sum(is.na(x)))
+    checkNumZerosCol <- colSums(is.na(X))
     
     if (any(checkNumZerosCol/nrow(X) > z.warning)) {    
       cases <- which(checkNumZerosCol/nrow(X) > z.warning)    
@@ -100,7 +94,7 @@ multKM <-
       }
     }
     
-    checkNumZerosRow <- apply(X, 1, function(x) sum(is.na(x)))  
+    checkNumZerosRow <- rowSums(is.na(X))  
     if (any(checkNumZerosRow/ncol(X) > z.warning)) {    
       cases <- which(checkNumZerosRow/ncol(X) > z.warning)    
       if (z.delete == TRUE) {
@@ -125,14 +119,13 @@ multKM <-
     }
     
     nn <- nrow(X); p <- ncol(X)
-    c <- apply(X,1,sum,na.rm=TRUE)
+    c <- rowSums(X, na.rm=TRUE)
     
-    # Check for closure
     closed <- 0
     if (all( abs(c - mean(c)) < .Machine$double.eps^0.3 )) closed <- 1
     
     if (nrow(dl)==1){
-      dl <- matrix(rep(1,nn),ncol=1)%*%dl
+      dl <- matrix(dl, nrow=nn, ncol=p, byrow=TRUE)
       est <- dl
     }
     else est <- dl
@@ -147,21 +140,18 @@ multKM <-
       else {est[,part] <- 0}
     }
     
-    Y <- X
+    X_na <- is.na(X)
+    imputed_only <- est
+    imputed_only[!X_na] <- 0
+    sum_est <- rowSums(imputed_only)
     
-    for (i in 1:nn){
-      if (any(is.na(X[i,]))){
-        z <- which(is.na(X[i,]))
-        Y[i,z] <- est[i,z]
-        Y[i,-z] <- (1-(sum(Y[i,z]))/c[i])*X[i,-z]
-        X[i,z] <- as.numeric((X[i,-z][1]/Y[i,-z][1]))*Y[i,z]
-      }
-    }   
-  
+    adjustment <- 1 / (1 - (sum_est / c))
+    
+    X[X_na] <- (est * adjustment)[X_na]
+    
     if (closed==1){
-      X <- t(apply(X,1,function(x) x/sum(x)*c[1]))
+      X <- (X / rowSums(X)) * c[1]
     }
     
     return(as.data.frame(X,stringsAsFactors=TRUE))
-  }  
-    
+  }

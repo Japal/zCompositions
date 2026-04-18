@@ -43,301 +43,212 @@
 #' perLog(Water2)
 
 perLog <- function(X, groups = NULL, p = "auto", alpha = 0.05, R = 1000, 
-                   posthoc.g = FALSE, posthoc.lr = FALSE, mAdj = "BH") {
+                    posthoc.g = FALSE, posthoc.lr = FALSE, mAdj = "BH") {
   
-  ## Auxiliary functions
+  # Auxiliary functions
   
-  # Welch's t-statistic for 2 groups of LR
-  wtstat <- function(lr1, lr2){
-    lr1 <- lr1[!is.na(lr1)]
-    lr2 <- lr2[!is.na(lr2)]
-    n1 <- length(lr1)
-    n2 <- length(lr2)
-    m1 <- mean(lr1)
-    m2 <- mean(lr2)
-    nmr <- m1-m2
-    v1 <- var(lr1)
-    v2 <- var(lr2)
-    s1 <- v1/n1
-    s2 <- v2/n2
-    dnm <- sqrt(s1+s2)
-    wts <- nmr/dnm
-    df1i <- 1/(n1-1)
-    df2i <- 1/(n2-1)
-    df <- dnm^4/(df1i*s1^2+df2i*s2^2)
-    return(list(wts = wts, df = df))
+  fast_stats <- function(mat) {
+    valid <- !is.na(mat)
+    n <- colSums(valid)
+    m <- colSums(mat, na.rm = TRUE) / n
+    diffs <- t(t(mat) - m) 
+    v <- colSums(diffs^2, na.rm = TRUE) / (n - 1)
+    list(n = n, m = m, v = v)
   }
   
-  # Elemental dissimilarities for a pair of groups
-  disElPair <- function(LR1, LR2, alpha = 0.05, rwts = FALSE, pgNAlri = NULL){
-    ll <- length(pgNAlri)
-    LR <- rbind(LR1, LR2)
-    if (ll!=0) { # case with an internal factor
-      Dd <- ncol(LR)
-      LR <- LR[, -pgNAlri]
+  disElPair <- function(LR1, LR2, alpha = 0.05, rwts = FALSE, pgNAlri = NULL) {
+    Dd <- ncol(LR1)
+    
+    if (length(pgNAlri) != 0) {
+      LR1 <- LR1[, -pgNAlri, drop = FALSE]
+      LR2 <- LR2[, -pgNAlri, drop = FALSE]
     }
-    if (length(LR) == 0) { # no of the D*(D-1)/2 LR available
-      disEP <- wts <- rep(NA, Dd)
-    } else if (is.null(ncol(LR))) { # 1 of the D*(D-1)/2 LR available
-      n1 <- nrow(LR1)
-      n <- length(LR)
-      Wdf <- wtstat(LR[1:n1], LR[(n1+1):n])
-      wts <- Wdf[[1]]
-      awts <- abs(wts)
-      df <- Wdf[[2]]
-      qN <- qnorm(pt(awts, df))
-      if (is.infinite(qN)) qN <- qnorm(0.9999999999999999) # replacing extreme quantiles by the maximal non-Inf obtainable value
-      qNs <- qnorm(1-alpha/2)
-      disEP <- qN/qNs
-    } else { # more than 1 of the D*(D-1)/2 LR available
-      n1 <- nrow(LR1)
-      n <- nrow(LR)
-      ind1 <- 1:n1
-      ind2 <- (n1+1):n
-      Wdf <- apply(LR, 2, function(x) wtstat(x[ind1], x[ind2]))
-      wts <- unlist(sapply(Wdf, function(x) x[1]))
-      awts <- abs(wts)
-      df <- unlist(sapply(Wdf, function(x) x[2]))
-      qN <- qnorm(pt(awts, df))
-      if(is.infinite(sum(qN))) qN[is.infinite(qN)] <- qnorm(0.9999999999999999) # replacing extreme quantiles by the maximal non-Inf obtainable value
-      qNs <- qnorm(1-alpha/2)
-      disEP <- qN/qNs
-    }
-    if (ll!=0) { # case with an internal factor
-      disEP0 <- disEP
-      disEP <- rep(NA, Dd)
-      disEP[-pgNAlri] <- disEP0
-      if (rwts == TRUE) { # for the original data
-        wts0 <- wts
-        wts <- rep(NA, Dd)
-        wts[-pgNAlri] <- wts0
+    
+    if (ncol(LR1) == 0) {
+      disEP <- wts <- rep(NA_real_, Dd)
+    } else {
+      s1 <- fast_stats(LR1)
+      s2 <- fast_stats(LR2)
+      
+      nmr <- s1$m - s2$m
+      var1_n1 <- s1$v / s1$n
+      var2_n2 <- s2$v / s2$n
+      dnm <- sqrt(var1_n1 + var2_n2)
+      
+      wts_calc <- nmr / dnm
+      df_calc <- dnm^4 / ((1 / (s1$n - 1)) * var1_n1^2 + (1 / (s2$n - 1)) * var2_n2^2)
+      
+      awts <- abs(wts_calc)
+      qN <- qnorm(pt(awts, df_calc))
+      qN[is.infinite(qN)] <- qnorm(0.9999999999999999) 
+      qNs <- qnorm(1 - alpha / 2)
+      disEP_calc <- qN / qNs
+      
+      if (length(pgNAlri) != 0) {
+        disEP <- rep(NA_real_, Dd)
+        disEP[-pgNAlri] <- disEP_calc
+        if (rwts) {
+          wts <- rep(NA_real_, Dd)
+          wts[-pgNAlri] <- wts_calc
+        }
+      } else {
+        disEP <- disEP_calc
+        if (rwts) wts <- wts_calc
       }
     }
-    if (rwts == TRUE) { # for the original data
-      return(list(disEP = disEP, wts = wts))
-    } else{ # for the permuted data
-      return(disEP = disEP)
-    }
+    
+    if (rwts) return(list(disEP = disEP, wts = wts))
+    return(disEP)
   }
   
-  # Elemental dissimilarities for all pairs of groups
-  disElAll <- function(LR, groups, alpha = 0.05, rwts = FALSE, pgNAlri = NULL){
+  # Elemental dissimilarities for all pairs
+  disElAll <- function(LR, groups, alpha = 0.05, rwts = FALSE, pgNAlri = NULL) {
     Dd <- ncol(LR)
     cnlr <- colnames(LR)
     cmbg <- combn(levels(groups), 2, simplify = FALSE)
     Gg <- length(cmbg)
     grcmb <- sapply(cmbg, function(x) paste(x, collapse = " vs "))
-    ll <- length(pgNAlri)
-    if (ll!=0) { # case with an internal factor
-      if (rwts == TRUE) { # for the original data
-        disEAw <- lapply(1:Gg, function(x) disElPair(LR[groups==cmbg[[x]][1], ], LR[groups==cmbg[[x]][2], ],
-                                                     alpha = alpha, rwts = TRUE, pgNAlri = pgNAlri[[x]]))
-        disEA <- matrix(unlist(sapply(disEAw, function(x) x[1])), length(cmbg), Dd, byrow = TRUE)
-        wts <- matrix(unlist(sapply(disEAw, function(x) x[2])), length(cmbg), Dd, byrow = TRUE)
-        rownames(disEA) <- rownames(wts) <- grcmb
-        colnames(disEA) <- colnames(wts) <- cnlr
-        return(list(disEA = disEA, wts = wts))
-      } else { # for the permuted data
-        disEA <- t(sapply(1:Gg, function(x) disElPair(LR[groups==cmbg[[x]][1], ], LR[groups==cmbg[[x]][2], ],
-                                                      alpha = alpha, pgNAlri = pgNAlri[[x]])))
-        rownames(disEA) <- grcmb
-        colnames(disEA) <- cnlr
-        return(disEA = disEA)
-      }
-    } else { # case with an external factor
-      if (rwts == TRUE) { # for original data
-        disEAw <- lapply(cmbg, function(x) disElPair(LR[groups==x[1], ], LR[groups==x[2], ],
-                                                     alpha = alpha, rwts = TRUE))
-        disEA <- matrix(unlist(sapply(disEAw, function(x) x[1])), length(cmbg), Dd, byrow = TRUE)
-        wts <- matrix(unlist(sapply(disEAw, function(x) x[2])), length(cmbg), Dd, byrow = TRUE)
-        rownames(disEA) <- rownames(wts) <- grcmb
-        colnames(disEA) <- colnames(wts) <- cnlr
-        return(list(disEA = disEA, wts = wts))
-      } else { # for the permuted data
-        disEA <- t(sapply(cmbg, function(x) disElPair(LR[groups==x[1], ], LR[groups==x[2], ],
-                                                      alpha = alpha)))
-        rownames(disEA) <- grcmb
-        colnames(disEA) <- cnlr
-        return(disEA = disEA)
-      }
+    
+    if (length(pgNAlri) != 0) {
+      res_list <- lapply(1:Gg, function(x) {
+        disElPair(LR[groups == cmbg[[x]][1], , drop = FALSE], 
+                  LR[groups == cmbg[[x]][2], , drop = FALSE],
+                  alpha = alpha, rwts = rwts, pgNAlri = pgNAlri[[x]])
+      })
+    } else {
+      res_list <- lapply(cmbg, function(x) {
+        disElPair(LR[groups == x[1], , drop = FALSE], 
+                  LR[groups == x[2], , drop = FALSE],
+                  alpha = alpha, rwts = rwts)
+      })
+    }
+    
+    if (rwts) {
+      disEA <- matrix(unlist(lapply(res_list, `[[`, 1)), Gg, Dd, byrow = TRUE)
+      wts <- matrix(unlist(lapply(res_list, `[[`, 2)), Gg, Dd, byrow = TRUE)
+      rownames(disEA) <- rownames(wts) <- grcmb
+      colnames(disEA) <- colnames(wts) <- cnlr
+      return(list(disEA = disEA, wts = wts))
+    } else {
+      disEA <- matrix(unlist(res_list), Gg, Dd, byrow = TRUE)
+      rownames(disEA) <- grcmb
+      colnames(disEA) <- cnlr
+      return(disEA)
     }
   }
   
-  # Elemental dissimilarities for all pairs of groups in a permuted dataset
-  disElAllPerm <- function(LR, groups, alpha = 0.05, pgNAlri = NULL, gRlri = NULL, minAR = 5){
+  # Permutation function
+  disElAllPerm <- function(LR, groups, alpha = 0.05, pgNAlri = NULL, gRlri = NULL, minAR = 5) {
     lev <- levels(groups)
     n <- nrow(LR)
-    indR <- sample(1:n, n, replace = FALSE)
-    LRR <- LR[indR, ]
-    ll <- length(gRlri)
-    if (ll!=0) { # case with an internal factor
-      nmbA <- lapply(1:ll, function(x) apply(data.frame(LRR[groups==lev[x], gRlri[[x]]]), 2,
-                                             function(y) length(y[!is.na(y)]))) # i-th element ... numbers of available required LR in the i-th group
-      minA <- min(unlist(nmbA))
-      while (minA < minAR) {
-        indR <- sample(1:n, n, replace = FALSE)
-        LRR <- LR[indR, ]
-        nmbA <- lapply(1:ll, function(x) apply(data.frame(LRR[groups==lev[x], gRlri[[x]]]), 2,
-                                               function(y) length(y[!is.na(y)])))
-        minA <- min(unlist(nmbA))
+    indR <- sample(n)
+    LRR <- LR[indR, , drop = FALSE]
+    
+    if (length(gRlri) != 0) {
+      attempts <- 0
+      repeat {
+        minA <- min(vapply(seq_along(lev), function(x) {
+          min(colSums(!is.na(LRR[groups == lev[x], gRlri[[x]], drop = FALSE])))
+        }, numeric(1)))
+        
+        if (minA >= minAR || attempts > 100) break
+        indR <- sample(n)
+        LRR <- LR[indR, , drop = FALSE]
+        attempts <- attempts + 1
       }
-      disEAP <- disElAll(LRR, groups, alpha = alpha, pgNAlri = pgNAlri)
-    } else { # case with an external factor
-      disEAP <- disElAll(LRR, groups, alpha = alpha)
+      return(disElAll(LRR, groups, alpha = alpha, pgNAlri = pgNAlri))
     }
-    return(disEAP)
+    return(disElAll(LRR, groups, alpha = alpha))
   }
   
-  # Selection of results to print, only overall dissimilarity and p-value by default
-  print.perLog.output <- function(x, ...) {
-    cat(paste("\n","Overall dissimilarity:","\n\n","Test statistic E = ", round(x$disOv,4), 
-              ", p-value = ", round(x$pvalOv,4),sep=""))
-    #         wts ... a matrix (of size G*(G-1)/2 x D*(D-1)/2, where rows correspond to pairs of groups and columns to LR) 
-    #                 containing the Welch's t-statistics (t_{ij}^{(k, l)}) in the original data set
-    #         disEl ... a matrix (of size G*(G-1)/2 x D*(D-1)/2, where rows correspond to pairs of groups and columns to LR) 
-    #                   containing the elemental dissimilarities (e_{ij}^{(k, l)}) in the original data set
-    #         disEl_Prm ... a list (of length R, where each item corresponds to different permuted data set)
-    #                       containing matrices (of size G*(G-1)/2 x D*(D-1)/2, where rows correspond to pairs of groups and columns to LR) 
-    #                       containing the elemental dissimilarities in the respective permuted data set
-    #         parts0 ... if groups = NULL, a list (of length G, where each item corresponds to different zero pattern)
-    #                    containing names of zero parts in the respective zero patterns
-  cat("\n")
+  # Custom print helper
+  print_summary <- function(x) {
+    cat("\nOverall dissimilarity:\n\nTest statistic E = ", round(x$disOv, 4), 
+        ", p-value = ", round(x$pvalOv, 4), "\n\n", sep = "")
+    
     if (!is.null(x$posthoc.groups)) {
-      cat("\n")
-      cat("Post-hoc analysis by pairs of groups:\n")
-      cat("\n")
+      cat("Post-hoc analysis by pairs of groups:\n\n")
       print(x$posthoc.groups$summary)
       if (!is.null(x$posthoc.groups$parts0)) {
-        cat(paste("\n","Zero patterns and zero parts therein:","\n\n",sep=""))
+        cat("\nZero patterns and zero parts therein:\n\n")
         print(x$posthoc.groups$parts0)
       }
     }
     if (!is.null(x$posthoc.logratios)) {
-      cat("\n")
-      cat("Post-hoc analysis for pairwise logratios:\n")
+      cat("\nPost-hoc analysis for pairwise logratios:\n")
       for (i in seq_along(x$posthoc.logratios$summary)) {
-        cat(paste("\n","Pair:", names(x$posthoc.logratios$summary)[i], "\n"))
+        cat("\nPair:", names(x$posthoc.logratios$summary)[i], "\n")
         print(round(x$posthoc.logratios$summary[[i]], 4))
       }
     }
-    
   }
   
-  # Post-hoc analysis by pairs of groups
-  perlogPHg <- function(perlogR, alpha = 0.05, mAdj = "BH"){
-    
-    # INPUT: perlogR ... output of the perlog function
-    #        alpha ... significance level; default is 0.05
-    #        mAdj ... a method for adjusting p-values - options as in p.adjust function; default is "BH" (Benjamini & Hochberg)
-    # OUTPUT: summary ... a matrix (of size G*(G-1)/2 x 3) with columns corresponding to different results:
-    #                     disBg ... the between-groups dissimilarities (E^{(kl)}) in the original data set 
-    #                     rcBgOv ... the relative contributions (in %) of the between-groups dissimilarities to the overall dissimilarity (100*E^{(kl)}/E)
-    #                     pvalBgAdj ... the adjusted between-groups p-values 
-    #         parts0 ... if zero parts ar considered for grouping, 
-    #                    a list (of length G, where each item corresponds to different zero pattern)
-    #                    containing names of zero parts in the respective zero patterns
-    
+  # Post-hoc groups
+  perlogPHg <- function(perlogR, alpha = 0.05, mAdj = "BH") {
     p <- perlogR$p
     disEl <- perlogR$disEl
     Gg <- nrow(disEl)
-    if (Gg == 1) { # case with 2 groups
-      summary <- c("Bet-Grp diss" = perlogR$disOv, 
-                  "%Ctb overall diss" = 100, 
-                  "Adj p-value" =  perlogR$pvalOv)
-      if (is.null(perlogR$parts0)) {
-        res <- list(summary = summary)
-      } else {
-        res <- list(summary = summary,
-                   parts0 = perlogR$parts0)
-      }
-    } else { # case with more than 2 groups
-      disEl_Prm <- perlogR$disEl_Prm
-      disBg <- rowSums(disEl^p, na.rm = T)
-      rcBgOv <- 100*disBg/sum(disBg, na.rm = T)
-      disBg_Prm <- t(sapply(disEl_Prm , function(x) rowSums(x^p, na.rm = T)))
+    
+    if (Gg == 1) {
+      summary_mat <- c("Bet-Grp diss" = perlogR$disOv, "%Ctb overall diss" = 100, "Adj p-value" = perlogR$pvalOv)
+    } else {
+      disBg <- rowSums(disEl^p, na.rm = TRUE)
+      rcBgOv <- 100 * disBg / sum(disBg, na.rm = TRUE)
+      disBg_Prm <- t(sapply(perlogR$disEl_Prm, function(x) rowSums(x^p, na.rm = TRUE)))
       disBg_All <- rbind(disBg, disBg_Prm)
       pvalBg <- apply(disBg_All, 2, function(x) mean(x[-1] >= x[1]))
       pvalBgAdj <- p.adjust(pvalBg, method = mAdj)
-      summary <- cbind("Bet-Grp diss" = round(disBg, 4),
-                      "%Ctb overall diss" = round(rcBgOv, 4),
-                      "Adj p-value" = round(pvalBgAdj, 4))
-      if (is.null(perlogR$parts0)) {
-        res <- list(summary = summary)
-      } else {
-        res <- list(summary = summary,
-                   parts0 = perlogR$parts0)
-      }
+      summary_mat <- cbind("Bet-Grp diss" = round(disBg, 4), "%Ctb overall diss" = round(rcBgOv, 4), "Adj p-value" = round(pvalBgAdj, 4))
     }
+    
+    res <- list(summary = summary_mat)
+    if (!is.null(perlogR$parts0)) res$parts0 <- perlogR$parts0
     return(res)
   }
   
-  # Post-hoc analysis for the pairwise logratios for significantly different pairs of groups
-  perlogPHlr <- function(perlogR, alpha = 0.05, mAdj = "BH"){
-    
-    # INPUT: perlogR ... output of the perlog function
-    #        alpha ... significance level; default is 0.05
-    #        mAdj ... a method for adjusting p-values - options as in p.adjust function; default is "BH" (Benjamini & Hochberg)
-    # OUTPUT: summary ... a list (of size equal to the number of the significantly different pairs of groups) 
-    #                     with matrices (of size D*(D-1)/2 x 5) with columns corresponding to different results:
-    #                     wts ... the Welch's t-statistics (t_{ij}^{(k, l)}) in the original data set
-    #                     disEl ... the elemental dissimilarities (e_{ij}^{(k, l)}) in the original data set
-    #                     rcElBg ... the relative contributions (in %) of the elemental dissimilarities to the between-group dissimilarities (100*e_{ij}^{(kl)}/E^{(kl)})
-    #                     rcElOv ... the relative contributions (in %) of the elemental dissimilarities to the overall dissimilarity (100*e_{ij}^{(kl)}/E)
-    #                     pvalElAdj ... the adjusted elemental p-values
-    #         significance ... a list (of size equal to the number of the significantly different pairs of groups)
-    #                          with matrices (of size D x D, with rows corresponding to numerator and columns to denominator of logratio) 
-    #                          indicating (non)significance of the logratios together with the direction of the significance:
-    #                          0 ... nonsignificant logratio
-    #                          1 ... significant logratio in positive direction 
-    #                          -1 ... significant logratio in negative direction 
-    #         parts0 ... if zero parts ar considered for grouping, 
-    #                    a list (of length G, where each item corresponds to different zero pattern)
-    #                    containing names of zero parts in the respective zero patterns
-    
+  # Post-hoc pairwise
+  perlogPHlr <- function(perlogR, alpha = 0.05, mAdj = "BH") {
     p <- perlogR$p
     disEl <- perlogR$disEl
     pr <- rownames(disEl)
     npr <- nrow(disEl)
-    if (npr==1) { # case with 2 groups
-      wts <- perlogR$wts[1,]
-      disEl <- disEl[1,]
-      disEl.p <- disEl^p
-      rcElBg <- rcElOv <- c(100*disEl.p/perlogR$disOv)
-      disEl_Prm <- perlogR$disEl_Prm
-      disEl.p_Prm <- t(sapply(disEl_Prm, function(x) x^p))
+    
+    if (npr == 1) {
+      wts <- perlogR$wts[1, ]
+      disEl_row <- disEl[1, ]
+      disEl.p <- disEl_row^p
+      rcElBg <- rcElOv <- 100 * disEl.p / perlogR$disOv
+      disEl.p_Prm <- t(sapply(perlogR$disEl_Prm, function(x) x^p))
       disEl.p_All <- rbind(disEl.p, disEl.p_Prm)
       pvalEl <- apply(disEl.p_All, 2, function(x) mean(x[-1] >= x[1]))
       pvalElAdj <- p.adjust(pvalEl, method = mAdj)
-      summary <- list(cbind("wts" = wts,
-                           "Elem diss" = disEl,
-                           "%Ctb bet-grp diss" = rcElBg,
-                           "%Ctb overall diss" = rcElOv,
-                           "Adj p-value" = pvalElAdj))
-      names(summary) <- pr
-    } else { # case with more than 2 groups
+      
+      summary_list <- list(cbind("wts" = wts, "Elem diss" = disEl_row, "%Ctb bet-grp diss" = rcElBg, 
+                                 "%Ctb overall diss" = rcElOv, "Adj p-value" = pvalElAdj))
+      names(summary_list) <- pr
+    } else {
       perlogPHgR <- perlogPHg(perlogR, alpha = alpha, mAdj = mAdj)
-      iS <- which(perlogPHgR$summary[, 3]<alpha)
+      iS <- which(perlogPHgR$summary[, 3] < alpha)
       npr <- length(iS)
-      if (npr==0) stop("No significantly different pair.")
+      if (npr == 0) stop("No significantly different pair.")
+      
       pr <- pr[iS]
-      wts <- perlogR$wts[iS, ]
-      disEl <- disEl[iS, ]
+      wts <- perlogR$wts[iS, , drop = FALSE]
+      disEl <- disEl[iS, , drop = FALSE]
       disEl.p <- disEl^p
-      rcElBg <- 100*disEl.p/perlogPHgR$summary[iS, 1]
-      rcElOv <- 100*disEl.p/perlogR$disOv
-      disEl_Prm <- lapply(perlogR$disEl_Prm, function(x) x[iS, ])
-      if (npr==1) { # one significantly different pair
+      rcElBg <- t(100 * t(disEl.p) / perlogPHgR$summary[iS, 1])
+      rcElOv <- 100 * disEl.p / perlogR$disOv
+      disEl_Prm <- lapply(perlogR$disEl_Prm, function(x) x[iS, , drop = FALSE])
+      
+      if (npr == 1) {
         disEl.p_Prm <- t(sapply(disEl_Prm, function(x) x^p))
         disEl.p_All <- rbind(disEl.p, disEl.p_Prm)
         pvalEl <- apply(disEl.p_All, 2, function(x) mean(x[-1] >= x[1]))
         pvalElAdj <- p.adjust(pvalEl, method = mAdj)
-        summary <- list(cbind("wts" = wts,
-                             "Elem diss" = disEl,
-                             "%Ctb bet-grp diss" = rcElBg,
-                             "%Ctb overall diss" = rcElOv,
-                             "Adj p-value" = pvalElAdj))
-        names(summary) <- pr
-      } else { # more than one significantly different pairs
+        summary_list <- list(cbind("wts" = wts[1,], "Elem diss" = disEl[1,], "%Ctb bet-grp diss" = rcElBg[1,], 
+                                   "%Ctb overall diss" = rcElOv[1,], "Adj p-value" = pvalElAdj))
+        names(summary_list) <- pr
+      } else {
         disEl.p_Prm <- lapply(disEl_Prm, function(x) x^p)
         disEl.p_All <- c(list(disEl.p), disEl.p_Prm)
         disEl.p_All <- lapply(1:npr, function(i) t(sapply(disEl.p_All, function(x) x[i, ])))
@@ -345,172 +256,155 @@ perLog <- function(X, groups = NULL, p = "auto", alpha = 0.05, R = 1000,
         rownames(pvalEl) <- pr
         pvalElAdj <- pvalEl
         pvalElAdj[] <- p.adjust(c(pvalEl), method = mAdj)
-        summary <- lapply(1:npr, function(i) cbind("wts" = wts[i, ], 
-                                                  "Elem diss" = disEl[i, ], 
-                                                  "%Ctb bet-grp diss" = rcElBg[i, ], 
-                                                  "%Ctb overall diss" = rcElOv[i, ], 
-                                                  "Adj p-value" = pvalElAdj[i, ]))
-        }
-    } 
-    names(summary) <- pr
-    significance <- lapply(summary, function(x) {
+        summary_list <- lapply(1:npr, function(i) cbind("wts" = wts[i, ], "Elem diss" = disEl[i, ], 
+                                                        "%Ctb bet-grp diss" = rcElBg[i, ], "%Ctb overall diss" = rcElOv[i, ], 
+                                                        "Adj p-value" = pvalElAdj[i, ]))
+        names(summary_list) <- pr
+      }
+    }
+    
+    significance <- lapply(summary_list, function(x) {
       cnlr <- rownames(x)
       Dd <- length(cnlr)
-      D <- (1+sqrt(1+8*Dd))/2
+      D <- (1 + sqrt(1 + 8 * Dd)) / 2
       cn <- unique(unlist(strsplit(cnlr, "/")))
-      mt <- matrix(NA, D, D)
+      mt <- matrix(NA_real_, D, D)
       sgn <- rep(0, Dd)
-      sgn[which(x[,5]<alpha)] <- 1
-      sgn <- sign(x[,1])*sgn
+      sgn[which(x[, 5] < alpha)] <- 1
+      sgn <- sign(x[, 1]) * sgn
       mt[lower.tri(mt)] <- -sgn
       mtt <- -t(mt)
       mt[upper.tri(mt)] <- mtt[upper.tri(mtt)]
       rownames(mt) <- colnames(mt) <- cn
       return(mt)
     })
-    if (is.null(perlogR$parts0)) {
-      res <- list(summary = summary,
-                 significance = significance)
-    } else {
-      res <- list(summary = summary,
-                 significance = significance,
-                 parts0 = perlogR$parts0)
-    }
+    
+    res <- list(summary = summary_list, significance = significance)
+    if (!is.null(perlogR$parts0)) res$parts0 <- perlogR$parts0
     return(res)
   }
   
-  ################################################################################################
+  # Main block
   
-  # Main function body
-  
-  if ((is.vector(X)) | (nrow(X)==1)) stop("X must be a matrix or data.frame class object")
-  if (any(X==0, na.rm = TRUE) & (!is.null(groups))) stop("User-defined factor set but zero values found in the data set")
-  if (any(X < 0, na.rm = T)) stop("X contains negative values")
+  if (is.vector(X) || nrow(X) == 1) stop("X must be a matrix or data.frame class object")
+  if (any(X == 0, na.rm = TRUE) && !is.null(groups)) stop("User-defined factor set but zero values found in the data set")
+  if (any(X < 0, na.rm = TRUE)) stop("X contains negative values")
   if (any(is.na(X))) stop("X contains missing values")
+  
   groups0 <- groups
-  if (is.null(groups0)) { # case with an internal factor
-    zr <- 1*(X==0)
-    groups <- apply(zr, 1, function(x) paste(x, collapse = "")) # 1 signifies zero value, 0 nonzero value
+  if (is.null(groups0)) {
+    zr <- 1 * (X == 0)
+    groups <- apply(zr, 1, paste, collapse = "")
     zrg <- apply(do.call(rbind, strsplit(sort(unique(groups)), split = "")), 2, as.integer)
   }
+  
   groups <- as.factor(groups)
   nk <- table(groups)
-  if ((p != "auto") & (!is.numeric(p) | (p <= 0))) stop("p must be a positive value or left set to 'auto'")
+  if (p != "auto" && (!is.numeric(p) || p <= 0)) stop("p must be a positive value or left set to 'auto'")
+  
   minnk <- min(nk)
-  minAR <- min(minnk, 5) # specifying the minimal number of logratios that must be present for the required combinations (k, l, i, j) in a permuted data set
-  if (minnk<5) warning("At least 1 group has less than 5 observations")
+  minAR <- min(minnk, 5)
+  if (minnk < 5) warning("At least 1 group has less than 5 observations")
+  
   lev <- levels(groups)
   G <- length(lev)
-  cmbg <- combn(lev, 2, simplify = FALSE) # G*(G-1) combinations of groups
+  cmbg <- combn(lev, 2, simplify = FALSE)
   Gg <- length(cmbg)
+  
   cn <- colnames(X)
   D <- ncol(X)
-  if (is.null(cn)) { # naming compositional parts if no names are provided
-    cn <- paste("P", 1:D, sep = "")
+  if (is.null(cn)) {
+    cn <- paste0("P", 1:D)
     colnames(X) <- cn
   }
-  cmbp <- combn(cn, 2, simplify = FALSE) # D*(D-1) combinations of compositional parts
-  cnlr <- sapply(cmbp, function(j) paste(j, collapse = "/"))
-  LR <- sapply(cmbp, function(j, x) log(x[, j[1]]/x[, j[2]]), x = X)
+  
+  cmbp <- combn(cn, 2, simplify = FALSE)
+  cnlr <- sapply(cmbp, paste, collapse = "/")
+  
+  X_mat <- as.matrix(X)
+  LR <- log(X_mat[, sapply(cmbp, `[`, 1)] / X_mat[, sapply(cmbp, `[`, 2)])
   LR[is.infinite(LR)] <- NA
   LR[is.nan(LR)] <- NA
   colnames(LR) <- cnlr
-  if (is.null(groups0)) { # case with an internal factor
+  
+  if (is.null(groups0)) {
     Dd <- length(cnlr)
-    lri <- matrix(unlist(sapply(cn, function(j, x) which(apply(x == j, 1, any)),
-                                x = do.call(rbind, cmbp), simplify = FALSE)), D, D-1, byrow = TRUE
-    ) # i-th row ... indices of LR where the i-th part appears
-    pgNAp <- lapply(cmbg, function(x) as.integer(unlist(strsplit(x[1], split = ""))) + as.integer(unlist(strsplit(x[2], split = "")))
-    ) # i-th item ... nonzero number indicates unavailability of the respective part when considering the i-th pair of groups
-    pgNAlri <- lapply(pgNAp, function(x) sort(unique(c(lri[which(x>0),])))
-    ) # i-th item ... indices of the unavailable LR when considering the i-th pair of groups
-    gNAlri <- lapply(1:G, function(x) sort(unique(c(lri[which(zrg[x,]>0),])))
-    ) # i-th item ... indices of the unavailable LR in th i-th group
+    lri <- matrix(unlist(lapply(cn, function(j) which(apply(do.call(rbind, cmbp) == j, 1, any)))), D, D - 1, byrow = TRUE)
+    pgNAp <- lapply(cmbg, function(x) as.integer(unlist(strsplit(x[1], split = ""))) + as.integer(unlist(strsplit(x[2], split = ""))))
+    pgNAlri <- lapply(pgNAp, function(x) sort(unique(c(lri[which(x > 0), ]))))
+    gNAlri <- lapply(1:G, function(x) sort(unique(c(lri[which(zrg[x, ] > 0), ]))))
+    
     gNRlri <- lapply(seq_along(gNAlri), function(i) {
       oth <- gNAlri[-i]
       com <- Reduce(intersect, oth)
-      mis <- setdiff(com, gNAlri [[i]])
-      return(c(gNAlri[[i]], mis))
-    }) # i-th item ... indices of the non-required LR in th i-th group
-    empt <- which(sapply(gNRlri, length) == 0)
-    if (length(empt)!=0) gNRlri[[empt]] <- Dd+1
-    gRlri <- lapply(gNRlri, function(x) c(1:Dd)[-x]
-    ) # i-th item ... indices of the required LR in the i-th group
+      mis <- setdiff(com, gNAlri[[i]])
+      c(gNAlri[[i]], mis)
+    })
+    
+    empt <- which(lengths(gNRlri) == 0)
+    if (length(empt) != 0) gNRlri[[empt]] <- Dd + 1
+    gRlri <- lapply(gNRlri, function(x) c(1:Dd)[-x])
+    
     disElw <- disElAll(LR, groups, alpha = alpha, rwts = TRUE, pgNAlri = pgNAlri)
-    disEl_Prm <- lapply(1:R, function(x) disElAllPerm(LR, groups, alpha = alpha,
-                                                      pgNAlri = pgNAlri, gRlri = gRlri, minAR = minAR))
+    disEl_Prm <- lapply(1:R, function(x) disElAllPerm(LR, groups, alpha = alpha, pgNAlri = pgNAlri, gRlri = gRlri, minAR = minAR))
+    
     parts0 <- lapply(lev, function(x) {
-      y <- cn[as.numeric(strsplit(x, "")[[1]])>0]
-      if(length(y)==0) y <- NULL
-      return(y)
+      y <- cn[as.numeric(strsplit(x, "")[[1]]) > 0]
+      if (length(y) == 0) NULL else y
     })
     names(parts0) <- lev
-  } else { # case with an external factor
+  } else {
     disElw <- disElAll(LR, groups, alpha = alpha, rwts = TRUE)
     disEl_Prm <- lapply(1:R, function(x) disElAllPerm(LR, groups, alpha = alpha))
   }
+  
   disEl <- disElw$disEA
   wts <- disElw$wts
-  if (p != "auto"){
+  
+  if (p != "auto") {
     disOv <- sum(disEl^p, na.rm = TRUE)
     disOv_Prm <- sapply(disEl_Prm, function(x) sum(x^p, na.rm = TRUE))
     pvalOv <- mean(disOv_Prm >= disOv)
-  }
-  else { # automatic selection of p
+  } else {
     pp <- c(10, 2:10)
     nsig10 <- Inf
     nsigp <- -Inf
     ppi <- 1
-    while (nsig10 > nsigp) {
-      p <- pp[ppi]
-      disOv <- sum(disEl^p, na.rm = TRUE)
-      disOv_Prm <- sapply(disEl_Prm, function(x) sum(x^p, na.rm = TRUE))
+    while (nsig10 > nsigp && ppi <= length(pp)) {
+      p_val <- pp[ppi]
+      disOv <- sum(disEl^p_val, na.rm = TRUE)
+      disOv_Prm <- sapply(disEl_Prm, function(x) sum(x^p_val, na.rm = TRUE))
       pvalOv <- mean(disOv_Prm >= disOv)
+      
       if (pvalOv > alpha) {
-        nsig = 0
+        nsig <- 0
       } else {
-        disBg <- rowSums(disEl^p, na.rm = T)
-        disBg_Prm <- t(sapply(disEl_Prm , function(x) rowSums(x^p, na.rm = T)))
+        disBg <- rowSums(disEl^p_val, na.rm = TRUE)
+        disBg_Prm <- t(sapply(disEl_Prm, function(x) rowSums(x^p_val, na.rm = TRUE)))
         disBg_All <- rbind(disBg, disBg_Prm)
         pvalBg <- apply(disBg_All, 2, function(x) mean(x[-1] >= x[1]))
-        pvalBgAdj <- p.adjust(pvalBg, method = mAdj)
-        nsig <- 1 + sum(pvalBgAdj < alpha)
+        nsig <- 1 + sum(p.adjust(pvalBg, method = mAdj) < alpha)
       }
+      
       if (ppi == 1) nsig10 <- nsig else nsigp <- nsig
       ppi <- ppi + 1
+      p <- p_val
     }
   }  
-  if (is.null(groups0)) {
-    res = list(disOv = disOv,
-               pvalOv = pvalOv, 
-               p = p,
-               wts = wts,
-               disEl = disEl, 
-               disEl_Prm = disEl_Prm,
-               parts0 = parts0)
-  } else {
-    res = list(disOv = disOv,
-               pvalOv = pvalOv, 
-               p = p,
-               wts = wts,
-               disEl = disEl, 
-               disEl_Prm = disEl_Prm)
-  }
-  class(res) = "perLog.output"
   
-  # --- Optional Post-Hoc Analyses ---
+  res <- list(disOv = disOv, pvalOv = pvalOv, p = p, wts = wts, disEl = disEl, disEl_Prm = disEl_Prm)
+  if (is.null(groups0)) res$parts0 <- parts0
+  
+  # Post-hoc & output
+  
   if (res$pvalOv < alpha) {
-    if (posthoc.g) {
-      res$posthoc.groups <- perlogPHg(res, alpha = alpha, mAdj = mAdj)
-    }
-    if (posthoc.lr) {
-      res$posthoc.logratios <- perlogPHlr(res, alpha = alpha, mAdj = mAdj)
-    }
+    if (posthoc.g) res$posthoc.groups <- perlogPHg(res, alpha = alpha, mAdj = mAdj)
+    if (posthoc.lr) res$posthoc.logratios <- perlogPHlr(res, alpha = alpha, mAdj = mAdj)
+  } else {
+    print_summary(res)
+    stop(paste("No overall difference between groups concluded at significance level alpha =", alpha))
   }
-  else {print(res)
-        stop(paste("No overall difference between groups concluded at significance level alpha =", alpha))}
   
-  print(res)
+  print_summary(res)
   return(invisible(res))
 }
-

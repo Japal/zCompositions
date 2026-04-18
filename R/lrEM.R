@@ -1,9 +1,9 @@
 lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRepl"),frac=0.65,tolerance=0.0001,
-         max.iter=50,rlm.maxit=150,imp.missing=FALSE,suppress.print=FALSE,
-         closure=NULL,z.warning=0.8,z.delete=TRUE,delta=NULL){
+                 max.iter=50,rlm.maxit=150,imp.missing=FALSE,suppress.print=FALSE,
+                 closure=NULL,z.warning=0.8,z.delete=TRUE,delta=NULL){
   
   if (any(X<0, na.rm=T)) stop("X contains negative values")
-
+  
   if ((is.vector(X)) | (nrow(X)==1)) stop("X must be a data matrix")
   if (is.null(label)) stop("A value for label must be given")
   if (!is.na(label)){
@@ -18,12 +18,12 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
   
   if (imp.missing==FALSE){
     if (is.character(dl)) stop("dl must be a numeric vector or matrix")
-    if (is.null(dl)){ # If dl not given use min per column
-      dl <- apply(X,2, function(x) min(x[x!=label]))
+    if (is.null(dl)){ 
+      dl <- apply(X,2, function(x) min(x[!(x %in% label)]))
       warning("No dl vector or matrix provided. The minimum observed values for each column used as detection limits.")
     }
     if (is.vector(dl)) dl <- matrix(dl,nrow=1)
-    dl <- as.matrix(dl) # Avoids problems when dl might be multiple classes
+    dl <- as.matrix(dl) 
   }
   
   if (imp.missing==FALSE){
@@ -135,17 +135,15 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
     return(x)
   }
   
-  ## Preliminaries ----  
-  
   X <- as.data.frame(X,stringsAsFactors=TRUE)
   nn <- nrow(X); D <- ncol(X)
   if (nn <= D) stop("The lrEM algorithm works on regular data sets (no. rows > no. columns). You can consider lrSVD for wide dat sets.")
   
   X[X==label] <- NA
   X <- as.data.frame(apply(X,2,as.numeric),stringsAsFactors=TRUE)
-  c <- apply(X,1,sum,na.rm=TRUE)
+  c <- rowSums(X, na.rm=TRUE)
   
-  checkNumZerosCol <- apply(X, 2, function(x) sum(is.na(x)))
+  checkNumZerosCol <- colSums(is.na(X))
   
   if (any(checkNumZerosCol/nrow(X) > z.warning)) {    
     cases <- which(checkNumZerosCol/nrow(X) > z.warning)    
@@ -169,7 +167,7 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
     }
   }
   
-  checkNumZerosRow <- apply(X, 1, function(x) sum(is.na(x)))  
+  checkNumZerosRow <- rowSums(is.na(X))  
   if (any(checkNumZerosRow/ncol(X) > z.warning)) {    
     cases <- which(checkNumZerosRow/ncol(X) > z.warning)    
     if (z.delete == TRUE) {
@@ -193,9 +191,8 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
     }
   }
   
-  if (imp.missing==FALSE) {if (nrow(dl)==1) dl <- matrix(rep(1,nn),ncol=1)%*%dl}
+  if (imp.missing==FALSE) {if (nrow(dl)==1) dl <- matrix(dl, nrow=nn, ncol=D, byrow=TRUE)}
   
-  # Check for closure
   closed <- 0
   if (all( abs(c - mean(c)) < .Machine$double.eps^0.3 )) closed <- 1
   
@@ -203,16 +200,14 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
   misspat <- as.factor(do.call(paste,c(misspat,sep="")))
   levels(misspat) <- 1:(length(levels(misspat)))
   
-  ## Ordinary lrEM  ----
-  
   if (rob==FALSE){
     
     pos <- which(!is.na(colSums(X)))[1]
     if (is.na(pos)) stop("lrEM based on alr requires at least one complete column")
     
     if (imp.missing==FALSE){
-    cpoints <- log(dl)-log(X[,pos])-.Machine$double.eps
-    cpoints <- cpoints[,-pos]
+      cpoints <- log(dl)-log(X[,pos])-.Machine$double.eps
+      cpoints <- cpoints[,-pos]
     }
     
     X_alr <- log(X)-log(X[,pos]); X_alr <- as.matrix(X_alr[,-pos])
@@ -224,12 +219,12 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
       M <- matrix(colMeans(X_alr,na.rm=T),ncol=1)
       C <- cov(X_alr,use=ini.cov)}
     else {
-        X.mr <- multRepl(X,label=NA,dl=dl,frac=frac,imp.missing=imp.missing,closure=closure,z.warning=z.warning,z.delete=z.delete)
-        if (any(X.mr < 0)) {stop("ini.cov: negative values produced using multRepl (please check out closure argument and multRepl help for advice)")}
-        X.mr_alr <- t(apply(X.mr,1,function(x) log(x)-log(x[pos])))[,-pos]
-        M <- matrix(colMeans(X.mr_alr,na.rm=T),ncol=1)
-        C <- cov(X.mr_alr)
-        }  
+      X.mr <- multRepl(X,label=NA,dl=dl,frac=frac,imp.missing=imp.missing,closure=closure,z.warning=z.warning,z.delete=z.delete)
+      if (any(X.mr < 0)) {stop("ini.cov: negative values produced using multRepl (please check out closure argument and multRepl help for advice)")}
+      X.mr_alr <- (log(X.mr) - log(X.mr[, pos]))[, -pos]
+      M <- matrix(colMeans(X.mr_alr,na.rm=T),ncol=1)
+      C <- cov(X.mr_alr)
+    }  
     
     iter_again <- 1
     niters <- 0
@@ -248,12 +243,12 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
       for (npat in 1:length(levels(misspat))){
         i <- which(misspat==npat) 
         varmiss <- which(is.na(X_alr[i[1],]))
-        if (length(varmiss) == 0) {next} # Skip first pattern if all obs
+        if (length(varmiss) == 0) {next} 
         varobs <- which(!is.na(X_alr[i[1],]))
         if (length(varobs) == 0){
           alt.in <- TRUE
           temp <- multRepl(X[i,,drop=FALSE],label=NA,dl=dl[i,,drop=FALSE],frac=frac,imp.missing=imp.missing,closure=closure,z.warning=z.warning,z.delete=z.delete)
-          Y[i,] <- t(apply(temp,1,function(x) log(x)-log(x[pos])))[,-pos]
+          Y[i,] <- (log(temp) - log(temp[, pos]))[, -pos]
           if (niters == 1){
             alt.pat <- c(alt.pat,npat)
             alt.mr <- list(alt.mr,i)
@@ -281,7 +276,6 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
       PC <- t(dif)%*%dif                       
       C <- (PC+v)/(nn-1)   
       
-      # Convergence check
       Mdif <- max(abs(M-Mnew))    
       Cdif <- max(max(abs(C-Cnew)))  
       if ((max(c(Mdif,Cdif)) < tolerance) | (niters == max.iter)) iter_again <- 0
@@ -295,22 +289,20 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
         X[i,vbdl] <- (X[i,pos]/Y[i,pos])*Y[i,vbdl]
       }
     }     
-  } # End ordinary lrEM
-  
-  ## Robust lrEM ----
+  } 
   
   if (rob==TRUE){
     
     if (ini.cov == "multRepl"){
-     if (imp.missing == TRUE){
-          X.mr <- multRepl(X,label=NA,imp.missing=T,closure=closure,z.warning=z.warning,z.delete=z.delete)
-          if (any(X.mr < 0)) {stop("ini.cov: negative values produced using multRepl (please check out closure argument and multRepl help for advice)")}
-          }
-     else {X.mr <- multRepl(X,label=NA,dl=dl,frac=frac,closure=closure,z.warning=z.warning,z.delete=z.delete)
-           if (any(X.mr < 0)) {stop("ini.cov: negative values produced using multRepl (please check out closure argument and multRepl help for advice)")}
-          }
+      if (imp.missing == TRUE){
+        X.mr <- multRepl(X,label=NA,imp.missing=T,closure=closure,z.warning=z.warning,z.delete=z.delete)
+        if (any(X.mr < 0)) {stop("ini.cov: negative values produced using multRepl (please check out closure argument and multRepl help for advice)")}
+      }
+      else {X.mr <- multRepl(X,label=NA,dl=dl,frac=frac,closure=closure,z.warning=z.warning,z.delete=z.delete)
+      if (any(X.mr < 0)) {stop("ini.cov: negative values produced using multRepl (please check out closure argument and multRepl help for advice)")}
+      }
     }
-      
+    
     miss <- by(X,misspat,function(x) which(is.na(x[1,])))
     obs <- by(X,misspat,function(x) which(!is.na(x[1,])))
     
@@ -329,7 +321,7 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
       if (niters > 1) {X.old <- X; C.old <- C}
       
       for (npat in 1:length(levels(misspat))){
-        if (length(miss[[npat]]) == 0) {next} # Skip first pattern if all obs
+        if (length(miss[[npat]]) == 0) {next} 
         if ((length(obs[[npat]]) == 1) & (!any(npat==alt.pat))){
           alt.in <- TRUE
           if (imp.missing==FALSE){
@@ -385,18 +377,14 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
       
       C <- cov(t(apply(X,1,ilr)))
       
-      # Convergence check
-      
       if (niters > 1)
         if((norm(C-C.old,type="F") < tolerance) | (niters == max.iter)) iter_again <- 0
       
     } 
-  } # End robust lrEM
-  
-  ## Final section ----
+  } 
   
   if (closed==1){
-    X <- t(apply(X,1,function(x) x/sum(x)*c[1]))
+    X <- (X / rowSums(X)) * c[1]
   }
   
   if (suppress.print==FALSE){
@@ -409,7 +397,7 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
         }
       }
     }
-  cat(paste("No. iterations to converge: ",niters,"\n\n"))
+    cat(paste("No. iterations to converge: ",niters,"\n\n"))
   }
   
   return(as.data.frame(X,stringsAsFactors=TRUE))  
