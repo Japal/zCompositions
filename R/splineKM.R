@@ -3,59 +3,124 @@ splineKM <- function(x, label = NULL, dl = NULL, n.knots = NULL,
                      xlab = "Value", col.km = "black", lty.km = 1, lwd.km = 1,
                      col.sm = "red", lty.sm = 2, lwd.sm = 2, ...) {
   
-  if (is.character(dl) || is.null(dl)) stop("dl must be a numeric vector or matrix")
-  if (length(dl) != length(x)) stop("x and dl must be two vectors of the same length")
-  if (is.null(label)) stop("A value for label must be given")
+  if (!is.vector(x) || is.list(x)) {
+    stop("x must be a numeric vector")
+  }
+  
+  if (is.character(x)) {
+    stop("x must be a numeric vector")
+  }
+  
+  x <- as.numeric(x)
+  
+  if (any(x < 0, na.rm = TRUE)) {
+    stop("x contains negative values")
+  }
+  
+  if (is.null(label)) {
+    stop("A value for label must be given")
+  }
+  
+  if (is.character(dl) || is.null(dl)) {
+    stop("dl must be a numeric vector")
+  }
+  
+  dl <- as.numeric(dl)
+  
+  if (length(dl) != length(x)) {
+    stop("x and dl must be two vectors of the same length")
+  }
+  
+  if (any(dl < 0, na.rm = TRUE) || any(!is.finite(dl), na.rm = TRUE)) {
+    stop("Detection limits in dl must be non-negative and finite")
+  }
   
   if (!is.na(label)) {
-    if (label != 0 && any(x == 0, na.rm = TRUE)) stop("Zero values not labelled as censored values were found in the data")
-    if (any(is.na(x))) stop("NA values not labelled as censored values were found in the data")
-    who <- !is.na(x) & x == label
+    if (!any(x == label, na.rm = TRUE)) {
+      stop(paste("Label", label, "was not found in the data"))
+    }
+    
+    if (label != 0 && any(x == 0, na.rm = TRUE)) {
+      stop("Zero values not labelled as censored values were found in the data")
+    }
+    
+    if (any(is.na(x))) {
+      stop("NA values not labelled as censored values were found in the data")
+    }
+    
+    x[x == label] <- NA
   } else {
-    if (any(x == 0, na.rm = TRUE)) stop("Zero values not labelled as censored values were found in the data")
-    if (!any(is.na(x))) stop(paste("Label", label, "was not found in the data"))
-    who <- is.na(x)
+    if (any(x == 0, na.rm = TRUE)) {
+      stop("Zero values not labelled as censored values were found in the data")
+    }
+    
+    if (!any(is.na(x))) {
+      stop(paste("Label", label, "was not found in the data"))
+    }
   }
   
-  if (!is.null(n.knots) && length(n.knots) != 1) stop("n.knots must contain a single value")
+  if (!is.null(n.knots)) {
+    if (!is.numeric(n.knots) || length(n.knots) != 1 || is.na(n.knots) || n.knots < 1) {
+      stop("n.knots must be a single positive numeric value")
+    }
+  }
   
+  who <- is.na(x)
+  w <- which(who)
+  
+  if (length(w) == 0) {
+    stop("No censored values found")
+  }
+  
+  if (any(dl[who] <= 0, na.rm = TRUE)) {
+    stop("Detection limits for censored values must be strictly positive")
+  }
+  
+  xcen <- who
   x[who] <- dl[who]
-  event_status <- !who
   
-  valid_obs <- x[!is.na(x)]
-  flip_factor <- max(valid_obs) + (diff(range(valid_obs)) / 2)
-  flipped_obs <- flip_factor - x
+  if (sum(!xcen) < 2) {
+    stop("Kaplan-Meier smoothing requires at least two observed values")
+  }
   
-  surv_obj <- survival::Surv(time = flipped_obs, event = event_status, type = "right")
+  km.ecdf <- cenfit(x, xcen)
   
-  # CRITICAL FIX: No `...` here. survfit cannot handle graphical parameters like xlim.
-  fit <- survival::survfit(surv_obj ~ 1) 
+  x.km <- rev(km.ecdf@survfit$time)
+  y.km <- rev(km.ecdf@survfit$surv)
   
-  fit$time <- flip_factor - fit$time
-  ord <- order(fit$time)
-  fit$time <- fit$time[ord]
-  fit$surv <- fit$surv[ord]
-  fit$n.risk <- fit$n.risk[ord]
-  
-  t_vals <- rev(fit$time)
-  s_vals <- rev(fit$surv)
+  if (length(unique(x.km)) < 2 || length(unique(y.km)) < 2) {
+    stop("Kaplan-Meier curve has too few unique points for spline smoothing")
+  }
   
   if (is.null(n.knots)) {
-    scdf_fit <- smooth.spline(t_vals, s_vals)
+    scdf <- smooth.spline(x.km, y.km)
   } else {
-    scdf_fit <- smooth.spline(t_vals, s_vals, nknots = n.knots)
+    scdf <- smooth.spline(x.km, y.km, nknots = n.knots)
   }
   
-  scdf <- approxfun(scdf_fit$x, scdf_fit$y)
+  scdf.fun <- approxfun(scdf$x, scdf$y)
   
-  # `...` is safely passed to plot(), where xlim belongs!
-  plot(fit, conf.int = FALSE, ylab = ylab, xlab = xlab,
-       col = col.km, lty = lty.km, lwd = lwd.km, ...)
+  plot(km.ecdf@survfit,
+       conf.int = FALSE,
+       ylab = ylab,
+       xlab = xlab,
+       col = col.km,
+       lty = lty.km,
+       lwd = lwd.km,
+       ...)
   
-  lines(t_vals, scdf(t_vals), type = "l",
-        col = col.sm, lty = lty.sm, lwd = lwd.sm)
+  lines(x.km, scdf.fun(x.km),
+        type = "l",
+        col = col.sm,
+        lty = lty.sm,
+        lwd = lwd.sm)
+  
   abline(h = 1, col = "white", lwd = 4)
-  legend(legend.pos, bty = "n",
+  
+  legend(legend.pos,
+         bty = "n",
          legend = c("KM estimate", "KMSS estimate"),
-         lty = c(lty.km, lty.sm), col = c(col.km, col.sm), lwd = c(lwd.km, lwd.sm))
+         lty = c(lty.km, lty.sm),
+         col = c(col.km, col.sm),
+         lwd = c(lwd.km, lwd.sm))
 }

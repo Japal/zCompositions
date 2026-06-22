@@ -54,6 +54,8 @@ This function implements an efficient imputation algorithm particularly suitable
 
 An imputed data set is produced on the same scale as the input data set. If \code{X} is not closed to a constant sum, then the results are adjusted to provide a compositionally equivalent data set, expressed in the original scale, which leaves the absolute values of the observed components unaltered.
 
+In \code{dl}, any threshold value can be set for non-censored elements (e.g. use 0 if no threshold for a particular column or element of the data matrix).
+
 \emph{Missing data imputation}
 
 When \code{imp.missing = TRUE}, unobserved values are treated as general missing data. For this case, the argument \code{label} indicates the unique label for missing values and the argument \code{dl} is ignored.

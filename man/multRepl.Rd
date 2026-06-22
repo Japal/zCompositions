@@ -29,7 +29,7 @@ Fraction of the detection limit/threshold used for imputation (default = 0.65, e
   \item{delta}{This argument has been deprecated and replaced by \code{frac} (see package's NEWS for details).}
 }
 \details{
-This function imputes left-censored compositional values by a given fraction \code{frac} of the corresponding limit of detection and applies a multiplicative adjustment to preserve the multivariate compositional properties of the samples. It allows for either single (\code{vector} form) or multiple (\code{matrix} form, same size as \code{X}) limits of detection by component. Any threshold value can be set for non-censored elements (e.g. use 0 if no threshold for a particular column or element of the data matrix).
+This function imputes left-censored compositional values by a given fraction \code{frac} of the corresponding limit of detection and applies a multiplicative adjustment to preserve the multivariate compositional properties of the samples. It allows for either single (\code{vector} form) or multiple (\code{matrix} form, same size as \code{X}) limits of detection by component. In \code{dl}, any threshold value can be set for non-censored elements (e.g. use 0 if no threshold for a particular column or element of the data matrix).
 
 \emph{Missing data imputation}: missing data can be imputed by setting \code{imp.missing = TRUE}. They are replaced by the estimated column geometric mean from observed values. The non-missing parts in the composition are applied multiplicative adjustment. The argument \code{dl} and \code{frac} are ignored and \code{X} is require to be a data matrix in this case.
 

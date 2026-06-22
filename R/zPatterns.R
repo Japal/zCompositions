@@ -11,22 +11,90 @@ zPatterns <- function(X, label = NULL, plot = TRUE,
   
   type.means <- match.arg(type.means)
   
-  if (any(X < 0, na.rm = TRUE)) stop("X contains negative values")  
-  if (is.vector(X)) stop("X must be a matrix or data.frame class object")
+  if (is.null(dim(X)) || nrow(X) < 1 || ncol(X) < 1) {
+    stop("X must be a matrix or data.frame class object")
+  }
+  
+  cn0 <- colnames(X)
+  
+  X_mat <- as.matrix(X)
+  storage.mode(X_mat) <- "numeric"
+  
+  if (!is.null(cn0)) {
+    colnames(X_mat) <- cn0
+  }
+  
+  if (any(X_mat < 0, na.rm = TRUE)) {
+    stop("X contains negative values")
+  }
   if (is.null(label)) stop("A value for label must be given")
   
   if (!is.na(label)) {
-    if (!any(X == label, na.rm = TRUE)) stop(paste("Label", label, "was not found in the data set"))
-    if (label != 0 && any(X == 0, na.rm = TRUE)) warning("Unidentified zero values were found and will be ignored")
-    if (any(is.na(X))) warning("Unidentified NA values were found in the data set and will be ignored")
+    if (!any(X_mat == label, na.rm = TRUE)) stop(paste("Label", label, "was not found in the data set"))
+    if (label != 0 && any(X_mat == 0, na.rm = TRUE)) warning("Unidentified zero values were found and will be ignored")
+    if (any(is.na(X_mat))) warning("Unidentified NA values were found in the data set and will be ignored")
   } else {
-    if (any(X == 0, na.rm = TRUE)) warning("Unidentified zero values were found in the data set and will be ignored")
-    if (!any(is.na(X))) stop(paste("Label", label, "was not found in the data set"))
+    if (any(X_mat == 0, na.rm = TRUE)) warning("Unidentified zero values were found in the data set and will be ignored")
+    if (!any(is.na(X_mat))) stop(paste("Label", label, "was not found in the data set"))
   }
   
-  X_mat <- as.matrix(X)
+  if (!is.logical(plot) || length(plot) != 1 || is.na(plot)) {
+    stop("plot must be TRUE or FALSE")
+  }
+  
+  if (!is.logical(legend) || length(legend) != 1 || is.na(legend)) {
+    stop("legend must be TRUE or FALSE")
+  }
+  
+  if (!is.logical(suppress.print) || length(suppress.print) != 1 || is.na(suppress.print)) {
+    stop("suppress.print must be TRUE or FALSE")
+  }
+  
+  if (length(axis.labels) != 2) {
+    stop("axis.labels must contain two labels")
+  }
+  
+  if (length(bar.colors) != 2) {
+    stop("bar.colors must contain two colors")
+  }
+  
+  if (length(cell.colors) != 2) {
+    stop("cell.colors must contain two colors")
+  }
+  
+  if (length(cell.labels) != 2) {
+    stop("cell.labels must contain two labels")
+  }
+  
   n <- nrow(X_mat)
   p <- ncol(X_mat)
+  
+  
+  if (is.null(colnames(X_mat))) {
+    colnames(X_mat) <- paste0("P", seq_len(p))
+  }
+  
+  if (!is.logical(show.means) || length(show.means) != 1 || is.na(show.means)) {
+    stop("show.means must be TRUE or FALSE")
+  }
+  
+  if (!is.logical(bar.labels) || length(bar.labels) != 1 || is.na(bar.labels)) {
+    stop("bar.labels must be TRUE or FALSE")
+  }
+  
+  if (!is.numeric(round.means) || length(round.means) != 1 || is.na(round.means) ||
+      round.means < 0 || round.means != as.integer(round.means)) {
+    stop("round.means must be a non-negative integer")
+  }
+  
+  if (!is.numeric(cex.means) || length(cex.means) != 1 || is.na(cex.means) || cex.means <= 0) {
+    stop("cex.means must be a positive numeric value")
+  }
+  
+  if (!is.numeric(cex.axis) || length(cex.axis) != 1 || is.na(cex.axis) || cex.axis <= 0) {
+    stop("cex.axis must be a positive numeric value")
+  }
+  
   
   if (is.na(label)) {
     miss <- is.na(X_mat)
@@ -48,13 +116,21 @@ zPatterns <- function(X, label = NULL, plot = TRUE,
   unique_idx <- match(unique_pats, pat_chars)
   tab_num <- miss[unique_idx, , drop = FALSE] * 1L
   rownames(tab_num) <- as.character(1:length(unique_pats))
-  colnames(tab_num) <- colnames(X)
+  colnames(tab_num) <- colnames(X_mat)
   
   pat_ID_levels <- rownames(tab_num)
   
+  if (length(bar.ordered) == 1) {
+    bar.ordered <- rep(bar.ordered, 2)
+  }
+  
+  if (length(bar.ordered) != 2) {
+    stop("bar.ordered must have length 1 or 2")
+  }
+  
   bar_ordered_bool <- as.logical(bar.ordered)
-  if (is.na(bar_ordered_bool[1])) bar_ordered_bool[1] <- FALSE
-  if (is.na(bar_ordered_bool[2])) bar_ordered_bool[2] <- FALSE
+  
+  bar_ordered_bool[is.na(bar_ordered_bool)] <- FALSE
   
   if (bar_ordered_bool[1]) {
     ord1 <- order(pat_freq, decreasing = TRUE)
@@ -77,6 +153,12 @@ zPatterns <- function(X, label = NULL, plot = TRUE,
   X_NA_ignored[!is.na(X_NA_ignored) & X_NA_ignored == 0] <- NA
   
   if (plot) {
+    oldpar <- par(no.readonly = TRUE)
+    on.exit({
+      layout(1)
+      par(oldpar)
+    }, add = TRUE)
+    
     zones <- matrix(c(2, 4, 1, 3), ncol = 2, byrow = TRUE)
     layout(zones, widths = c(4/5, 1.5/5), heights = c(2/5, 3.5/5))
     
@@ -94,7 +176,10 @@ zPatterns <- function(X, label = NULL, plot = TRUE,
     if (show.means) {
       agg_list <- by(X_NA_ignored, pat_ID_factor, function(chunk) {
         if (type.means == "cgm") {
-          ms <- apply(chunk, 2, function(x) if (all(is.na(x))) NA else exp(mean(log(x), na.rm = TRUE)))
+          ms <- apply(chunk, 2, function(x) {
+            x <- x[!is.na(x) & x > 0]
+            if (length(x) == 0) NA_real_ else exp(mean(log(x)))
+          })
           ms[is.na(ms)] <- 0
           s <- sum(ms)
           if (s > 0) round(ms / s * 100, round.means) else rep(0, length(ms))

@@ -4,27 +4,29 @@ cmultRepl <- function(X, label= 0, method= c("GBM","SQ","BL","CZM","user"),
                        t= NULL, s= NULL, z.warning= 0.8, z.delete= TRUE,
                        suppress.print= FALSE, delta= NULL) {
   
-  if (any(X<0, na.rm=T)) stop("X contains negative values")
-  if (is.vector(X) | is.character(X) | (nrow(X)==1)) stop("X must be a data matrix")
+  if (any(X<0, na.rm=TRUE)) stop("X contains negative values")
+  if (is.vector(X) || is.character(X) || (nrow(X)==1)) stop("X must be a data matrix with at least two rows")
   if (!is.na(label)) {
-    if (!any(X==label,na.rm=T)) stop(paste("Label",label,"was not found in the data set"))
-    if (label!=0 & any(X==0,na.rm=T)) stop("Zero values not labelled as count zeros were found in the data set")
+    if (!any(X==label,na.rm=TRUE)) stop(paste("Label",label,"was not found in the data set"))
+    if (label!=0 & any(X==0,na.rm=TRUE)) stop("Zero values not labelled as count zeros were found in the data set")
     if (any(is.na(X))) stop(paste("NA values not labelled as count zeros were found in the data set"))
   }
   
   if (is.na(label)) {
-    if (any(X==0,na.rm=T)) stop("Zero values not labelled as count zeros were found in the data set")
-    if (!any(is.na(X),na.rm=T)) stop(paste("Label",label,"was not found in the data set"))
+    if (any(X==0,na.rm=TRUE)) stop("Zero values not labelled as count zeros were found in the data set")
+    if (!any(is.na(X),na.rm=TRUE)) stop(paste("Label",label,"was not found in the data set"))
   }
   
-  if (!missing("delta")) {
+  if (!missing(delta)) {
     warning("The delta argument is deprecated, use frac instead: frac has been set equal to delta.")
     frac <- delta
   }
   
-  X <- as.data.frame(X, stringsAsFactors=TRUE)
+  X <- as.data.frame(X)
   
-  X[X==label] <- NA
+ if (!is.na(label)) {
+    X[X == label] <- NA
+  }
   
   checkNumZerosCol <- apply(X, 2, function(x) sum(is.na(x)))
   
@@ -34,19 +36,19 @@ cmultRepl <- function(X, label= 0, method= c("GBM","SQ","BL","CZM","user"),
       if (length(cases) > (ncol(X)-2)) {
         stop(paste("Almost all columns contain >", z.warning*100,
                    "% zeros/unobserved values (see arguments z.warning and z.delete).",
-                   sep=""))
+                   sep="", collapse = ", "))
       }      
       X <- X[,-cases]      
       action <- "deleted"
       
       warning(paste("Column no. ",cases," containing >", z.warning*100,
                     "% zeros/unobserved values ", action, " (see arguments z.warning and z.delete).\n",
-                    sep=""))
+                    sep="", collapse = ", "))
     } else {      
       action <- "found"      
       warning(paste("Column no. ",cases," containing >", z.warning*100,
                     "% zeros/unobserved values ", action, " (see arguments z.warning and z.delete. Check out with zPatterns()).\n",
-                    sep=""))      
+                    sep="", collapse = ", "))      
     }
   }
   
@@ -57,20 +59,20 @@ cmultRepl <- function(X, label= 0, method= c("GBM","SQ","BL","CZM","user"),
       if (length(cases) > (nrow(X)-2)) {
         stop(paste("Almost all rows contain >", z.warning*100,
                    "% zeros/unobserved values (see arguments z.warning and z.delete).",
-                   sep=""))
+                   sep="", collapse = ", "))
       }
       X <- X[-cases,]      
       action <- "deleted"
       
       warning(paste("Row no. ",cases," containing >", z.warning*100,
                     "% zeros/unobserved values ", action, " (see arguments z.warning and z.delete).\n",
-                    sep=""))
+                    sep="", collapse = ", "))
     } else {      
       action <- "found"      
       warning(paste("Row no. ", cases," containing >", z.warning*100,
                     "% zeros/unobserved values ", action,
                     " (see arguments z.warning and z.delete. Check out with zPatterns()).\n",
-                    sep=""))      
+                    sep="", collapse = ", "))      
     }
   }
   
@@ -87,7 +89,7 @@ cmultRepl <- function(X, label= 0, method= c("GBM","SQ","BL","CZM","user"),
     else {
       alpha <- matrix(0,nrow=N,ncol=D)
       for (i in 1:N){
-        alpha[i,] <- apply(X,2,function(x) sum(x[-i],na.rm=T))
+        alpha[i,] <- apply(X,2,function(x) sum(x[-i],na.rm=TRUE))
       }
       t <- alpha/rowSums(alpha)
       if ((method=="GBM") && (any(t==0))) {stop("GBM method: not enough information to compute t hyper-parameter,
@@ -149,7 +151,7 @@ cmultRepl <- function(X, label= 0, method= c("GBM","SQ","BL","CZM","user"),
   else {res <- X2}
   
   if (suppress.print == FALSE){
-    if ((adjust==TRUE) & (adjusted > 0)) {cat(paste("No. adjusted imputations: ",adjusted,"\n"))}
+    if ((adjust==TRUE) & (adjusted > 0)) {message(paste("No. adjusted imputations: ",adjusted,"\n"))}
   }
-  return(as.data.frame(res,stringsAsFactors=TRUE))
+  return(as.data.frame(res))
 }

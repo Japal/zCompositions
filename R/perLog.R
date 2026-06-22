@@ -50,9 +50,19 @@ perLog <- function(X, groups = NULL, p = "auto", alpha = 0.05, R = 1000,
   fast_stats <- function(mat) {
     valid <- !is.na(mat)
     n <- colSums(valid)
-    m <- colSums(mat, na.rm = TRUE) / n
-    diffs <- t(t(mat) - m) 
-    v <- colSums(diffs^2, na.rm = TRUE) / (n - 1)
+    
+    m <- rep(NA_real_, ncol(mat))
+    v <- rep(NA_real_, ncol(mat))
+    
+    ok_mean <- n > 0
+    m[ok_mean] <- colSums(mat[, ok_mean, drop = FALSE], na.rm = TRUE) / n[ok_mean]
+    
+    ok_var <- n > 1
+    if (any(ok_var)) {
+      diffs <- t(t(mat[, ok_var, drop = FALSE]) - m[ok_var])
+      v[ok_var] <- colSums(diffs^2, na.rm = TRUE) / (n[ok_var] - 1)
+    }
+    
     list(n = n, m = m, v = v)
   }
   
@@ -76,11 +86,26 @@ perLog <- function(X, groups = NULL, p = "auto", alpha = 0.05, R = 1000,
       dnm <- sqrt(var1_n1 + var2_n2)
       
       wts_calc <- nmr / dnm
-      df_calc <- dnm^4 / ((1 / (s1$n - 1)) * var1_n1^2 + (1 / (s2$n - 1)) * var2_n2^2)
+      
+      df_calc <- dnm^4 / (
+        (1 / (s1$n - 1)) * var1_n1^2 +
+          (1 / (s2$n - 1)) * var2_n2^2
+      )
+      
+      bad <- !is.finite(wts_calc) |
+        !is.finite(df_calc) |
+        df_calc <= 0 |
+        !is.finite(dnm) |
+        dnm <= 0
+      
+      wts_calc[bad] <- NA_real_
+      df_calc[bad] <- NA_real_
       
       awts <- abs(wts_calc)
       qN <- qnorm(pt(awts, df_calc))
-      qN[is.infinite(qN)] <- qnorm(0.9999999999999999) 
+      qN[is.infinite(qN)] <- qnorm(0.9999999999999999)
+      qN[!is.finite(qN)] <- NA_real_
+      
       qNs <- qnorm(1 - alpha / 2)
       disEP_calc <- qN / qNs
       
@@ -148,7 +173,13 @@ perLog <- function(X, groups = NULL, p = "auto", alpha = 0.05, R = 1000,
       attempts <- 0
       repeat {
         minA <- min(vapply(seq_along(lev), function(x) {
-          min(colSums(!is.na(LRR[groups == lev[x], gRlri[[x]], drop = FALSE])))
+          idx <- gRlri[[x]]
+          
+          if (length(idx) == 0) {
+            return(Inf)
+          }
+          
+          min(colSums(!is.na(LRR[groups == lev[x], idx, drop = FALSE])))
         }, numeric(1)))
         
         if (minA >= minAR || attempts > 100) break
@@ -286,10 +317,72 @@ perLog <- function(X, groups = NULL, p = "auto", alpha = 0.05, R = 1000,
   
   # Main block
   
-  if (is.vector(X) || nrow(X) == 1) stop("X must be a matrix or data.frame class object")
-  if (any(X == 0, na.rm = TRUE) && !is.null(groups)) stop("User-defined factor set but zero values found in the data set")
-  if (any(X < 0, na.rm = TRUE)) stop("X contains negative values")
-  if (any(is.na(X))) stop("X contains missing values")
+  
+  if (is.null(dim(X)) || nrow(X) < 2 || ncol(X) < 2) {
+    stop("X must be a matrix or data.frame with at least two rows and two columns")
+  }
+  
+  
+  
+  cn0 <- colnames(X)
+  
+  X <- as.data.frame(X)
+  X <- as.data.frame(apply(X, 2, as.numeric))
+  
+  if (!is.null(cn0)) {
+    colnames(X) <- cn0
+  } else {
+    colnames(X) <- NULL
+  }
+  
+  if (any(X < 0, na.rm = TRUE)) {
+    stop("X contains negative values")
+  }
+  
+  if (any(is.na(X))) {
+    stop("X contains missing values")
+  }
+  
+  if (any(rowSums(X, na.rm = TRUE) <= 0)) {
+    stop("At least one row has zero total")
+  }
+  
+  if (any(X == 0, na.rm = TRUE) && !is.null(groups)) {
+    stop("User-defined factor set but zero values found in the data set")
+  }
+  
+  if (!is.null(groups)) {
+    if (length(groups) != nrow(X)) {
+      stop("Length of groups must be equal to the number of rows in X")
+    }
+    
+    if (any(is.na(groups))) {
+      stop("groups contains missing values")
+    }
+  }
+  
+  if (!is.numeric(alpha) || length(alpha) != 1 || is.na(alpha) ||
+      alpha <= 0 || alpha >= 1) {
+    stop("alpha must be a single numeric value in the interval (0, 1)")
+  }
+  
+  if (!is.numeric(R) || length(R) != 1 || is.na(R) ||
+      R < 1 || R != as.integer(R)) {
+    stop("R must be a positive integer")
+  }
+  
+  if (!is.logical(posthoc.g) || length(posthoc.g) != 1 || is.na(posthoc.g)) {
+    stop("posthoc.g must be TRUE or FALSE")
+  }
+  
+  if (!is.logical(posthoc.lr) || length(posthoc.lr) != 1 || is.na(posthoc.lr)) {
+    stop("posthoc.lr must be TRUE or FALSE")
+  }
+  
+  if (!is.character(mAdj) || length(mAdj) != 1 ||
+      !(mAdj %in% p.adjust.methods)) {
+    stop("mAdj must be one of p.adjust.methods")
+  }
   
   groups0 <- groups
   if (is.null(groups0)) {
@@ -300,7 +393,21 @@ perLog <- function(X, groups = NULL, p = "auto", alpha = 0.05, R = 1000,
   
   groups <- as.factor(groups)
   nk <- table(groups)
-  if (p != "auto" && (!is.numeric(p) || p <= 0)) stop("p must be a positive value or left set to 'auto'")
+  
+  if (length(nk) < 2) {
+    stop("At least two groups are required")
+  }
+  
+  if (is.character(p)) {
+    if (length(p) != 1 || p != "auto") {
+      stop("p must be a positive numeric value or 'auto'")
+    }
+  } else {
+    if (!is.numeric(p) || length(p) != 1 || is.na(p) || p <= 0) {
+      stop("p must be a positive numeric value or 'auto'")
+    }
+  }
+  
   
   minnk <- min(nk)
   minAR <- min(minnk, 5)
@@ -361,12 +468,16 @@ perLog <- function(X, groups = NULL, p = "auto", alpha = 0.05, R = 1000,
   disEl <- disElw$disEA
   wts <- disElw$wts
   
+  if (all(is.na(disEl))) {
+    stop("No valid pairwise logratio dissimilarities could be computed")
+  }
+  
   if (p != "auto") {
     disOv <- sum(disEl^p, na.rm = TRUE)
     disOv_Prm <- sapply(disEl_Prm, function(x) sum(x^p, na.rm = TRUE))
     pvalOv <- mean(disOv_Prm >= disOv)
   } else {
-    pp <- c(10, 2:10)
+    pp <- c(10, 2:9)
     nsig10 <- Inf
     nsigp <- -Inf
     ppi <- 1
@@ -404,6 +515,8 @@ perLog <- function(X, groups = NULL, p = "auto", alpha = 0.05, R = 1000,
     print_summary(res)
     stop(paste("No overall difference between groups concluded at significance level alpha =", alpha))
   }
+  
+  class(res) <- "perLog.output"
   
   print_summary(res)
   return(invisible(res))
